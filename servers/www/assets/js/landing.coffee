@@ -2,7 +2,6 @@
 #= require ../vendor/underscore
 #= require ../vendor/backbone
 
-#= require ../bootstrap/js/bootstrap-button
 
 #= require router
 #= require models/plunks
@@ -12,6 +11,9 @@
   _.extend plunker,
     user: new plunker.User
     mediator: _.extend {}, Backbone.Events
+    models: {}
+    collections: {}
+    views: {}
   
       
 )(@plunker or @plunker = {})

@@ -25,11 +25,13 @@ html
             span.icon-bar
 
           a.brand(href="/") Plunker
-            span.version= package.version
+            span.version v#{package.version}
 
           div.nav-collapse
             ul.nav
-              li.active: a(href="/") Landing
+              li.active: a(href="/")
+                i.icon-home
+                | Home
           ul.nav.pull-right.user
             li.divider-vertical
             li.dropdown#userpanel

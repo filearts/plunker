@@ -1,4 +1,4 @@
-plunker
+Plunker
 =======
 
-Plnkr.co front-end and backend
+The next generation of lightweight collaborative online editing.

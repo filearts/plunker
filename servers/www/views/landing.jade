@@ -1,0 +1,41 @@
+pages = { "/documentation": "Documentation", "/about": "About", "/edit": "Editor" }
+
+!!! 5
+html
+  head
+    meta(charset="utf-8")
+    meta(name="viewport",content="width=device-width, initial-scale=1.0")
+    block title
+      title Plunker
+    block styles
+      != css("landing")
+    // if lt IE 9
+      script(src="http://html5shim.googlecode.com/svn/trunk/html5.js")
+    block scripts
+      != js("landing")
+
+
+  body
+    nav.navbar.navbar-fixed-top
+      div.navbar-inner
+        div.container
+          a.btn.btn-navbar(data-toggle="collapse",data-target=".nav-collapse")
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+
+          a.brand(href="/") Plunker
+            span.version= package.version
+
+          div.nav-collapse
+            ul.nav
+              li.active: a(href="/") Landing
+          ul.nav.pull-right.user
+            li.divider-vertical
+            li.dropdown#userpanel
+    div.container
+      block content
+      hr
+      footer
+        p Built by <a href="https://github.com/ggoodman">Geoff Goodman</a> (<a href="http://twitter.com/g_goodman">@g_goodman</a>)
+        p &copy; Filearts (2012) (<a href="http://twitter.com/filearts">@filearts</a>)

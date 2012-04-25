@@ -27,8 +27,10 @@
     "connect-assets": "2.1.x",
     "share": "https://github.com/ggoodman/ShareJS/tarball/master",
     "express-subdomains": "0.0.x",
-    "passport": "0.1.x",
-    "passport-github": "0.1.x",
-    "nconf": "0.5.x"
+    "authom": "0.3.x",
+    "nconf": "0.5.x",
+    "resourceful": "0.1.x",
+    "revalidator": "0.1.x",
+    "request": "2.9.x"
   }
 }

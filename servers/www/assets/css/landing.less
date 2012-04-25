@@ -1,4 +1,18 @@
 @import "../bootstrap/less/bootstrap";
+@import "../bootstrap/less/responsive";
+
+body {
+  padding-top: 50px;
+}
+
+@media (max-width: 979px) {
+  body {
+    padding-top: 0;
+  }
+  .navbar-fixed-top .navbar-inner {
+    padding: 0;
+  }
+}
 
 .navbar {
   .version {
@@ -6,4 +20,8 @@
     vertical-align: bottom;
     color: #999;
   }
+}
+
+#signin {
+  margin-left: 18px;
 }

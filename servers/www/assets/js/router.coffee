@@ -12,8 +12,8 @@
     
     url: (type) ->
       switch type
-        when "api" then "http://plunker.no.de/api/v1"
-        else "http:#{location.protocol}//#{location.host}"
+        when "api" then "#{location.protocol}//#{location.host}/api"
+        else "#{location.protocol}//#{location.host}"
   
       
 )(@plunker or @plunker = {})

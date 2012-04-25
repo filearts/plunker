@@ -1,5 +1,3 @@
-pages = { "/documentation": "Documentation", "/about": "About", "/edit": "Editor" }
-
 !!! 5
 html
   head
@@ -27,14 +25,23 @@ html
           a.brand(href="/") Plunker
             span.version v#{package.version}
 
+          div#userpanel.pull-right
+            div.btn-group
+              button.btn.dropdown-toggle(data-toggle="dropdown")
+                i.icon-user
+                span.text Sign in
+                span.caret
+              ul.dropdown-menu
+                li
+                  a.github(href="/auth/github")
+                    i.icon-github-sign
+                    span Github
+              
           div.nav-collapse
             ul.nav
               li.active: a(href="/")
                 i.icon-home
                 | Home
-          ul.nav.pull-right.user
-            li.divider-vertical
-            li.dropdown#userpanel
     div.container
       block content
       hr

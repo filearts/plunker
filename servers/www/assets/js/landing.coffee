@@ -17,7 +17,9 @@
     models: {}
     collections: {}
     views: {}
-    login: (auth) -> plunker.auth = auth
+    login: (auth) -> if plunker.user then plunker.user.onAuthSuccess(auth) else plunker.auth = auth
+  
+  $.getJSON plunker.router.url("api") + "/auth", plunker.login
   
   # For debugging purposes
   plunker.mediator.on "all", -> console.log "[med]", arguments...

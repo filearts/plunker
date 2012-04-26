@@ -11,8 +11,8 @@ html
       script(src="http://html5shim.googlecode.com/svn/trunk/html5.js")
     block scripts
       != js("landing")
-      script(src="http://plunker.ggoodman.c9.io/api/auth?callback=plunker.login")
-
+      script
+        plunker.router.map(!{JSON.stringify(url)});
 
   body
     nav.navbar.navbar-fixed-top

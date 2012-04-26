@@ -74,6 +74,10 @@ app.get "/auths/github", (req, res, next) ->
         json = _.defaults auth,
           user: user
         
+        console.log "Cookie", "plnkr_token", auth.id, 
+          maxAge: 60 * 60 * 24 * 7 # One week
+          path: app.route or "/"
+        
         res.cookie "plnkr_token", auth.id, 
           maxAge: 60 * 60 * 24 * 7 # One week
           path: app.route or "/"

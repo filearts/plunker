@@ -19,8 +19,7 @@ github = authom.createServer
   id: nconf.get("oauth:github:id")
   secret: nconf.get("oauth:github:secret")
   scope: ["gist"]
-  
-    
+
 ###s
 # Configure the server
 ###
@@ -33,6 +32,7 @@ app.configure ->
   app.use express.session({ secret: "plnkr.co secret key" })
   app.use (req, res, next) ->
     res.local("package", require("../../package"))
+    res.local("url", nconf.get("url"))
     next()
 
   app.set "views", "#{__dirname}/views"

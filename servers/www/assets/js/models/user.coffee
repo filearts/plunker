@@ -1,20 +1,27 @@
 ((plunker) ->
   
+  class Auth extends Backbone.Model
+  
+  class AuthCollection extends Backbone.Collection
+    model: Auth
+
   class plunker.User extends Backbone.Model
     initialize: ->
       self = @
       
+      @auths = new AuthCollection
+      
       plunker.mediator.on "event:auth", (auth) ->
-        console.log "API", plunker.router.url("api") + "/auth/github"
         $.ajax
-          url: plunker.router.url("api") + "/auth/github"
+          url: plunker.router.url("api") + "/auths/github"
           data: { token: auth.token }
-          success: -> console.log "Success", arguments...
-          error: -> console.log "Error", arguments...
+          success: self.onAuthSuccess
+          error: self.onAuthError
       
       plunker.mediator.on "intent:logout", ->
         $.ajax 
-          url: "/logout"
+          url: plunker.router.url("api") + "/auth"
+          type: "DELETE"
           success: -> self.logout()
           error: -> plunker.mediator.trigger "error",
             title: "Error logging out"
@@ -23,6 +30,29 @@
               <p>If the problem persists, please <a href="https://github.com/filearts/plunker/issues/new">file a bug report</a>.</p>
             """
       
+      # Try to login based on cookie
+      @fetch()
+    
+    onAuthSuccess: (json) =>
+      @token = json.id
+      
+      @auths.add
+        id: json.service
+        token: json.service_token
+        user: json.user
+      
+      @login json.user
+    
+    onAuthError: (json) =>
+      plunker.mediator.trigger "error:login", arguments...
+      
+    fetch: ->
+      self = @
+      
+      $.ajax plunker.router.url("api") + "/auth",
+        success: @onAuthSuccess
+    
+    
     login: (json) ->
       @clear(silent: true).set(json)
       plunker.mediator.trigger "event:login", @

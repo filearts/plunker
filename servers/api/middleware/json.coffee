@@ -9,6 +9,7 @@ module.exports.middleware = (config = {}) ->
     req.setEncoding('utf8');
     req.on "data", (chunk) -> buf += chunk
     req.on "end", ->
+      return next() unless buf
       try
         req.body = JSON.parse(buf)
         next()

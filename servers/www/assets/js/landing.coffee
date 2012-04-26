@@ -17,12 +17,14 @@
     models: {}
     collections: {}
     views: {}
+    login: (auth) -> plunker.auth = auth
   
   # For debugging purposes
   plunker.mediator.on "all", -> console.log "[med]", arguments...
   
   $ ->
     plunker.user = new plunker.User
+    plunker.user.onAuthSuccess(plunker.auth) unless _.isEmpty(plunker.auth)
 
     plunker.views.userpanel = new plunker.UserPanel
       el: document.getElementById("userpanel")

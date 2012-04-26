@@ -9,9 +9,9 @@
     template: Handlebars.compile """
       <div class="btn-group">
         {{#if user.id}}
-          <button class="btn dropdown-toggle" data-toggle="dropdown">
+          <button class="user-menu btn dropdown-toggle" data-toggle="dropdown">
             <img class="gravatar" src="http://www.gravatar.com/avatar/{{user.gravatar_id}}?s=20" />
-            {{user.login}}
+            <span class="text">{{user.login}}</span>
             <i class="icon-github-sign" />
             <b class="caret" />
           </button>
@@ -21,7 +21,7 @@
             </li>
           </ul>
         {{else}}
-          <button class="btn dropdown-toggle" data-toggle="dropdown">
+          <button class="user-login btn dropdown-toggle" data-toggle="dropdown">
             <i class="icon-user" />
             <span class="text">Sign in</span>
             <span class="caret"></span>

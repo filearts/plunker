@@ -5,20 +5,9 @@ html
     meta(name="viewport",content="width=device-width, initial-scale=1.0")
     title Plunker - Authorization failed to #{auth.service}
 
-    != css("/bootstrap/less/bootstrap")
-    != js("/vendor/jquery")
-
-    script
-      var auth = !{JSON.stringify(auth)};
-    :coffeescript
-      $ ->
-        if window.opener
-          window.opener.plunker.mediator.trigger("error:auth", auth)
-          window.close()
-
   body
-    div.container-fluid
-      div.row
-        div.span12
-          h1 Failed to authorize to #{auth.service}
-          
+    script
+      if (window.opener) {
+        window.opener.plunker.mediator.trigger("event:auth", !{JSON.stringify(auth)});
+        window.close();
+      }

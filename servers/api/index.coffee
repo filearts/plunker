@@ -22,6 +22,8 @@ app.configure ->
   app.use require("./middleware/json").middleware()
   app.use require("./middleware/auth").middleware(auths: auths)
   app.use require("./middleware/user").middleware(users: users)
+  
+  app.set "jsonp callback", true
 
 
 ###
@@ -30,8 +32,9 @@ app.configure ->
 
 app.get "/auth", (req, res, next) ->
   if req.user then return res.json _.defaults req.auth,
-    user: req.user  
-  res.json { message: "Not found" }, 404
+    user: req.user
+  
+  res.json {}
   
 app.del "/auth", (req, res, next) ->
   auths.del req.cookies.plnkr_token, (err) ->

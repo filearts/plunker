@@ -31,7 +31,7 @@
             """
       
       # Try to login based on cookie
-      @fetch()
+      # @fetch()
     
     onAuthSuccess: (json) =>
       @token = json.id

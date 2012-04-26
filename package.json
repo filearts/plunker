@@ -29,9 +29,7 @@
     "express-subdomains": "0.0.x",
     "authom": "0.3.x",
     "nconf": "0.5.x",
-    "resourceful": "0.1.x",
     "revalidator": "0.1.x",
-    "request": "2.9.x",
-    "lru-cache": "1.1.x"
+    "request": "2.9.x"
   }
 }

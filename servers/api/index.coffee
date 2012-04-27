@@ -1,6 +1,7 @@
 nconf = require("nconf")
 request = require("request")
 express = require("express")
+cors = require("connect-cors")
 _ = require("underscore")._
 
 module.exports = app = express.createServer()
@@ -18,6 +19,7 @@ auths = new Database("/tmp/auths.json")
 
 
 app.configure ->
+  app.use cors()
   app.use express.cookieParser()
   app.use require("./middleware/json").middleware()
   app.use require("./middleware/auth").middleware(auths: auths)

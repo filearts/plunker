@@ -19,14 +19,12 @@
     views: {}
     login: (auth) -> if plunker.user then plunker.user.onAuthSuccess(auth) else plunker.auth = auth
   
-  $.getJSON plunker.router.url("api") + "/auth", plunker.login
-  
   # For debugging purposes
   plunker.mediator.on "all", -> console.log "[med]", arguments...
   
   $ ->
     plunker.user = new plunker.User
-    plunker.user.onAuthSuccess(plunker.auth) unless _.isEmpty(plunker.auth)
+    plunker.user.fetch()
 
     plunker.views.userpanel = new plunker.UserPanel
       el: document.getElementById("userpanel")

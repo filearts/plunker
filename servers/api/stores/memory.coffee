@@ -15,18 +15,17 @@ class module.exports.Database extends events.EventEmitter
       @on "del", @_save
   
   get: (key, cb) ->
-    value = @items[key]
+    value = @items.get(key)
     @emit "get", key, value
     cb(null, value)
   set: (key, value, cb) ->
-    @items[key] = value
-    @emit "set", value
+    @items.set(key, value)
+    @emit "set", key, value
     cb(null, value)
   del: (key, cb) ->
-    value = @items[key]
-    delete @items[key]
-    @emit "del", key, value
-    cb(null, value)
+    @items.del(key)
+    @emit "del", key
+    cb(null)
   
   _save: =>
     self = @
@@ -43,7 +42,7 @@ class module.exports.Database extends events.EventEmitter
     console.info "[INFO] Restoring from: #{@filename}"
     
     fs.readFile @filename, "utf8", (err, data) ->
-      if err then console.error "[ERR] Restore failed from: #{self.filename}"
+      if err then console.error "[ERR] Restore failed from: #{self.filename}; * This is normal for your first run"
       else
         try
           _.extend self.items, JSON.parse(data)

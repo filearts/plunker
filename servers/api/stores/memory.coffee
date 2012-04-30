@@ -1,11 +1,12 @@
 events = require("events")
 fs = require("fs")
+LRU = require("lru-cache")
 _ = require("underscore")._
 
 
 class module.exports.Database extends events.EventEmitter
-  constructor: (@filename) ->
-    @items = {}
+  constructor: (@filename, options = {}) ->
+    @items = LRU(options.maxLength, options.lengthCalculator)
     @_save = _.throttle(@_save, 1000 * 60) # Max once a minute
     
     if @filename

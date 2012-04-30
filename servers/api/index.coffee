@@ -19,7 +19,7 @@ auths = new Database("/tmp/auths.json")
 
 
 app.configure ->
-  app.use require("./middleware/cors").middleware(credentials: true)
+  app.use require("./middleware/cors").middleware()
   app.use express.cookieParser()
   app.use require("./middleware/json").middleware()
   app.use require("./middleware/auth").middleware(auths: auths)

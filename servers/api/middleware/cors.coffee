@@ -1,8 +1,8 @@
-url = require("url")
-
 module.exports.middleware = (config = {}) ->
   (req, res, next) ->
     # Just send the headers all the time. That way we won't miss the right request ;-)
+    # Other CORS middleware just wouldn't work for me
+    # TODO: Minimize these headers to only those needed at the right time
 
     res.header("Access-Control-Allow-Origin", req.headers.origin or "*")
     res.header("Access-Control-Allow-Methods", "OPTIONS,GET,PUT,POST,DELETE")

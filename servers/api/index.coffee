@@ -1,7 +1,7 @@
 nconf = require("nconf")
 request = require("request")
 express = require("express")
-cors = require("connect-cors")
+url = require("url")
 _ = require("underscore")._
 
 module.exports = app = express.createServer()
@@ -12,19 +12,19 @@ genid = (len = 16, prefix = "", keyspace = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghij
 
 
 Database = require("./stores/memory").Database
-    
+
 users = new Database("/tmp/users.json")
 auths = new Database("/tmp/auths.json")
 
 
 
 app.configure ->
-  app.use cors()
+  app.use require("./middleware/cors").middleware(credentials: true)
   app.use express.cookieParser()
   app.use require("./middleware/json").middleware()
   app.use require("./middleware/auth").middleware(auths: auths)
   app.use require("./middleware/user").middleware(users: users)
-  
+
   app.set "jsonp callback", true
 
 
@@ -35,9 +35,9 @@ app.configure ->
 app.get "/auth", (req, res, next) ->
   if req.user then return res.json _.defaults req.auth,
     user: req.user
-  
+
   res.json {}
-  
+
 app.del "/auth", (req, res, next) ->
   auths.del req.cookies.plnkr_token, (err) ->
     return next(err) if err
@@ -46,48 +46,45 @@ app.del "/auth", (req, res, next) ->
 
 app.get "/auths/github", (req, res, next) ->
   return res.next(new require("./errors").MissingArgument("token")) unless req.query.token
-  
+
   if req.user then return res.json _.defaults req.auth,
-    user: req.user  
-  
+    user: req.user
+
   request.get "https://api.github.com/user?access_token=#{req.query.token}", (err, response, body) ->
     return res.next(new require("./errors").Error(err)) if err
-    
+
     try
       body = JSON.parse(body)
     catch e
       return res.next(new require("./errors").InvalidJSON)
-    
+
     return res.next(new require("./errors").Unauthorized(body)) if response.status >= 400
-    
+
     # Create a new authorization
     createAuth = (err, user) ->
       return res.next(err) if err
-      
+
       auth =
         id: "tok-#{genid()}"
         user_key: user_key
         service: "github"
         service_token: req.query.token
-        
+
       auths.set auth.id, auth, (err) ->
         return res.next(err) if err
-      
+
         json = _.defaults auth,
           user: user
-        
-        console.log "Cookie", "plnkr_token", auth.id, 
-          maxAge: 60 * 60 * 24 * 7 # One week
-          path: app.route or "/"
-        
-        res.cookie "plnkr_token", auth.id, 
-          maxAge: 60 * 60 * 24 * 7 # One week
-          path: app.route or "/"
-        res.json json, 201    
-    
+
+        res.cookie "plnkr_token", auth.id,
+          expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7) # One week
+          domain: url.parse(nconf.get("url:api")).host
+          path: if nconf.get("nosubdomains") then app.route else "/"
+        res.json json, 201
+
     # Create user if not exists
     user_key = "github:#{body.id}"
-    
+
     users.get user_key, (err, user) ->
       unless user
         user = body

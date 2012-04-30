@@ -11,6 +11,7 @@ html
       script(src="http://html5shim.googlecode.com/svn/trunk/html5.js")
     block scripts
       != js("landing")
+      script(src="#{url.api}/auth?callback=plunker.login")
       script
         plunker.router.map(!{JSON.stringify(url)});
 
@@ -37,7 +38,7 @@ html
                   a.github(href="/auth/github")
                     i.icon-github-sign
                     span Github
-              
+
           div.nav-collapse
             ul.nav
               li.active: a(href="/")

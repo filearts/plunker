@@ -19,7 +19,7 @@ var nconf = require("nconf").use("memory")
 if (!nconf.get("host")) {
   console.error("The host option is required for Plunker to start");
 } else {
-  
+
   var host = nconf.get("host");
 
   // Configure global paths
@@ -31,14 +31,14 @@ if (!nconf.get("host")) {
     nconf.set("url:www", "http://" + host);
     nconf.set("url:raw", "http://raw." + host);
     nconf.set("url:api", "http://api." + host);
-  }    
-  
+  }
+
   // Create and start the parent server
   express.createServer()
     .use(express.logger())
     .use(require("express-subdomains").use("raw").use("api").middleware)
-    .use(require("./servers/www"))
     .use("/api", require("./servers/api"))
     .use("/raw", require("./servers/raw"))
+    .use(require("./servers/www"))
     .listen(nconf.get("PORT"));
 }

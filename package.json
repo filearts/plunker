@@ -32,7 +32,6 @@
     "revalidator": "0.1.x",
     "request": "2.9.x",
     "connect": "1.x",
-    "lru-cache": "1.1.x",
     "async": "0.1.x"
   }
 }

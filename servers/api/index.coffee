@@ -17,12 +17,9 @@ genid = (len = 16, prefix = "", keyspace = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghij
 
 Database = require("./stores/memory").Database
 
-users = new Database("/tmp/users.json")
-auths = new Database("/tmp/auths.json", {maxLength: 1000}) # TODO: Revisit this arbitrary number
-plunks = new Database("/tmp/plunks.json")
-expiring = new Database
-  maxLength: 1024 * 1024 # 1Mb or so
-  lengthCalculator: (item) -> JSON.stringify(item).length
+users = new Database(filename: "/tmp/users.json")
+auths = new Database(filename: "/tmp/auths.json", maxLength: 1000) # TODO: Revisit this arbitrary number
+plunks = new Database(filename: "/tmp/plunks.json")
 
 
 
@@ -34,7 +31,12 @@ app.configure ->
   app.use require("./middleware/user").middleware(users: users)
   app.use app.router
   app.use (err, req, res, next) ->
-    res.json((if err.toJSON? then err.toJSON() else err), err.code or 500)
+    json = if err.toJSON? then err.toJSON() else
+      message: err.message or "Unknown error"
+      code: err.code or 500
+    
+    
+    res.json(json, json.code)
     
   app.set "jsonp callback", true
 
@@ -99,7 +101,7 @@ app.get "/auths/github", (req, res, next) ->
 
     users.get user_key, (err, user) ->
       unless user
-        user = body
+        user = _.extend body, {user_key}
         users.set user_key, user, createAuth
       else createAuth(null, user)
 
@@ -126,6 +128,9 @@ process =
     # Interface to add a step
     finalize.addStep = (name, step) -> steps.push(step)
     
+    finalize.boundTo = (context) ->
+      (args..., cb) -> finalize.runInContext(context, args..., cb)
+    
     finalize.runInContext = (context, args..., cb) ->
       waterfall = _.map steps, (step) -> _.bind(step, context)
       
@@ -136,11 +141,16 @@ process =
       
     finalize
   
-    
+###
+# Creater
+#
+# Process that takes raw json sent to the RESTful API and creates a plunk in the
+# database if that json validates.
+#
+###
 
 creater = process.create()
 creater.addStep "validate_schema", (json, next) ->
-  console.log "Validating", json
   schema = require("./schema/plunks/create")
   {valid, errors} = revalidator.validate(json, schema)
   
@@ -157,7 +167,7 @@ creater.addStep "validate_schema", (json, next) ->
 
 creater.addStep "plunk_details", (json, next) ->
   
-  if @user then json.user = @user.id
+  if @user.user_key then json.user = @user.user_key
   
   next null, _.defaults json,
     description: ""
@@ -173,18 +183,39 @@ creater.addStep "file_details", (json, next) ->
 
 
 creater.addStep "save", (json, next) ->
+  context = @
+  
   generateUniqueId = (cb) ->
     uid = genid(6)
     
-    plunks.get uid, (err, data) ->
+    context.plunks.get uid, (err, data) ->
       if err then cb(err)
       else if data then generateUniqueId(cb)
       else cb(null, uid)
   
   generateUniqueId (err, id) ->
     if err then cb(err)
-    else plunks.set id, json, (err) -> next(err, id, _.clone(json))    
-    
+    else context.plunks.set id, json, (err) -> next(err, id, _.clone(json))    
+
+
+###
+# Updater
+#
+# Process that takes json from the client and updates an existing plunk if it
+# exists.
+#
+###
+
+
+
+###
+# Preparer
+#
+# Process that takes a plunk as saved in the database and prepares that data
+# to be sent to a RESTful client. This process involves adding fields that
+# are not necessary to save to the database.
+#
+###
 
 preparer = process.create()
 
@@ -200,7 +231,7 @@ preparer.addStep "response_fields", (id, plunk, next) ->
   next(null, plunk)
   
 preparer.addStep "user_details", (plunk, next) ->
-  if plunk.user then users.get plunk.user_id, (err, user) ->
+  if plunk.user then @users.get plunk.user, (err, user) ->
     if err then next(err)
     else if user is null then next(new apiError.InternalError("Unable to fetch user"))
     else next null, _.extend plunk,
@@ -218,14 +249,34 @@ preparer.addStep "index", (plunk, next) ->
   next(null, plunk)
   
 
-app.post "/plunks", (req, res, next) ->
-  creater.runInContext {user: req.user}, req.body, (err, id, plunk) ->
+# List plunks
+app.get "/plunks", (req, res, next) ->
+  pp = Math.max(1, parseInt(req.param("pp", "12"), 10))
+  start = Math.max(0, parseInt(req.param("p", "1"), 10) - 1) * pp
+  end = start + pp
+  
+  iterator = ([id, plunk], next) -> preparer.runInContext({ users: users }, id, plunk, next)
+  
+  plunks.list start, end, (err, list) ->
     if err then next(err)
-    else preparer id, plunk, (err, plunk) ->
+    else async.map list, iterator, (err, list) ->
+      if err then next(err)
+      else res.json(list, 200)
+  
+# Create plunk
+app.post "/plunks", (req, res, next) ->
+  creater.runInContext {user: req.user, plunks: plunks }, req.body, (err, id, plunk) ->
+    if err then next(err)
+    else preparer.runInContext { users: users }, id, plunk, (err, plunk) ->
       if err then next(err)
       else res.json(plunk, 201)
 
-
-app.get "/plunks", (req, res, next) ->
-  
+# Fetch plunk
+app.get "/plunks/:id", (req, res, next) ->
+  plunks.get req.params.id, (err, plunk) ->
+    if err then next(err)
+    else if plunk then preparer.runInContext { users: users }, req.params.id, plunk, (err, plunk) ->
+      if err then next(err)
+      else res.json(plunk, 200)
+    else next(new apiErrors.NotFound)
 

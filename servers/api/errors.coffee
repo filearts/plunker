@@ -7,3 +7,7 @@ module.exports =
     constructor: (@errors) ->
       @code = 422
       @message = "Validation failed"
+  NotFound: class extends Error
+    constructor: ->
+      @code = 404
+      @message = "Not found"

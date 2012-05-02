@@ -29,7 +29,6 @@ app.configure ->
   app.use gzippo.staticGzip("#{__dirname}/static")
   app.use express.cookieParser()
   app.use express.bodyParser()
-  app.use express.session({ secret: "plnkr.co secret key" })
   app.use (req, res, next) ->
     res.local("package", require("../../package"))
     res.local("url", nconf.get("url"))

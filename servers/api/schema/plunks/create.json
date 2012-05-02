@@ -1,0 +1,51 @@
+{
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "default": ""
+    },
+    "index": {
+      "type": "string"
+    },
+    "expires": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": [
+        {
+          "type": "null"
+        }, {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "required": true
+            },
+            "url": {
+              "type": "string",
+              "required": true
+            }
+          }
+        }
+      ]
+    },
+    "files": {
+      "required": true,
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-zA-z0-9_-]+(\\.[a-zA-Z0-9]+)?$": {
+          "type": "object",
+          "properties": {
+            "content": {
+              "type": "string",
+              "required": true
+            }
+          }
+        }
+      }
+    }
+  }
+}

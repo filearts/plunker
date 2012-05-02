@@ -1,3 +1,6 @@
+apiErrors = require("../errors")
+
+
 module.exports.middleware = (config = {}) ->
   (req, res, next) ->
     if "GET" == req.method or "HEAD" == req.method then return next()
@@ -14,5 +17,4 @@ module.exports.middleware = (config = {}) ->
         req.body = JSON.parse(buf)
         next()
       catch err
-        err.status = 400
-        next(err)
+        next(new apiErrors.ParseError())

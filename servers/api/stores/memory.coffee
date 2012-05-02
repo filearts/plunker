@@ -5,7 +5,11 @@ _ = require("underscore")._
 
 
 class module.exports.Database extends events.EventEmitter
-  constructor: (@filename, options = {}) ->
+  constructor: (filename, options = {}) ->
+    if _.isObject(filename) then options = filename
+    else @filename = filename
+    
+    
     @items = LRU(options.maxLength, options.lengthCalculator)
     @_save = _.throttle(@_save, 1000 * 60) # Max once a minute
     

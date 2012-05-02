@@ -39,21 +39,28 @@ class module.exports.Database extends events.EventEmitter
     @_save = _.throttle(@_save, 1000 * 60) # Max once a minute
     
     if @options.filename
-      @_restore()
-      @on "set", @_save
-      @on "del", @_save
+      self = @
+      @_restore -> # We don't want the event handlers to fire until restore is complete
+        self.on "set", self._save
+        self.on "del", self._save
   
   at: (index, cb) -> @get(@keys[index], cb)
   list: (start, end, cb) ->
     self = @
-    cb null, _.map @keys.slice(start, end), (key, value) -> [key, clone(self.items[key])]
+    mapped = _.map @keys.slice(start, end), (key, value) -> [key, clone(self.items[key])]
+    cb null, mapped
+    mapped
   
   get: (key, cb) ->
     value = clone(@items[key])
     @emit "get", key, value
-    cb(null, value)
+    
+    cb(null, value) if cb
+    value
     
   set: (key, value, cb) ->
+    @del(key) # To make sure that the sorted index is property reflected
+    
     index =
       if @options.comparator then _.sortedIndex(@items, value, @options.comparator)
       else @items.length
@@ -62,21 +69,24 @@ class module.exports.Database extends events.EventEmitter
     @keys.splice(index, 0, key)
     
     @emit "set", key, value
-    cb(null, value)
+    
+    cb(null, value) if cb
+    value
     
   del: (key, cb) ->
     delete @items[key]
     
-    if (index = self.keys.indexOf(key)) > 0
+    if (index = @keys.indexOf(key)) > 0
       @keys.splice(index, 1)
-      
-    @emit "del", key
-    cb(null)
+      @emit "del", key
     
-  _sleep: -> JSON.stringify({@keys, @items})
-  _wakeup: (data) -> {@keys, @items} = JSON.parse(data)
+    cb(null) if cb
+    return
+    
+  _sleep: -> JSON.stringify(@items)
+  _wakeup: (data) -> @set(key, value) for key, value of JSON.parse(data)
   
-  _save: =>
+  _save: (cb) =>
     self = @
     
     console.info "[INFO] Writing backup to: #{@options.filename}"
@@ -84,8 +94,10 @@ class module.exports.Database extends events.EventEmitter
     fs.writeFile @options.filename, @_sleep(), (err) ->
       if err then console.error "[ERR] Backup failed to: #{self.options.filename}"
       else console.log "[OK] Backup made to: #{self.options.filename}"
+      
+      cb() if cb
   
-  _restore: =>
+  _restore: (cb) =>
     self = @
     
     console.info "[INFO] Restoring from: #{@options.filename}"
@@ -99,3 +111,5 @@ class module.exports.Database extends events.EventEmitter
           return console.error "[ERR] Restore failed to parse from: #{self.options.filename}"
 
         console.log "[OK] Restore succeeded from: #{self.options.filename}"
+      
+      cb() if cb

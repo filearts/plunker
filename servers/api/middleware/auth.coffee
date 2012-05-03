@@ -1,6 +1,6 @@
 module.exports.middleware = (config = {}) ->
   (req, res, next) ->
-    if req.cookies.plnkr_token then config.auths.get req.cookies.plnkr_token, (err, auth) ->
+    if req.cookies.plnkr_auth then config.auths.get req.cookies.plnkr_auth, (err, auth) ->
       return next(err) if err
       req.auth = auth
       next()

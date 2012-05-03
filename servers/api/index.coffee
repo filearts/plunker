@@ -18,8 +18,10 @@ genid = (len = 16, prefix = "", keyspace = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghij
 Database = require("./stores/memory").Database
 
 users = new Database(filename: "/tmp/users.json")
-auths = new Database(filename: "/tmp/auths.json", maxLength: 1000) # TODO: Revisit this arbitrary number
-plunks = new Database(filename: "/tmp/plunks.json")
+auths = new Database(filename: "/tmp/auths.json")
+plunks = new Database
+  filename: "/tmp/plunks.json"
+  comparator: (item) -> Date.parse(item.updated_at or item.created_at)
 
 
 
@@ -29,8 +31,13 @@ app.configure ->
   app.use require("./middleware/json").middleware()
   app.use require("./middleware/auth").middleware(auths: auths)
   app.use require("./middleware/user").middleware(users: users)
+  app.use require("./middleware/tokens").middleware
+    domain: url.parse(nconf.get("url:api")).host
+    path: if nconf.get("nosubdomains") then app.route else "/"
+    
   app.use app.router
   app.use (err, req, res, next) ->
+    console.log err
     json = if err.toJSON? then err.toJSON() else
       message: err.message or "Unknown error"
       code: err.code or 500
@@ -55,7 +62,9 @@ app.get "/auth", (req, res, next) ->
 app.del "/auth", (req, res, next) ->
   auths.del req.cookies.plnkr_token, (err) ->
     return next(err) if err
-    res.clearCookie("plnkr_token", path: app.path or "/")
+    res.clearCookie "plnkr_auth",
+      domain: url.parse(nconf.get("url:api")).host
+      path: if nconf.get("nosubdomains") then app.route else "/"
     res.send(204)
 
 app.get "/auths/github", (req, res, next) ->
@@ -90,7 +99,7 @@ app.get "/auths/github", (req, res, next) ->
         json = _.defaults auth,
           user: user
 
-        res.cookie "plnkr_token", auth.id,
+        res.cookie "plnkr_auth", auth.id,
           expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7) # One week
           domain: url.parse(nconf.get("url:api")).host
           path: if nconf.get("nosubdomains") then app.route else "/"
@@ -101,7 +110,10 @@ app.get "/auths/github", (req, res, next) ->
 
     users.get user_key, (err, user) ->
       unless user
-        user = _.extend body, {user_key}
+        user = 
+          id: user_key
+          login: body.login
+          gravatar_id: body.gravatar_id
         users.set user_key, user, createAuth
       else createAuth(null, user)
 
@@ -113,141 +125,13 @@ app.get "/auths/github", (req, res, next) ->
 
 async = require("async")
 
-process =
-  create: (context = {}) ->    
-    steps = []
+waterfall = (steps, context = {}) ->
+  (args..., finish) ->
+    stream = _.map steps, (step) -> _.bind(step, context) # Bind to context
+    stream.unshift (next) -> next(null, args...) # Add a starter
     
-    finalize = (args..., cb) ->
-      waterfall = _.map steps, _.identity
-      
-      # Fully apply the arguments supplied to the callback waterfall
-      waterfall.unshift (next) -> next(null, args...)
+    async.waterfall(stream, finish)
 
-      async.waterfall(waterfall, cb)
-    
-    # Interface to add a step
-    finalize.addStep = (name, step) -> steps.push(step)
-    
-    finalize.boundTo = (context) ->
-      (args..., cb) -> finalize.runInContext(context, args..., cb)
-    
-    finalize.runInContext = (context, args..., cb) ->
-      waterfall = _.map steps, (step) -> _.bind(step, context)
-      
-      # Fully apply the arguments supplied to the callback waterfall
-      waterfall.unshift (next) -> next(null, args...)
-
-      async.waterfall(waterfall, cb)
-      
-    finalize
-  
-###
-# Creater
-#
-# Process that takes raw json sent to the RESTful API and creates a plunk in the
-# database if that json validates.
-#
-###
-
-creater = process.create()
-creater.addStep "validate_schema", (json, next) ->
-  schema = require("./schema/plunks/create")
-  {valid, errors} = revalidator.validate(json, schema)
-  
-  # Despite its awesomeness, revalidator does not support disallow or additionalProperties; we need to check plunk.files size
-  if json.files and _.isEmpty(json.files)
-    valid = false
-    errors.push
-      attribute: "minProperties"
-      property: "files"
-      message: "A minimum of one file is required"
-  
-  if valid then next(null, json)
-  else next(new apiErrors.ValidationError(errors))
-
-creater.addStep "plunk_details", (json, next) ->
-  
-  if @user.user_key then json.user = @user.user_key
-  
-  next null, _.defaults json,
-    description: ""
-    created_at: (new Date()).toISOString()
-    
-creater.addStep "file_details", (json, next) ->
-  _.each json.files, (file, filename) ->
-    _.extend file,
-      filename: filename
-      mime: mime.lookup(filename, "text/plain")
-  
-  next(null, json)
-
-
-creater.addStep "save", (json, next) ->
-  context = @
-  
-  generateUniqueId = (cb) ->
-    uid = genid(6)
-    
-    context.plunks.get uid, (err, data) ->
-      if err then cb(err)
-      else if data then generateUniqueId(cb)
-      else cb(null, uid)
-  
-  generateUniqueId (err, id) ->
-    if err then cb(err)
-    else context.plunks.set id, json, (err) -> next(err, id, _.clone(json))    
-
-
-###
-# Updater
-#
-# Process that takes json from the client and updates an existing plunk if it
-# exists.
-#
-###
-
-
-
-###
-# Preparer
-#
-# Process that takes a plunk as saved in the database and prepares that data
-# to be sent to a RESTful client. This process involves adding fields that
-# are not necessary to save to the database.
-#
-###
-
-preparer = process.create()
-
-preparer.addStep "response_fields", (id, plunk, next) ->
-  _.extend plunk,
-    id: id
-    url: nconf.get("url:api") + "/plunks/#{id}"
-    raw_url: nconf.get("url:raw") + "/#{id}"
-    
-  _.map plunk.files, (file, filename) ->
-    file.raw_url = "#{plunk.raw_url}/#{filename}"
-  
-  next(null, plunk)
-  
-preparer.addStep "user_details", (plunk, next) ->
-  if plunk.user then @users.get plunk.user, (err, user) ->
-    if err then next(err)
-    else if user is null then next(new apiError.InternalError("Unable to fetch user"))
-    else next null, _.extend plunk,
-      user: user
-  else next(null, plunk)
-
-preparer.addStep "index", (plunk, next) ->
-  filenames = _.keys(plunk.files)
-  
-  plunk.index ||= 
-    if "index.html" in filenames then "index.html"
-    else if "index.htm" in filenames then "index.htm"
-    else _.find(filenames, ((filename) -> /.html?$/.test(filename))) or filenames[0]
-  
-  next(null, plunk)
-  
 
 # List plunks
 app.get "/plunks", (req, res, next) ->
@@ -255,7 +139,8 @@ app.get "/plunks", (req, res, next) ->
   start = Math.max(0, parseInt(req.param("p", "1"), 10) - 1) * pp
   end = start + pp
   
-  iterator = ([id, plunk], next) -> preparer.runInContext({ users: users }, id, plunk, next)
+  preparer = waterfall require("./chains/plunks/prepare"), user: req.user, users: users, tokens: req.tokens
+  iterator = ([id, plunk], next) -> preparer(id, plunk, next)
   
   plunks.list start, end, (err, list) ->
     if err then next(err)
@@ -265,18 +150,30 @@ app.get "/plunks", (req, res, next) ->
   
 # Create plunk
 app.post "/plunks", (req, res, next) ->
-  creater.runInContext {user: req.user, plunks: plunks }, req.body, (err, id, plunk) ->
+  creater = waterfall require("./chains/plunks/create"), user: req.user, plunks: plunks, tokens: req.tokens
+  preparer = waterfall require("./chains/plunks/prepare"), user: req.user, users: users, tokens: req.tokens
+  responder = waterfall [creater, preparer]
+  
+  responder req.body, (err, plunk) ->
     if err then next(err)
-    else preparer.runInContext { users: users }, id, plunk, (err, plunk) ->
-      if err then next(err)
-      else res.json(plunk, 201)
+    else res.json(plunk, 201)
 
-# Fetch plunk
+# Read plunk
 app.get "/plunks/:id", (req, res, next) ->
+  fetcher = waterfall require("./chains/plunks/fetch"), plunks: plunks
+  preparer = waterfall require("./chains/plunks/prepare"), user: req.user, users: users, tokens: req.tokens
+  responder = waterfall [fetcher, preparer]
+  
+  responder req.body, (err, plunks) ->
+    if err then next(err)
+    else res.json(plunks, 200)
+
+# Delete plunk
+app.del "/plunks/:id", (req, res, next) ->
   plunks.get req.params.id, (err, plunk) ->
     if err then next(err)
-    else if plunk then preparer.runInContext { users: users }, req.params.id, plunk, (err, plunk) ->
+    else unless plunk then next(new apiErrors.NotFound)
+    else unless req.tokens.has(plunk.token) or (req.user and plunk.user == req.user.id) then next(new apiErrors.PermissionDenied)
+    else plunks.del req.params.id, (err) ->
       if err then next(err)
-      else res.json(plunk, 200)
-    else next(new apiErrors.NotFound)
-
+      else res.send(204)

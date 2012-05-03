@@ -41,8 +41,8 @@ class module.exports.Database extends events.EventEmitter
     if @options.filename
       self = @
       @_restore -> # We don't want the event handlers to fire until restore is complete
-        self.on "set", self._save
-        self.on "del", self._save
+        self.on "set", -> self._save()
+        self.on "del", -> self._save()
   
   at: (index, cb) -> @get(@keys[index], cb)
   list: (start, end, cb) ->
@@ -63,7 +63,7 @@ class module.exports.Database extends events.EventEmitter
     
     index =
       if @options.comparator then _.sortedIndex(@items, value, @options.comparator)
-      else @items.length
+      else 0 # Always add items to the front unless the comparator suggests otherwise
     
     @items[key] = clone(value)
     @keys.splice(index, 0, key)
@@ -76,7 +76,7 @@ class module.exports.Database extends events.EventEmitter
   del: (key, cb) ->
     delete @items[key]
     
-    if (index = @keys.indexOf(key)) > 0
+    if (index = @keys.indexOf(key)) >= 0
       @keys.splice(index, 1)
       @emit "del", key
     

@@ -54,3 +54,12 @@ authom.on "error", (req, res, data) ->
 
 app.get "/", (req, res) ->
   res.render "landing"
+
+app.get "/:id", (req, res) ->
+  res.send """
+    <p>I'm afraid you're just going to have to wait for me to implement this. Meanwhile I suggest <a href="http://plunker.no.de">plunker.no.de</a>.</p>
+    <p>You could also take a look at the <a href="#{nconf.get('url:raw')}/#{req.params.id}/"><em>raw</em> version</a>.</p>
+  """, 404
+  
+app.get "*", (req, res) ->
+  res.send "Hello, you've reached the end of the internet. I don't know how you got here, or who told you this place exists, but its not somewhere you should be hanging out.", 404

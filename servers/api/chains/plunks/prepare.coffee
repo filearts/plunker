@@ -18,10 +18,10 @@ preparer.push (id, plunk, next) ->
   _.extend plunk,
     id: id
     url: nconf.get("url:api") + "/plunks/#{id}"
-    raw_url: nconf.get("url:raw") + "/#{id}"
+    raw_url: nconf.get("url:raw") + "/#{id}/" # Trailing slash is important to avoid 302 redirect
     
   _.map plunk.files, (file, filename) ->
-    file.raw_url = "#{plunk.raw_url}/#{filename}"
+    file.raw_url = "#{plunk.raw_url}#{filename}" # raw_url already has trailing slash
   
   # Check tokens
   unless @tokens.has(plunk.token) or (@user and plunk.user == @user.id)

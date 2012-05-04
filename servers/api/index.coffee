@@ -15,14 +15,7 @@ genid = (len = 16, prefix = "", keyspace = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghij
   prefix
 
 
-Database = require("./stores/memory").Database
-
-users = new Database(filename: "/tmp/users.json")
-auths = new Database(filename: "/tmp/auths.json")
-plunks = new Database
-  filename: "/tmp/plunks.json"
-  comparator: (item) -> Date.parse(item.updated_at or item.created_at)
-
+{users, auths, plunks} = require("../../lib/stores")
 
 
 app.configure ->
@@ -176,4 +169,9 @@ app.del "/plunks/:id", (req, res, next) ->
     else unless req.tokens.has(plunk.token) or (req.user and plunk.user == req.user.id) then next(new apiErrors.PermissionDenied)
     else plunks.del req.params.id, (err) ->
       if err then next(err)
-      else res.send(204)
+      else
+        req.tokens.remove(plunk.token)
+        res.send(204)
+
+app.all "*", (req, res, next) ->
+  next new apiErrors.NotFound

@@ -1,6 +1,9 @@
 module.exports.middleware = (config = {}) ->
   (req, res, next) ->
-    if req.cookies.plnkr_auth then config.auths.get req.cookies.plnkr_auth, (err, auth) ->
+    if req.query.auth? then token = req.query.auth
+    else if auth = req.header("Authorization") then [header, token] = auth.match(/^token (\S+)$/i)
+    
+    if token then config.auths.get token, (err, auth) ->
       return next(err) if err
       req.auth = auth
       next()

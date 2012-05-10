@@ -1,7 +1,7 @@
 #= require ../vendor/jquery
+#= require ../vendor/jquery.cookie
 #= require ../vendor/underscore
 #= require ../vendor/backbone
-
 
 ((plunker) ->
   _.extend plunker,
@@ -15,10 +15,9 @@
         url: plunker.router.url("api") + path
         dataType: "json"
         xhrFields: { withCredentials: true }
-        beforeSend: (xhr) -> xhr.withCredentials = true
-    login: (auth) ->
-      if auth then plunker.auth = auth
-      if plunker.user and plunker.auth then plunker.user.onAuthSuccess(plunker.auth)
+        beforeSend: (xhr) ->
+          xhr.setRequestHeader("Authorization", "token #{token}") if token = $.cookie("plnk_auth")
+          #xhr.withCredentials = true # No longer needed *sigh*
 
   # For debugging purposes
   plunker.mediator.on "all", -> console.log "[med]", arguments...

@@ -25,7 +25,7 @@ Handlebars.registerHelper "arrayJoinSpace", (array) ->
 
   $ ->
     plunker.user = new plunker.User
-    plunker.login()
+    plunker.user.fetch()
     
     plunker.collections.plunks = new plunker.PlunkCollection
 

@@ -24,13 +24,10 @@ app.configure ->
   app.use require("./middleware/json").middleware()
   app.use require("./middleware/auth").middleware(auths: auths)
   app.use require("./middleware/user").middleware(users: users)
-  app.use require("./middleware/tokens").middleware
-    domain: url.parse(nconf.get("url:api")).host
-    path: if nconf.get("nosubdomains") then app.route else "/"
+  app.use require("./middleware/token").middleware()
     
   app.use app.router
   app.use (err, req, res, next) ->
-    console.log err
     json = if err.toJSON? then err.toJSON() else
       message: err.message or "Unknown error"
       code: err.code or 500
@@ -53,11 +50,8 @@ app.get "/auth", (req, res, next) ->
   res.json {}
 
 app.del "/auth", (req, res, next) ->
-  auths.del req.cookies.plnkr_token, (err) ->
+  auths.del req.auth.id, (err) ->
     return next(err) if err
-    res.clearCookie "plnkr_auth",
-      domain: url.parse(nconf.get("url:api")).host
-      path: if nconf.get("nosubdomains") then app.route else "/"
     res.send(204)
 
 app.get "/auths/github", (req, res, next) ->
@@ -92,10 +86,6 @@ app.get "/auths/github", (req, res, next) ->
         json = _.defaults auth,
           user: user
 
-        res.cookie "plnkr_auth", auth.id,
-          expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7) # One week
-          domain: url.parse(nconf.get("url:api")).host
-          path: if nconf.get("nosubdomains") then app.route else "/"
         res.json json, 201
 
     # Create user if not exists
@@ -132,7 +122,7 @@ app.get "/plunks", (req, res, next) ->
   start = Math.max(0, parseInt(req.param("p", "1"), 10) - 1) * pp
   end = start + pp
   
-  preparer = waterfall require("./chains/plunks/prepare"), user: req.user, users: users, tokens: req.tokens
+  preparer = waterfall require("./chains/plunks/prepare"), user: req.user, users: users, token: req.token
   iterator = ([id, plunk], next) -> preparer(id, plunk, next)
   
   plunks.list start, end, (err, list) ->
@@ -143,8 +133,8 @@ app.get "/plunks", (req, res, next) ->
   
 # Create plunk
 app.post "/plunks", (req, res, next) ->
-  creater = waterfall require("./chains/plunks/create"), user: req.user, plunks: plunks, tokens: req.tokens
-  preparer = waterfall require("./chains/plunks/prepare"), user: req.user, users: users, tokens: req.tokens
+  creater = waterfall require("./chains/plunks/create"), user: req.user, plunks: plunks, token: req.token
+  preparer = waterfall require("./chains/plunks/prepare"), user: req.user, users: users, token: req.token
   responder = waterfall [creater, preparer]
   
   responder req.body, (err, plunk) ->
@@ -154,7 +144,7 @@ app.post "/plunks", (req, res, next) ->
 # Read plunk
 app.get "/plunks/:id", (req, res, next) ->
   fetcher = waterfall require("./chains/plunks/fetch"), plunks: plunks
-  preparer = waterfall require("./chains/plunks/prepare"), user: req.user, users: users, tokens: req.tokens
+  preparer = waterfall require("./chains/plunks/prepare"), user: req.user, users: users, token: req.token
   responder = waterfall [fetcher, preparer]
   
   responder req.body, (err, plunks) ->
@@ -166,12 +156,10 @@ app.del "/plunks/:id", (req, res, next) ->
   plunks.get req.params.id, (err, plunk) ->
     if err then next(err)
     else unless plunk then next(new apiErrors.NotFound)
-    else unless req.tokens.has(plunk.token) or (req.user and plunk.user == req.user.id) then next(new apiErrors.PermissionDenied)
+    else unless (req.token is plunk.token) or (req.user and plunk.user == req.user.id) then next(new apiErrors.PermissionDenied)
     else plunks.del req.params.id, (err) ->
       if err then next(err)
-      else
-        req.tokens.remove(plunk.token)
-        res.send(204)
+      else res.send(204)
 
 app.all "*", (req, res, next) ->
   next new apiErrors.NotFound

@@ -35,6 +35,9 @@
       return if _.isEmpty(json)
 
       @token = json.id
+      
+      $.cookie "plnk_auth", @token,
+        expires: 7
 
       @auths.add
         id: json.service
@@ -57,6 +60,7 @@
 
     logout: ->
       @clear()
+      $.cookie("plnk_auth", null)
       plunker.mediator.trigger "event:logout"
 
     showLoginWindow: (width = 1000, height = 650) ->

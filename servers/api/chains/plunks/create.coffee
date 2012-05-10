@@ -64,5 +64,4 @@ creater.push (json, next) ->
   generateUniqueId (err, id) ->
     if err then cb(err)
     else context.plunks.set id, json, (err) ->
-      context.tokens.add(json.token) unless err # Add token to bucket
       next(err, id, _.clone(json))

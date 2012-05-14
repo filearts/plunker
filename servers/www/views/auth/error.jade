@@ -8,6 +8,6 @@ html
   body
     script
       if (window.opener) {
-        window.opener.plunker.mediator.trigger("event:auth", !{JSON.stringify(auth)});
+        window.opener.plunker.mediator.trigger("event:auth", auth.service, !{JSON.stringify(auth)});
         window.close();
       }

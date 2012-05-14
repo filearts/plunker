@@ -53,6 +53,7 @@ authom.on "error", (req, res, data) ->
 
 
 app.get "/", (req, res) ->
+  res.local "sessid", req.cookies.plnk_session or ""
   res.render "landing"
 
 app.get "/:id", (req, res) ->

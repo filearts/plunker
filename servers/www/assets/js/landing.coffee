@@ -6,6 +6,7 @@
 
 #= require models/plunks
 #= require models/user
+#= require models/session
 
 #= require views/userpanel
 #= require views/gallery
@@ -24,8 +25,8 @@ Handlebars.registerHelper "arrayJoinSpace", (array) ->
 ((plunker) ->
 
   $ ->
-    plunker.user = new plunker.User
-    plunker.user.fetch()
+    #plunker.user = new plunker.User    
+    #plunker.session = new plunker.Session
     
     plunker.collections.plunks = new plunker.PlunkCollection
 

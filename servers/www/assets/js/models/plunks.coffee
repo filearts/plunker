@@ -4,6 +4,10 @@
     params = _.extend {}, options,
       url: model.url()
       cache: false
+      headers: options.headers or {}
+    
+    if tokens = $.cookie("plnkr_tokens")
+      params.headers["X-Plunker-Tokens"] = "tokens #{tokens}"
 
     switch method
       when "create"
@@ -38,6 +42,9 @@
         # Reset synced state and changes
         self._changes = {}
         self._synced = _.clone(self.attributes)
+      
+      @on "change:token", @onChangeToken
+      @onChangeToken() if @get("token") and @id
 
       # Handle simple changes
       _.each ["description", "index", "expires"], (key) ->
@@ -46,16 +53,26 @@
 
       # Handle changes to files
       @on "change:files", (model, value, options) ->
-        previous = model.previous("files")
+        previous = model.previous("files") or {}
         changes = {}
 
-        delete self.changes.files # Kill the old changes; the whole files hash changes
+        delete self.changes.files if self.changes # Kill the old changes; the whole files hash changes
 
         for filename, file of previous
           unless _.isEqual(file, value[filename])
             changes[filename] = file
 
         self._changes.files = changes unless _.isEmpty(changes)
+    
+    onChangeToken: (model, value, options) =>
+      if @get("token") and @id
+        tokens = {}
+        try
+          tokens = JSON.parse($.cookie("plnk_tokens") || "{}")
+        catch err
+        tokens[@id] = @get("token")
+        
+        $.cookie "plnk_tokens", JSON.stringify(tokens), expires: 14
 
   class plunker.PlunkCollection extends Backbone.Collection
     url: => @get("url") or plunker.router.url("api") + "/plunks"

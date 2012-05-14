@@ -63,5 +63,4 @@ creater.push (json, next) ->
   
   generateUniqueId (err, id) ->
     if err then cb(err)
-    else context.plunks.set id, json, (err) ->
-      next(err, id, _.clone(json))
+    else context.plunks.set id, json, (err) -> next(err, id, _.clone(json))

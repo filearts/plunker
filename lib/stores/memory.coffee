@@ -53,6 +53,7 @@ class module.exports.Database extends events.EventEmitter
   
   get: (key, cb) ->
     value = clone(@items[key])
+    
     @emit "get", key, value
     
     cb(null, value) if cb
@@ -61,11 +62,13 @@ class module.exports.Database extends events.EventEmitter
   set: (key, value, cb) ->
     @del(key) # To make sure that the sorted index is property reflected
     
+    value = clone(value)
+    
     index =
       if @options.comparator then _.sortedIndex(@items, value, @options.comparator)
       else 0 # Always add items to the front unless the comparator suggests otherwise
     
-    @items[key] = clone(value)
+    @items[key] = value
     @keys.splice(index, 0, key)
     
     @emit "set", key, value

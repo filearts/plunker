@@ -24,7 +24,7 @@ preparer.push (id, plunk, next) ->
     file.raw_url = "#{plunk.raw_url}#{filename}" # raw_url already has trailing slash
   
   # Check tokens
-  unless (@session and @session.plunks[plunk.id] == plunk.token) or (@user and plunk.user == @user.id)
+  unless (@session and @session.tokens[plunk.id] == plunk.token) or (@user and plunk.user == @user.id)
     delete plunk.token
   
   next(null, plunk)

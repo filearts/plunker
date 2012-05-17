@@ -23,6 +23,7 @@ app.configure ->
   app.use require("./middleware/cors").middleware()
   app.use require("./middleware/json").middleware()
   app.use require("./middleware/session").middleware(sessions: sessions)
+  #app.use require("./middleware/keychain").middleware(sessions: sessions)
   app.use require("./middleware/user").middleware(users: users)
     
   app.use app.router
@@ -44,8 +45,8 @@ app.configure ->
 createSession = (token, user, cb) ->
   session =
     id: genid(32)
-    plunks: {}
-    token: token
+    tokens: {}
+    oauth_token: token
     
   session.user = user.id if user
   
@@ -57,6 +58,8 @@ createSession = (token, user, cb) ->
 
 # Convenience endpoint to get the current session or create a new one
 app.get "/session", (req, res, next) ->
+  res.header "Cache-Control", "no-cache"
+  
   if req.session then res.redirect(nconf.get("url:api") + "/sessions/#{req.session.id}?#{url.parse(req.url).query}")
   else
     createSession null, null, (err, session) ->
@@ -159,7 +162,7 @@ app.get "/plunks", (req, res, next) ->
   
 # Create plunk
 app.post "/plunks", (req, res, next) ->
-  creater = waterfall require("./chains/plunks/create"), user: req.user, plunks: plunks, session: req.session
+  creater = waterfall require("./chains/plunks/create"), user: req.user, plunks: plunks, session: req.session, sessions: sessions
   preparer = waterfall require("./chains/plunks/prepare"), user: req.user, users: users, session: req.session
   responder = waterfall [creater, preparer]
   
@@ -182,7 +185,7 @@ app.del "/plunks/:id", (req, res, next) ->
   plunks.get req.params.id, (err, plunk) ->
     if err then next(err)
     else unless plunk then next(new apiErrors.NotFound)
-    else unless (req.user and plunk.user == req.user.id) or (req.session and req.session.plunks[plunk.id] == plunk.token) then next(new apiErrors.PermissionDenied)
+    else unless (req.user and plunk.user == req.user.id) or (req.session and req.session.tokens[req.params.id] == plunk.token) then next(new apiErrors.PermissionDenied)
     else plunks.del req.params.id, (err) ->
       if err then next(err)
       else res.send(204)

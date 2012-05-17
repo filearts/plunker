@@ -77,7 +77,7 @@
 
     
     onClickDelete: ->
-      @model.destroy() if confirm "Are you sure that you would like to delete this plunk?"
+      @model.destroy(wait: true) if confirm "Are you sure that you would like to delete this plunk?"
 
 
 
@@ -93,7 +93,7 @@
         self.removeCard({id: id}, coll) for id, card of self.cards
         coll.chain().first(self.size).each (plunk, index) -> self.addCard(plunk, coll, index)
       @collection.on "add", (plunk, coll, options) -> self.addCard(plunk, coll, options.index)
-      @collection.on "destroy remove", (plunk, coll, options) -> self.removeCard(plunk, coll)
+      @collection.on "destroy", (plunk, coll, options) -> self.removeCard(plunk, coll)
 
     addCard: (plunk, coll, index) =>
       console.log "Addcard", arguments...

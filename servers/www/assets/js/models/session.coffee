@@ -54,7 +54,8 @@
     
     start: (json) ->
       @clear(silent: true).set(json)
-      plunker.user.clear().set(json.user)
+      plunker.user.clear()
+      plunker.user.set(json.user) if json.user
       @
     
     upgrade: (service, json) ->
@@ -71,7 +72,7 @@
       if @id then plunker.request
         url: @get("upgrade_url")
         type: "delete"
-        success: -> self.start(json)
+        success: (json) -> self.start(json)
 
 
 

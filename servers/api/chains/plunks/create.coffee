@@ -35,7 +35,7 @@ creater.push (json, next) ->
 
 creater.push (json, next) ->
   if @user and @user.id then json.user = @user.id
-  
+    
   next null, _.defaults json,
     description: ""
     created_at: (new Date()).toISOString()
@@ -64,3 +64,10 @@ creater.push (json, next) ->
   generateUniqueId (err, id) ->
     if err then cb(err)
     else context.plunks.set id, json, (err) -> next(err, id, _.clone(json))
+
+creater.push (id, json, next) ->
+  if @session
+    @session.tokens[id] = json.token
+    @sessions.set @session.id, @session, (err) ->
+      next(err, id, json)
+  else next(null, id, json)

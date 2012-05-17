@@ -7,5 +7,6 @@ module.exports.middleware = (config = {}) ->
       return next(err) if err
       
       req.session = session
+
       next()
     else next()

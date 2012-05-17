@@ -21,7 +21,6 @@ genid = (len = 16, prefix = "", keyspace = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghij
 
 app.configure ->
   app.use require("./middleware/cors").middleware()
-  app.use express.cookieParser()
   app.use require("./middleware/json").middleware()
   app.use require("./middleware/session").middleware(sessions: sessions)
   app.use require("./middleware/user").middleware(users: users)

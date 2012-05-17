@@ -5,8 +5,8 @@ module.exports.middleware = (config = {}) ->
       return next(err) if err
       
       unless user
-        delete req.session
         delete req.user
+        delete req.session.user
       else req.user = user
       
       next()

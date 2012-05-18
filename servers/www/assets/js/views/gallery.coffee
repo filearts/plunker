@@ -4,8 +4,6 @@
 ((plunker) ->
   class Card extends Backbone.View
     initialize: ->
-      console.log "Model", @model
-      
       @model.on "change", @render
       @model.on "sync", @flash("Updated")
       @model.on "error", @flash("Error", "warning")
@@ -96,7 +94,6 @@
       @collection.on "destroy", (plunk, coll, options) -> self.removeCard(plunk, coll)
 
     addCard: (plunk, coll, index) =>
-      console.log "Addcard", arguments...
       return unless plunk
       
       card = new Card(model: plunk)
@@ -111,7 +108,6 @@
       @cards[plunk.id] = card
       
     removeCard: (plunk, coll) =>
-      console.log "Removecard", arguments...
       self = @
       
       card = @cards[plunk.id]

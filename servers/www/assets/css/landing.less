@@ -1,3 +1,5 @@
+@import url(http://fonts.googleapis.com/css?family=Exo:900);
+
 @import "../bootstrap/less/bootstrap";
 @import "../bootstrap/less/responsive";
 
@@ -15,11 +17,35 @@ body {
 }
 
 .navbar {
+  .brand {
+    background: rgba(0,0,0,0.0) url('../img/plunker.png') no-repeat left top;
+    background-size: 40px;
+    font-family: 'Exo', sans-serif;
+    font-size: 24px;
+    padding: 8px 20px 8px 40px;
+    margin-left: -5px;
+  }
   .version {
     font-size: 8px;
     vertical-align: bottom;
     color: #999;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif
   }
+  @media (max-width: 979px) {
+    .brand {
+      margin-left: 5px;
+    }
+  }
+  @media (max-width: 399px) {
+    .brand {
+      width: 0px;
+      text-indent: -9999px;
+    }
+    .version {
+      display: none;
+    }
+  }
+
 }
 
 #userpanel {

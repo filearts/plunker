@@ -1,15 +1,17 @@
-#= require plunker
+#= require ../plunker
 
-#= require ../bootstrap/js/bootstrap-all
+#= require ../../bootstrap/js/bootstrap-all
 
-#= require router
+#= require ../lib/router
 
-#= require models/plunks
-#= require models/user
-#= require models/session
+#= require ../models/sections
+#= require ../models/plunks
+#= require ../models/user
+#= require ../models/session
 
-#= require views/userpanel
-#= require views/gallery
+#= require ../views/navbar
+#= require ../views/userpanel
+#= require ../views/gallery
 
 Handlebars.registerHelper "or", (arg1, arg2) -> arg1 or arg2
 
@@ -25,10 +27,12 @@ Handlebars.registerHelper "arrayJoinSpace", (array) ->
 ((plunker) ->
 
   $ ->
-    #plunker.user = new plunker.User    
-    #plunker.session = new plunker.Session
-    
+    plunker.collections.sections = new plunker.Sections
     plunker.collections.plunks = new plunker.PlunkCollection
+
+    plunker.views.navbar = new plunker.Navbar
+      el: document.getElementById("navbar")
+      collection: plunker.collections.sections
 
     plunker.views.userpanel = new plunker.UserPanel
       el: document.getElementById("userpanel")
@@ -37,6 +41,20 @@ Handlebars.registerHelper "arrayJoinSpace", (array) ->
     plunker.views.gallery = new plunker.Gallery
       el: document.getElementById("gallery")
       collection: plunker.collections.plunks
+      
+    plunker.collections.sections.add
+      title: "Home"
+      url: "/"
+      icon: "icon-home"
+    plunker.collections.sections.add
+      title: "Browse"
+      url: "/browse"
+      icon: "icon-th"
+    plunker.collections.sections.add
+      title: "About"
+      url: "/about"
+      icon: "icon-info-sign"
+      
       
     
     plunker.collections.plunks.fetch()

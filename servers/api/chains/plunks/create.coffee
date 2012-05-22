@@ -1,5 +1,5 @@
 mime = require("mime")
-revalidator = require("revalidator")
+revalidator = require("json-schema")
 _ = require("underscore")._
 
 apiErrors = require("../../errors")

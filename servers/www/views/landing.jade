@@ -10,7 +10,7 @@ html
     // if lt IE 9
       script(src="http://html5shim.googlecode.com/svn/trunk/html5.js")
     block scripts
-      != js("landing")
+      != js("pages/landing")
       script(src="#{url.api}/session?callback=plunker.session.start&sessid=#{sessid}")
       script
         plunker.router.map(!{JSON.stringify(url)});
@@ -40,17 +40,75 @@ html
                     span Github
 
           div.nav-collapse
-            ul.nav
-              li.active: a(href="/")
-                i.icon-home
-                | Home
-    div.container
+            ul#navbar.nav
+
+    div#container.container
       block content
-        section.row
-          div.span12
-            h2 Gallary of recent plunks
-          div.span12
-            ul#gallery.thumbnails
+
+        section#marketing
+          div.marketing
+            h1 Plunker lets you edit, fork and preview web snippets online
+            p.marketing-byline
+              | Try it out. Take any gist url and pop it in the box below.
+              | Alternatively, try out the&nbsp;
+              a(href="/edit") Editor
+              | &nbsp;or join the live&nbsp;
+              a(href="/edit?stream=stream&live=compile") Discussion
+              | .
+
+          div#importer.well
+            form.import-form
+              input.import-source(type="text",placeholder="Gist ID or URL")
+              input.import-submit.btn.btn-large.btn-primary(type="submit", value="Import")
+              p.help-text.
+                Enter a gist id or url in the box above and hit Import. Plunker will
+                attempt to create a plunk from the source given. You will be
+                taken to the editor if the import succeeds.
+
+          div.row
+            div.span3
+              h2 Features
+              ul
+                li: strong Arbitrary number of files
+                li: strong Make internal XHR requests
+                li: a(href="/documentation") RESTful API
+                li: a(href="/edit") Online, multi-file editor
+                li: a(href="#browse") Gallery of recent plunks
+                li: a(href="https://github.com/ajaxorg/ace",target="_blank") ACE editor
+      
+            div.span6
+              h2 What were you thinking?
+              p.
+                There are some pretty amazing services out there already. Why would
+                anyone try and reinvent the wheel <i>again</i>?
+              ol
+                li.
+                  <b>For fun and for profit</b>. OK. Just for fun. And I had a lot of it
+                  learning about node.js, Express and the whole asynchronous js world.
+                li.
+                  <b>Dissatisfaction with existing services</b>. They're good and all
+                  but I wanted to make internal XHR and have tons of files.
+              p.
+                Just go ahead and check out the <a href="/edit">editor</a> and you'll
+                see.
+      
+            div.span3
+              h2 Inspiration
+              ul
+                li: a(href="http://jsFiddle.net",target="_blank") jsFiddle
+                li: a(href="http://jsbin.com",target="_blank") JS Bin
+                li: a(href="http://dabblet.com",target="_blank") Dabblet
+                li: a(href="http://gist.github.com",target="_blank") Github's Gist
+                li: a(href="http://tinker.io",target="_blank") Tinker
+                li: a(href="http://bl.ocks.org/") bl.ocks.org
+
+
+        section#browse
+          div.row
+            div.span12
+              h2 Gallary of recent plunks
+            div.span12
+              ul#gallery.thumbnails
       hr
       footer
         p Built by <a href="https://github.com/ggoodman">Geoff Goodman</a> (<a href="http://twitter.com/g_goodman">@g_goodman</a>)

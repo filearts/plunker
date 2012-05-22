@@ -29,7 +29,7 @@
     "express-subdomains": "0.0.x",
     "authom": "0.3.x",
     "nconf": "0.5.x",
-    "revalidator": "0.1.x",
+    "json-schema": "https://github.com/kriszyp/json-schema/tarball/master",
     "request": "2.9.x",
     "connect": "1.x",
     "async": "0.1.x"

@@ -4,7 +4,6 @@ mime = require("mime")
 express = require("express")
 url = require("url")
 querystring = require("querystring")
-revalidator = require("revalidator")
 _ = require("underscore")._
 
 apiErrors = require("./errors")
@@ -23,18 +22,18 @@ app.configure ->
   app.use require("./middleware/cors").middleware()
   app.use require("./middleware/json").middleware()
   app.use require("./middleware/session").middleware(sessions: sessions)
-  #app.use require("./middleware/keychain").middleware(sessions: sessions)
   app.use require("./middleware/user").middleware(users: users)
     
   app.use app.router
+  
   app.use (err, req, res, next) ->
-    throw err
     json = if err.toJSON? then err.toJSON() else
       message: err.message or "Unknown error"
       code: err.code or 500
     
-    
     res.json(json, json.code)
+    
+    throw err
     
   app.set "jsonp callback", true
 

@@ -56,6 +56,11 @@ app.get "/", (req, res) ->
   res.local "sessid", req.cookies.plnk_session or ""
   res.render "landing"
 
+app.get "/browse", (req, res) ->
+  res.local "sessid", req.cookies.plnk_session or ""
+  res.render "browse"
+
+
 app.get "/:id", (req, res) ->
   res.send """
     <p>I'm afraid you're just going to have to wait for me to implement this. Meanwhile I suggest <a href="http://plunker.no.de">plunker.no.de</a>.</p>

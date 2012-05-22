@@ -14,7 +14,7 @@
     tagName: "li"
     className: "span3 plunk"
 
-    template: """
+    template: Handlebars.compile """
       <div class="thumbnail">
         <h5 class="description" title="{{description}}">{{description}}</h5>
         <a href="{{html_url}}">
@@ -59,8 +59,7 @@
         html_url: plunker.router.url("www") + "/#{json.id}/"
     
     render: =>
-      compiled = Handlebars.compile(@template)
-      @$el.html $(compiled(@viewModel()))
+      @$el.html @template(@viewModel())
       @$(".timeago").timeago()
       @$("img.lazy").lazyload()
       @
@@ -91,7 +90,7 @@
         self.removeCard({id: id}, coll) for id, card of self.cards
         coll.chain().first(self.size).each (plunk, index) -> self.addCard(plunk, coll, index)
       @collection.on "add", (plunk, coll, options) -> self.addCard(plunk, coll, options.index)
-      @collection.on "destroy", (plunk, coll, options) -> self.removeCard(plunk, coll)
+      @collection.on "remove", (plunk, coll, options) -> self.removeCard(plunk, coll)
 
     addCard: (plunk, coll, index) =>
       return unless plunk

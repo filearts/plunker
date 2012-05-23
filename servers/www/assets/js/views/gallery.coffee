@@ -29,21 +29,21 @@
             {{/if}}
             <abbr class="timeago created_at" title="{{or updated_at created_at}}">{{dateToLocaleString updated_at created_at}}</abbr>
             {{#if source}}
-              based on&nbsp;<a href="{{source.url}}" target="_blank">{{source.name}}</a>
+              based on&nbsp;<a class="{{source.type}}" href="{{source.url}}" title="{{source.description}}" target="_blank">{{source.title}}</a>
             {{/if}}
           </p>
         </div>
           <div class="operations">
             <div class="btn-toolbar">
               {{#if token}}
-                <a class="btn btn-mini btn-primary edit" title="Edit in Plunker" href="/edit/{{id}}">
+                <a class="btn btn-mini btn-primary edit" title="Edit in Plunker" href="{{edit_url}}">
                   <i class="icon-pencil icon-white"></i>
                 </a>
                 <button class="btn btn-mini btn-danger delete" title="Delete">
                   <i class="icon-trash icon-white"></i>
                 </button>
               {{else}}
-                <a class="btn btn-mini btn-primary edit" title="Fork and edit in Plunker" href="/edit/{{id}}">
+                <a class="btn btn-mini btn-primary edit" title="Fork and edit in Plunker" href="{{edit_url}}">
                   <i class="icon-pencil icon-white"></i>
                 </a>              
               {{/if}}
@@ -56,7 +56,8 @@
       json = @model.toJSON()
       
       _.extend json,
-        html_url: plunker.router.url("www") + "/#{json.id}/"
+        html_url: @model.getPreviewUrl()
+        edit_url: @model.getEditUrl()
     
     render: =>
       @$el.html @template(@viewModel())

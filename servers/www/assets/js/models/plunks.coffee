@@ -64,6 +64,9 @@
 
         self._changes.files = changes unless _.isEmpty(changes)
     
+    getEditUrl: -> plunker.router.url("www") + "/edit/#{@id}"
+    getPreviewUrl: -> plunker.router.url("www") + "/#{@id}"
+    
     onChangeToken: (model, value, options) =>
       if @get("token") and @id
         tokens = {}

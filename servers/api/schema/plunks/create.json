@@ -19,13 +19,21 @@
         }, {
           "type": "object",
           "properties": {
-            "name": {
+            "type": {
               "type": "string",
-              "required": true
+              "required": true,
+              "enum": [ "plunker", "gist" ]
             },
             "url": {
               "type": "string",
               "required": true
+            },
+            "title": {
+              "type": "string",
+              "required": true
+            },
+            "description": {
+              "type": "string"
             }
           }
         }

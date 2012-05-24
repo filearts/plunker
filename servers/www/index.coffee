@@ -31,6 +31,7 @@ app.configure ->
   app.use express.cookieParser()
   app.use express.bodyParser()
   app.use (req, res, next) ->
+    res.local("sessid", req.cookies.plnk_session or "")
     res.local("package", require("../../package"))
     res.local("url", nconf.get("url"))
     next()
@@ -65,17 +66,13 @@ authom.on "error", (req, res, data) ->
 
 
 app.get "/", (req, res) ->
-  res.local "sessid", req.cookies.plnk_session or ""
   res.render "landing"
 
 app.get "/browse", (req, res) ->
-  res.local "sessid", req.cookies.plnk_session or ""
   res.render "browse"
 
 
 app.get "/:id", (req, res, next) ->
-  res.local "sessid", req.cookies.plnk_session or ""
-  
   request.get nconf.get("url:api") + "/plunks/#{req.params.id}", (err, response, body) ->
     return next(err) if err
     return next(new Error("Not found")) if response.statusCode >= 400

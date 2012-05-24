@@ -3,8 +3,12 @@
 #= require ../../bootstrap/js/bootstrap-all
 #= require ../../vendor/handlebars
 
-
 #= require ../lib/router
+
+#= require ../models/user
+#= require ../models/session
+
+#= require ../views/userpanel
 
 
 Handlebars.registerHelper "or", (arg1, arg2) -> arg1 or arg2
@@ -21,5 +25,9 @@ Handlebars.registerHelper "arrayJoinSpace", (array) ->
 ((plunker) ->
 
   $ ->
+
+    plunker.views.userpanel = new plunker.UserPanel
+      el: document.getElementById("userpanel")
+      model: plunker.user
 
 )(@plunker or @plunker = {})

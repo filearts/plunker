@@ -41,13 +41,27 @@ html
 
           div.nav-collapse
             ul.nav
-              li.preview.active: a(href="#preview") Preview
+              li.preview: a(href="#preview") Preview
               li.code: a(href="#code") Code
               li.divider-vertical
               li.dropdown.operations
                 a.dropdown-toggle(href="javascript:void(0)", data-toggle="dropdown") Operations
                   b.caret
-
-    div#preview
-      iframe#preview-frame(frameborder="0", height="100%", width="100%", src=plunk.raw_url)
-    div#container.container
+    div#pages(class=plunk.files["index.html"] ? "preview" : "code")
+      div.page.preview#preview
+        iframe#preview-frame(frameborder="0", height="100%", width="100%", src=plunk.raw_url)
+      div.page.code#container.container
+        div.page-header
+          h1 Plunk #{plunk.id}
+            |   
+            small=plunk.description || "Untitled"
+        div.row
+          div.span3
+            ul.nav.nav-list
+              li.nav-header Files
+                for file, filename in plunk.files
+                  li: a(href="##{filename}")=filename
+          div.span9
+            for file, filename in plunk.files
+              h2(id=filename)=filename
+              pre.prettyprint.linenums=file.content

@@ -6,6 +6,8 @@
 @import "../components/navbar";
 @import "../components/userpanel";
 
+@import "../vendor/prettify";
+
 body {
   height: 100%;
 }
@@ -22,6 +24,19 @@ body {
     padding: 0;
   }
 }
+
+#pages .page {
+  display: none;
+}
+
+#pages.preview .page.preview {
+  display: block;
+}
+
+#pages.code .page.code {
+  display: block;
+}
+  
 
 #preview {
   position: absolute;

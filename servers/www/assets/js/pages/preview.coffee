@@ -2,7 +2,6 @@
 
 #= require ../../bootstrap/js/bootstrap-all
 #= require ../../vendor/handlebars
-#= require ../../vendor/jquery.autoheight
 
 
 #= require ../lib/router
@@ -22,6 +21,5 @@ Handlebars.registerHelper "arrayJoinSpace", (array) ->
 ((plunker) ->
 
   $ ->
-    $("#preview-frame").iframeAutoHeight();
 
 )(@plunker or @plunker = {})

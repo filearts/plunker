@@ -6,8 +6,12 @@
 #
 ###
 
+apiErrors = require("../../errors")
+
 module.exports = fetcher = []
 
 fetcher.push (id, next) ->
   @plunks.get id, (err, plunk) ->
-    next(err, id, plunk)
+    if err then next(err)
+    else unless plunk then next(new apiErrors.NotFound)
+    else next(err, id, plunk)

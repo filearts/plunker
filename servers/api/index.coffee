@@ -175,7 +175,7 @@ app.get "/plunks/:id", (req, res, next) ->
   preparer = waterfall require("./chains/plunks/prepare"), user: req.user, users: users, session: req.session
   responder = waterfall [fetcher, preparer]
   
-  responder req.body, (err, plunks) ->
+  responder req.params.id, (err, plunks) ->
     if err then next(err)
     else res.json(plunks, 200)
 

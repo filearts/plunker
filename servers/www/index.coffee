@@ -6,6 +6,7 @@ gzippo = require("gzippo")
 assets = require("connect-assets")
 nconf = require("nconf")
 authom = require("authom")
+request = require("request")
 
 module.exports = app = express.createServer()
 
@@ -33,6 +34,17 @@ app.configure ->
     res.local("package", require("../../package"))
     res.local("url", nconf.get("url"))
     next()
+    
+  app.use app.router
+  
+  app.use (err, req, res, next) ->
+    json = if err.toJSON? then err.toJSON() else
+      message: err.message or "Unknown error"
+      code: err.code or 500
+    
+    res.json(json, json.code)
+    
+    throw err
 
   app.set "views", "#{__dirname}/views"
   app.set "view engine", "jade"
@@ -61,11 +73,20 @@ app.get "/browse", (req, res) ->
   res.render "browse"
 
 
-app.get "/:id", (req, res) ->
-  res.send """
-    <p>I'm afraid you're just going to have to wait for me to implement this. Meanwhile I suggest <a href="http://plunker.no.de">plunker.no.de</a>.</p>
-    <p>You could also take a look at the <a href="#{nconf.get('url:raw')}/#{req.params.id}/"><em>raw</em> version</a>.</p>
-  """, 404
+app.get "/:id", (req, res, next) ->
+  res.local "sessid", req.cookies.plnk_session or ""
+  
+  request.get nconf.get("url:api") + "/plunks/#{req.params.id}", (err, response, body) ->
+    return next(err) if err
+    return next(new Error("Not found")) if response.statusCode >= 400
+    
+    try
+      body = JSON.parse(body)
+    catch e
+      return next(new Error("Invalid plunk"))
+    
+    res.local "plunk", body
+    res.render "preview"
   
 app.get "*", (req, res) ->
   res.send "Hello, you've reached the end of the internet. I don't know how you got here, or who told you this place exists, but its not somewhere you should be hanging out.", 404

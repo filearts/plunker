@@ -1,0 +1,19 @@
+!!! 5
+html
+  head
+    title #{plunk.description}
+    style
+
+  body
+    h1 Directory listing
+    h2 Plunk:#{plunk.id}
+      if plunk.description
+        | &nbsp;- #{plunk.description}
+    p.
+      This is an automatically-generated directory listing. You are seeing this
+      because the plunk you are trying to access does not have an 'index.html'.
+    hr
+    ul.files
+      each file, filename in plunk.files
+        li.file
+          a(href="#{file.raw_url}") #{file.filename}

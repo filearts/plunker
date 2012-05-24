@@ -32,7 +32,7 @@ preparer.push (id, plunk, next) ->
 preparer.push (plunk, next) ->
   if plunk.user then @users.get plunk.user, (err, user) ->
     if err then next(err)
-    else if user is null then next(new apiError.InternalError("Unable to fetch user"))
+    else if user is null then next(new apiErrors.InternalError("Unable to fetch user"))
     else next null, _.extend plunk,
       user: user
   else next(null, plunk)

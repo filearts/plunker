@@ -21,7 +21,7 @@
 
   class plunker.Importer extends Backbone.View
     initialize: ->
-      @on "import", (plunk) -> window.location = plunk.getEditUrl()
+      @on "import", (plunk) -> window.location = plunk.getPreviewUrl()
       @on "error", (message) ->
         $("#importer").after $ messageTemplate
           title: "Import failed: #{message}"

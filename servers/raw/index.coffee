@@ -10,7 +10,7 @@ app.configure ->
   app.set "view options", layout: false
 
 
-app.get "/:id/:filename?", (req, res) ->
+app.get "/:id/:filename?", (req, res, next) ->
   request.get nconf.get("url:api") + "/plunks/#{req.params.id}", (err, response, body) ->
     return next(err) if err
     return next(new Error("Not found")) if response.statusCode >= 400

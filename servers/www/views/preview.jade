@@ -4,7 +4,7 @@ html
     meta(charset="utf-8")
     meta(name="viewport",content="width=device-width, initial-scale=1.0")
     block title
-      title Plunker - Browse
+      title Plunker - Preview
     block styles
       != css("pages/preview")
     // if lt IE 9
@@ -13,7 +13,8 @@ html
       != js("pages/preview")
       script(src="#{url.api}/session?callback=plunker.session.start&sessid=#{sessid}")
       script
-        plunker.router.map(!{JSON.stringify(url)});
+        plunker.router.map(!{JSON.stringify(url).replace(/<\//g,"<\\/")});
+        plunk = !{JSON.stringify(plunk).replace(/<\//g,"<\\/")};
 
   body
     nav.navbar.navbar-fixed-top
@@ -47,7 +48,7 @@ html
               li.dropdown.operations
                 a.dropdown-toggle(href="javascript:void(0)", data-toggle="dropdown") Operations
                   b.caret
-    div#pages(class=plunk.files["index.html"] ? "preview" : "code")
+    div#pages
       div.page.preview#preview
         iframe#preview-frame(frameborder="0", height="100%", width="100%", src=plunk.raw_url)
       div.page.code#container.container
@@ -57,11 +58,12 @@ html
             small=plunk.description || "Untitled"
         div.row
           div.span3
-            ul.nav.nav-list
-              li.nav-header Files
-                for file, filename in plunk.files
-                  li: a(href="##{filename}")=filename
-          div.span9
+            div#file-list
+              ul.nav.nav-list
+                li.nav-header Files
+                  for file, filename in plunk.files
+                    li: a(href="##{filename.replace(/[^a-z0-9-]/ig,"-")}")=filename
+          div.span9(data-spy="scroll",data-target="#file-list",data-offset="50")
             for file, filename in plunk.files
-              h2(id=filename)=filename
+              h2(id="#{filename.replace(/[^a-z0-9-]/ig,"-")}")=filename
               pre.prettyprint.linenums=file.content

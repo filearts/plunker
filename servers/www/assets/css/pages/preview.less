@@ -22,6 +22,8 @@ body {
   }
   .navbar-fixed-top .navbar-inner {
     padding: 0;
+    position: relative;
+    z-index: 5;
   }
 }
 
@@ -36,12 +38,13 @@ body {
 #pages.code .page.code {
   display: block;
 }
-  
+
 
 #preview {
   position: absolute;
-  top: 40px;
+  top: 0px;
   left: 0; right: 0; bottom: 0;
+  padding-top: 40px;
   overflow: hidden;
 }
 #preview-frame {

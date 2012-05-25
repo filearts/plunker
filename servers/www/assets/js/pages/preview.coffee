@@ -28,21 +28,13 @@ Handlebars.registerHelper "arrayJoinSpace", (array) ->
   $ ->
     
     changePageTo = (page) ->
-      ->
-        $("#pages").attr("class", page)
-        $(".nav .active").removeClass("active")
-        $(".nav .#{page}").addClass("active")
+      $("#pages").attr("class", page)
+      $(".nav .active").removeClass("active")
+      $(".nav .#{page}").addClass("active")
     
-    plunker.router.route "preview", "preview", changePageTo("preview")
-    plunker.router.route "*filename", "code", changePageTo("code")
-    plunker.router.route "", "blank", ->
-      if page = $("#pages").attr("class")
-        $(".nav .active").removeClass("active")
-        $(".nav .#{page}").addClass("active")
-      else
-        plunker.router.navigate "code",
-          trigger: true
-          replace: true
+    plunker.router.route "*other", "blank", (page) ->
+      if page is "preview" or (not page and plunk.files["index.html"]) then changePageTo("preview")
+      else changePageTo("code")
     
     plunker.views.userpanel = new plunker.UserPanel
       el: document.getElementById("userpanel")
@@ -51,5 +43,6 @@ Handlebars.registerHelper "arrayJoinSpace", (array) ->
     Backbone.history.start()
     
     prettyPrint()
+
 
 )(@plunker or @plunker = {})

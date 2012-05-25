@@ -73,7 +73,7 @@ app.get "/browse", (req, res) ->
 
 
 app.get "/:id", (req, res, next) ->
-  request.get nconf.get("url:api") + "/plunks/#{req.params.id}", (err, response, body) ->
+  request.get nconf.get("url:api") + "/plunks/#{req.params.id}?sessid=#{req.cookies.plnk_session or ''}", (err, response, body) ->
     return next(err) if err
     return next(new Error("Not found")) if response.statusCode >= 400
     

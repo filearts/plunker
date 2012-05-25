@@ -6,9 +6,6 @@
       cache: false
       headers: options.headers or {}
     
-    if tokens = $.cookie("plnkr_tokens")
-      params.headers["X-Plunker-Tokens"] = "tokens #{tokens}"
-
     switch method
       when "create"
         params.type = "post"

@@ -53,7 +53,7 @@
         error: (err) -> plunker.mediator.trigger "error", err
     
     start: (json) ->
-      @clear(silent: true).set(json)
+      @clear(silent: !json).set(json)
       plunker.user.clear()
       plunker.user.set(json.user) if json.user
       @

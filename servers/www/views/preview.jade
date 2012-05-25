@@ -14,7 +14,7 @@ html
       script(src="#{url.api}/session?callback=plunker.session.start&sessid=#{sessid}")
       script
         plunker.router.map(!{JSON.stringify(url).replace(/<\//g,"<\\/")});
-        plunk = !{JSON.stringify(plunk).replace(/<\//g,"<\\/")};
+        plunker.models.plunk = new plunker.Plunk(!{JSON.stringify(plunk).replace(/<\//g,"<\\/")});
 
   body
     nav.navbar.navbar-fixed-top
@@ -48,6 +48,7 @@ html
               li.dropdown.operations
                 a.dropdown-toggle(href="javascript:void(0)", data-toggle="dropdown") Operations
                   b.caret
+                ul#operations.dropdown-menu
     div#pages
       div.page.preview#preview
         iframe#preview-frame(frameborder="0", height="100%", width="100%", src=plunk.raw_url)

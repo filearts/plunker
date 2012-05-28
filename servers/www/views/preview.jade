@@ -52,8 +52,8 @@ html
     div#pages
       div.page.preview#preview
         iframe#preview-frame(frameborder="0", height="100%", width="100%", src=plunk.raw_url)
-      div.page.code#container.container
-        div.page-header
+      div#container.page.code.container
+        div#code.page-header
           h1 Plunk #{plunk.id}
             |   
             small=plunk.description || "Untitled"

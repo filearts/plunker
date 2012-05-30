@@ -15,14 +15,13 @@ genid = (len = 16, prefix = "", keyspace = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghij
   prefix
 
 
-{users, auths, plunks, sessions} = require("../../lib/stores")
+mongoose = require("../../lib/stores/mongoose")
 
 
 app.configure ->
   app.use require("./middleware/cors").middleware()
   app.use require("./middleware/json").middleware()
-  app.use require("./middleware/session").middleware(sessions: sessions)
-  app.use require("./middleware/user").middleware(users: users)
+  app.use require("./middleware/session").middleware(sessions: mongoose.model("Session"))
     
   app.use app.router
   
@@ -41,29 +40,24 @@ app.configure ->
 # RESTful sessions
 ###
 
-createSession = (token, user, cb) ->
-  session =
-    id: genid(32)
-    tokens: {}
-    oauth_token: token
-    
-  session.user = user.id if user
-  
-  session.url = nconf.get("url:api") + "/sessions/#{session.id}"
-  session.upgrade_url = "#{session.url}/upgrade"
+Session = mongoose.model("Session")
 
-  sessions.set session.id, session, (err) ->
-    cb(err, session)
+createSession = (token, user, cb) ->
+  session = new Session
+    
+  session.user = user if user
+  
+  session.save (err) -> cb(err, session)
 
 # Convenience endpoint to get the current session or create a new one
 app.get "/session", (req, res, next) ->
   res.header "Cache-Control", "no-cache"
   
-  if req.session then res.redirect(nconf.get("url:api") + "/sessions/#{req.session.id}?#{url.parse(req.url).query}")
+  if req.session then res.redirect("#{req.session.url}?#{url.parse(req.url).query}")
   else
     createSession null, null, (err, session) ->
       if err then next(err)
-      else res.redirect(nconf.get("url:api") + "/sessions/#{session.id}?#{url.parse(req.url).query}")
+      else res.redirect("#{session.url}?#{url.parse(req.url).query}")
 
 
 app.post "/sessions", (req, res, next) ->
@@ -72,17 +66,58 @@ app.post "/sessions", (req, res, next) ->
     else res.json(session, 201)
 
 app.get "/sessions/:id", (req, res, next) ->
-  sessions.get req.params.id, (err, session) ->
+  Session.findById(req.params.id).populate("user").run (err, session) ->
     if err then next(err)
     else unless session then next(new apiErrors.NotFound)
     else
-      unless session.user then res.json(session)
-      else users.get session.user, (err, user) ->
+      unless session.user then res.json(session.toJSON())
+      else User.findById session.user, (err, user) ->
         if err then next(err)
-        else res.json(_.extend(session, user: user))
+        else res.json(_.extend(session, user: user.toJSON()))
+
+app.post "/users", (req, res, next) ->
+  unless token = req.param("token") then return next(new apiErrors.MissingArgument("token"))
+  unless service = req.param("service") then return next(new apiErrors.MissingArgument("service"))
+  
+  unless service is "github" then return next(new apiErrors.NotFound)
+  
+  # I know this is a redundant check
+  if service is "github" then request.get "https://api.github.com/user?access_token=#{token}", (err, response, body) ->
+    return next(new apiErrors.Error(err)) if err
+    return next(new apiErrors.PermissionDenied) if response.status >= 400
+
+    try
+      body = JSON.parse(body)
+    catch e
+      return next(new apiErrors.ParseError)
+
+    # Create a new authorization
+    upgradeSession = (err, user) ->
+      if err then next(err)
+      else sessions.get sessid, (err, session) ->
+        if err then next(err)
+        else sessions.set req.param("id"), _.extend(session, {user: user.id, token: token}), (err) ->
+          if err then next(err)
+          else res.json(_.extend(session, user: user), 201)
+          
+    Auth
+      .findOne({service: "github", service_id: body.id})
+      .populate("user")
+      .run (err, auth) ->
+        if err then next(err)
+        else unless auth.user
+          user = new User
+            login: body.login
+            gravatar_id: body.gravatar_id
+          
+          user.auths.push(auth)
+          user.save (err) ->
+            upgradeSession(err, user)
+        else upgradeSession(null, user)
+
 
 app.del "/sessions/:id/upgrade", (req, res, next) ->
-  sessions.get req.params.id, (err, session) ->
+  Session.findById req.params.id, (err, session) ->
     if err then next(err)
     else unless session and session.user then next(new apiErrors.NotFound)
     else
@@ -114,19 +149,21 @@ app.post "/sessions/:id/upgrade", (req, res, next) ->
           else sessions.set req.param("id"), _.extend(session, {user: user.id, token: token}), (err) ->
             if err then next(err)
             else res.json(_.extend(session, user: user), 201)
-  
-      # Create user if not exists
-      user_key = "github:#{body.id}"
-  
-      users.get user_key, (err, user) ->
-        if err then next(err)
-        else unless user
-          user = 
-            id: user_key
-            login: body.login
-            gravatar_id: body.gravatar_id
-          users.set user_key, user, upgradeSession
-        else upgradeSession(null, user)
+            
+      Auth
+        .findOne({service: "github", service_id: body.id})
+        .populate("user")
+        .run (err, auth) ->
+          if err then next(err)
+          else unless auth.user
+            user = new User
+              login: body.login
+              gravatar_id: body.gravatar_id
+            
+            user.auths.push(auth)
+            user.save (err) ->
+              upgradeSession(err, user)
+          else upgradeSession(null, user)
 
 
 

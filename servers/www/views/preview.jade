@@ -42,8 +42,16 @@ html
 
           div.nav-collapse
             ul.nav
-              li.preview: a(href="#preview") Preview
-              li.code: a(href="#code") Code
+              li.preview: a(href="#preview")
+                i.icon-play
+                | Preview
+              li.code: a(href="#code")
+                i.icon-book
+                | Code
+              li.divider-vertical
+              li.fullscreen: a(href="#{plunk.raw_url}")
+                i.icon-resize-full
+                | Fullscreen
               li.divider-vertical
               li.dropdown.operations
                 a.dropdown-toggle(href="javascript:void(0)", data-toggle="dropdown") Operations

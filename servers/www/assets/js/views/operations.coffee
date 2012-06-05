@@ -32,11 +32,21 @@
       {{/if}}
     """
       
+    events:
+      "click .edit": "onClickEdit"
+      "click .delete": "onClickDelete"
     
     initialize: ->
       @model.on "change", @render
+      @model.on "destroy", ->
+        window.location = plunker.router.url("www")
       
       @render()
+    
+    onClickEdit: (e) =>
+      
+    onClickDelete: (e) =>
+      @model.destroy(wait: true) if confirm "Are you sure that you would like to delete this plunk?"
 
     viewModel: ->
       user: plunker.user.toJSON()      

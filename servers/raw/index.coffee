@@ -1,6 +1,7 @@
 express = require("express")
 request = require("request")
 nconf = require("nconf")
+url = require("url")
 
 module.exports = app = express.createServer()
 
@@ -10,7 +11,13 @@ app.configure ->
   app.set "view options", layout: false
 
 
+
 app.get "/:id/:filename?", (req, res, next) ->
+  req_url = url.parse(req.url)
+  unless req.params.filename or /\/$/.test(req_url.pathname)
+    req_url.pathname += "/"
+    return res.redirect(url.format(req_url), 301)
+  
   request.get nconf.get("url:api") + "/plunks/#{req.params.id}", (err, response, body) ->
     return next(err) if err
     return next(new Error("Not found")) if response.statusCode >= 400

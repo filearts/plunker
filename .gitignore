@@ -12,5 +12,7 @@ logs
 results
 tests
 
+config.json
+
 node_modules
 npm-debug.log

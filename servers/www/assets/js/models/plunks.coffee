@@ -40,9 +40,6 @@
         self._changes = {}
         self._synced = _.clone(self.attributes)
       
-      @on "change:token", @onChangeToken
-      @onChangeToken() if @get("token") and @id
-
       # Handle simple changes
       _.each ["description", "index", "expires"], (key) ->
         self.on "change:#{key}", (model, value, options) ->
@@ -63,16 +60,7 @@
     
     getEditUrl: -> plunker.router.url("www") + "/edit/#{@id}"
     getPreviewUrl: -> plunker.router.url("www") + "/#{@id}"
-    
-    onChangeToken: (model, value, options) =>
-      if @get("token") and @id
-        tokens = {}
-        try
-          tokens = JSON.parse($.cookie("plnk_tokens") || "{}")
-        catch err
-        tokens[@id] = @get("token")
-        
-        $.cookie "plnk_tokens", JSON.stringify(tokens), expires: 14
+
 
   class plunker.PlunkCollection extends Backbone.Collection
     url: => @get("url") or plunker.router.url("api") + "/plunks"

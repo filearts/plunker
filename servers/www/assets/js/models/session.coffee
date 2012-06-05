@@ -61,7 +61,7 @@
     upgrade: (service, json) ->
       self = @
       if @id then plunker.request
-        url: @get("upgrade_url")
+        url: @get("user_url")
         type: "post"
         data: { service: service, token: json.token }
         dataType: "json"
@@ -70,7 +70,7 @@
     downgrade: (service, json) ->
       self = @
       if @id then plunker.request
-        url: @get("upgrade_url")
+        url: @get("user_url")
         type: "delete"
         success: (json) -> self.start(json)
 

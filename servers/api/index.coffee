@@ -5,10 +5,13 @@ express = require("express")
 url = require("url")
 querystring = require("querystring")
 _ = require("underscore")._
+validator = require("json-schema")
+mime = require("mime")
 
 apiErrors = require("./errors")
 
 module.exports = app = express.createServer()
+
 
 genid = (len = 16, prefix = "", keyspace = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789") ->
   prefix += keyspace.charAt(Math.floor(Math.random() * keyspace.length)) while len-- > 0
@@ -17,6 +20,9 @@ genid = (len = 16, prefix = "", keyspace = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghij
 
 mongoose = require("../../lib/stores/mongoose")
 
+Session = mongoose.model("Session")
+User = mongoose.model("User")
+Plunk = mongoose.model("Plunk")
 
 app.configure ->
   app.use require("./middleware/cors").middleware()
@@ -40,10 +46,11 @@ app.configure ->
 # RESTful sessions
 ###
 
-Session = mongoose.model("Session")
 
 createSession = (token, user, cb) ->
   session = new Session
+    last_access: new Date
+    keychain: {}
     
   session.user = user if user
   
@@ -53,11 +60,10 @@ createSession = (token, user, cb) ->
 app.get "/session", (req, res, next) ->
   res.header "Cache-Control", "no-cache"
   
-  if req.session then res.redirect("#{req.session.url}?#{url.parse(req.url).query}")
-  else
-    createSession null, null, (err, session) ->
-      if err then next(err)
-      else res.redirect("#{session.url}?#{url.parse(req.url).query}")
+  if req.session then res.json(req.session)
+  else createSession null, null, (err, session) ->
+    if err then next(err)
+    else res.json(session, 201)
 
 
 app.post "/sessions", (req, res, next) ->
@@ -75,95 +81,61 @@ app.get "/sessions/:id", (req, res, next) ->
         if err then next(err)
         else res.json(_.extend(session, user: user.toJSON()))
 
-app.post "/users", (req, res, next) ->
-  unless token = req.param("token") then return next(new apiErrors.MissingArgument("token"))
-  unless service = req.param("service") then return next(new apiErrors.MissingArgument("service"))
-  
-  unless service is "github" then return next(new apiErrors.NotFound)
-  
-  # I know this is a redundant check
-  if service is "github" then request.get "https://api.github.com/user?access_token=#{token}", (err, response, body) ->
-    return next(new apiErrors.Error(err)) if err
-    return next(new apiErrors.PermissionDenied) if response.status >= 400
-
-    try
-      body = JSON.parse(body)
-    catch e
-      return next(new apiErrors.ParseError)
-
-    # Create a new authorization
-    upgradeSession = (err, user) ->
-      if err then next(err)
-      else sessions.get sessid, (err, session) ->
-        if err then next(err)
-        else sessions.set req.param("id"), _.extend(session, {user: user.id, token: token}), (err) ->
-          if err then next(err)
-          else res.json(_.extend(session, user: user), 201)
-          
-    Auth
-      .findOne({service: "github", service_id: body.id})
-      .populate("user")
-      .run (err, auth) ->
-        if err then next(err)
-        else unless auth.user
-          user = new User
-            login: body.login
-            gravatar_id: body.gravatar_id
-          
-          user.auths.push(auth)
-          user.save (err) ->
-            upgradeSession(err, user)
-        else upgradeSession(null, user)
 
 
-app.del "/sessions/:id/upgrade", (req, res, next) ->
+app.del "/sessions/:id/user", (req, res, next) ->
   Session.findById req.params.id, (err, session) ->
     if err then next(err)
     else unless session and session.user then next(new apiErrors.NotFound)
     else
-      delete session.user
+      session.user = null
       
-      sessions.set session.id, session, (err) ->
+      session.save (err) ->
         if err then next(err)
         else res.json(session)
 
-app.post "/sessions/:id/upgrade", (req, res, next) ->
-  unless token = req.param("token") then next(new apiErrors.MissingArgument("token"))
-  else
-    sessid = req.param("id")
-    
-    request.get "https://api.github.com/user?access_token=#{token}", (err, response, body) ->
-      return next(new apiErrors.Error(err)) if err
-      return next(new apiErrors.PermissionDenied) if response.status >= 400
-  
-      try
-        body = JSON.parse(body)
-      catch e
-        return next(new apiErrors.ParseError)
-  
-      # Create a new authorization
-      upgradeSession = (err, user) ->
-        if err then next(err)
-        else sessions.get sessid, (err, session) ->
-          if err then next(err)
-          else sessions.set req.param("id"), _.extend(session, {user: user.id, token: token}), (err) ->
-            if err then next(err)
-            else res.json(_.extend(session, user: user), 201)
-            
-      Auth
-        .findOne({service: "github", service_id: body.id})
-        .populate("user")
-        .run (err, auth) ->
-          if err then next(err)
-          else unless auth.user
-            user = new User
+app.post "/sessions/:id/user", (req, res, next) ->
+  Session.findById req.params.id, (err, session) ->
+    if err then next(new apiErrors.NotFound)
+    else
+      unless token = req.param("token") then next(new apiErrors.MissingArgument("token"))
+      else
+        sessid = req.param("id")
+        
+        request.get "https://api.github.com/user?access_token=#{token}", (err, response, body) ->
+          return next(new apiErrors.Error(err)) if err
+          return next(new apiErrors.PermissionDenied) if response.status >= 400
+      
+          try
+            body = JSON.parse(body)
+          catch e
+            return next(new apiErrors.ParseError)
+          
+          service_id = "github:#{body.id}"
+          
+          createUser = (cb) ->
+            user_json =
               login: body.login
               gravatar_id: body.gravatar_id
-            
-            user.auths.push(auth)
-            user.save (err) ->
-              upgradeSession(err, user)
-          else upgradeSession(null, user)
+              service_id: service_id
+              
+            User.create(user_json, cb)
+          
+          withUser = (err, user) ->
+            if err then next(err)
+            else
+              session.user = user
+              session.auth =
+                service_name: "github"
+                service_token: token
+              session.save (err) ->
+                if err then next(err)
+                else res.json(_.extend(session.toJSON(), user: user.toJSON()), 201)
+              
+          User.findOne { service_id: service_id }, (err, user) ->
+            unless err or not user then withUser(null, user)
+            else createUser(withUser)
+
 
 
 
@@ -171,14 +143,25 @@ app.post "/sessions/:id/upgrade", (req, res, next) ->
 # Plunks
 ###
 
-async = require("async")
+preparePlunk = (session, json) ->
+  owner = false
+  
+  if session
+    owner ||= !!(json.user and session.user and json.user.login is session.user.login)
+    owner ||= !!(session.keychain and session.keychain.id(json.id)?.token is json.token)
+  
+  delete json.token unless owner
+  
+  json.files = do ->
+    files = {}
+    for file in json.files
+      file.raw_url = "#{json.raw_url}#{file.filename}"
+      files[file.filename] = file
+    files
+  
+  json
 
-waterfall = (steps, context = {}) ->
-  (args..., finish) ->
-    stream = _.map steps, (step) -> _.bind(step, context) # Bind to context
-    stream.unshift (next) -> next(null, args...) # Add a starter
-    
-    async.waterfall(stream, finish)
+preparePlunks = (session, plunks) -> _.map plunks, (plunk) -> preparePlunk(session, plunk.toJSON())
 
 
 # List plunks
@@ -187,44 +170,65 @@ app.get "/plunks", (req, res, next) ->
   start = Math.max(0, parseInt(req.param("p", "1"), 10) - 1) * pp
   end = start + pp
   
-  preparer = waterfall require("./chains/plunks/prepare"), user: req.user, users: users, session: req.session
-  iterator = ([id, plunk], next) -> preparer(id, plunk, next)
-  
-  plunks.list start, end, (err, list) ->
+  Plunk.find({}).sort("updated_at", -1).limit(pp).skip(start).populate("user").run (err, plunks) ->
     if err then next(err)
-    else async.map list, iterator, (err, list) ->
-      if err then next(err)
-      else res.json(list, 200)
+    else res.json(preparePlunks(req.session, plunks))
   
 # Create plunk
 app.post "/plunks", (req, res, next) ->
-  creater = waterfall require("./chains/plunks/create"), user: req.user, plunks: plunks, session: req.session, sessions: sessions
-  preparer = waterfall require("./chains/plunks/prepare"), user: req.user, users: users, session: req.session
-  responder = waterfall [creater, preparer]
+  json = req.body
+  schema = require("./schema/plunks/create")
+  {valid, errors} = validator.validate(json, schema)
   
-  responder req.body, (err, plunk) ->
-    if err then next(err)
-    else res.json(plunk, 201)
+  # Despite its awesomeness, revalidator does not support disallow or additionalProperties; we need to check plunk.files size
+  if json.files and _.isEmpty(json.files)
+    valid = false
+    errors.push
+      attribute: "minProperties"
+      property: "files"
+      message: "A minimum of one file is required"
+  
+  unless valid then next(new apiErrors.ValidationError(errors))
+  else
+    
+    json.user = req.user if req.user
+    
+    json.files = _.map json.files, (file, filename) ->
+      filename: filename
+      content: file.content
+      mime: mime.lookup(filename, "text/plain")
+    
+    
+    # TODO: This is inefficient as the number space fills up; consider: http://www.faqs.org/patents/app/20090063601
+    # Keep generating new ids until not taken
+    savePlunk = ->
+      json._id = genid(6)
+    
+      Plunk.create json, (err, plunk) ->
+        if err
+          if err.code is 11000 then savePlunk()
+          else next(err)
+        else
+          unless req.user
+            req.session.keychain.push _id: plunk._id, token: plunk.token
+            req.session.save()
+          res.json(preparePlunk(req.session, plunk.toJSON()), 201)
+          
+    savePlunk()
 
 # Read plunk
 app.get "/plunks/:id", (req, res, next) ->
-  fetcher = waterfall require("./chains/plunks/fetch"), plunks: plunks
-  preparer = waterfall require("./chains/plunks/prepare"), user: req.user, users: users, session: req.session
-  responder = waterfall [fetcher, preparer]
-  
-  responder req.params.id, (err, plunks) ->
-    if err then next(err)
-    else res.json(plunks, 200)
+  Plunk.findById(req.params.id).populate("user").run (err, plunk) ->
+    if err or not plunk then next(new apiErrors.NotFound)
+    else res.json(preparePlunk(req.session, plunk.toJSON()))
 
 # Delete plunk
 app.del "/plunks/:id", (req, res, next) ->
-  plunks.get req.params.id, (err, plunk) ->
-    if err then next(err)
-    else unless plunk then next(new apiErrors.NotFound)
-    else unless (req.user and plunk.user == req.user.id) or (req.session and req.session.tokens[req.params.id] == plunk.token) then next(new apiErrors.PermissionDenied)
-    else plunks.del req.params.id, (err) ->
-      if err then next(err)
-      else res.send(204)
+  Plunk.findById(req.params.id).populate("user").run (err, plunk) ->
+    if err or not plunk then next(new apiErrors.NotFound)
+    else unless preparePlunk(req.session, plunk.toJSON()).token then next(new apiErrors.NotFound)
+    else plunk.remove ->
+      res.send(204)
 
 app.all "*", (req, res, next) ->
   next new apiErrors.NotFound

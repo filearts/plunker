@@ -3,18 +3,12 @@ var coffee = require("coffee-script");
 var express = require("express");
 
 var nconf = require("nconf").use("memory")
-  .argv({
-    "nosubdomains": {
-      "boolean": true
-    }
-  })
+  .argv()
   .env()
   .file({file: "config.json"})
   .defaults({
-    "PORT": 8080,
-    "nosubdomain": false
+    "PORT": 8080
   });
-
 
 if (!nconf.get("host")) {
   console.error("The host option is required for Plunker to start");
@@ -23,7 +17,7 @@ if (!nconf.get("host")) {
   var host = nconf.get("host");
 
   // Configure global paths
-  if (nconf.get("nosubdomains") === true) {
+  if (nconf.get("nosubdomains")) {
     nconf.set("url:www", "http://" + host);
     nconf.set("url:raw", "http://" + host + "/raw");
     nconf.set("url:api", "http://" + host + "/api");

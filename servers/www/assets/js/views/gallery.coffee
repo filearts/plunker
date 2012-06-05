@@ -47,6 +47,9 @@
                   <i class="icon-pencil icon-white"></i>
                 </a>              
               {{/if}}
+              <a class="btn btn-mini btn-info raw" title="Run the plunk full-screen" href="{{raw_url}}">
+                <i class="icon-resize-full"></i>
+              </a>
             </div>
           </div>
       </div>

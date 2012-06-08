@@ -45,8 +45,12 @@ SessionSchema = new Schema
 
 SessionSchema.virtual("url").get -> nconf.get("url:api") + "/sessions/#{@_id}"
 SessionSchema.virtual("user_url").get -> nconf.get("url:api") + "/sessions/#{@_id}/user"
+SessionSchema.virtual("age").get -> Date.now() - @last_access
 
 SessionSchema.plugin(lastModified)
+
+SessionSchema.statics.prune = (max_age = 1000 * 60 * 60 * 24 * 7 * 2, cb = ->) ->
+  @find({}).where("last_access").lt(new Date(Date.now() - max_age)).remove()
 
 mongoose.model "Session", SessionSchema
 

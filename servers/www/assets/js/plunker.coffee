@@ -2,9 +2,13 @@
 #= require ../vendor/jquery.cookie
 #= require ../vendor/underscore
 #= require ../vendor/backbone
+#= require ../vendor/page
+
+#= require lib/router
 
 #= require models/user
 #= require models/session
+
 
 ((plunker) ->
   _.extend plunker,
@@ -12,6 +16,7 @@
     models: {}
     collections: {}
     views: {}
+    router: new plunker.Router
     request: (path, options = {}) ->
       if _.isObject(path) and _.isEmpty(options)
         options = path
@@ -31,6 +36,11 @@
   
   plunker.user = new plunker.User
   plunker.session = new plunker.Session
+  
+  plunker.bootstrap = (options = {}) ->
+    plunker.session.start(options.session) if options.session
+    plunker.router.map(options.url) if options.url
+    plunker.models.plunk = options.plunk if options.plunk
 
   # For debugging purposes
   plunker.mediator.on "all", -> console.log "[med]", arguments...

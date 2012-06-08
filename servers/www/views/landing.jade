@@ -11,9 +11,11 @@ html
       script(src="http://html5shim.googlecode.com/svn/trunk/html5.js")
     block scripts
       != js("pages/landing")
-      script(src="#{url.api}/session?callback=plunker.session.start&sessid=#{sessid}")
       script
-        plunker.router.map(!{JSON.stringify(url)});
+        plunker.bootstrap({
+          "url": !{JSON.stringify(url).replace(/<\//g,"<\\/")},
+          "session": !{JSON.stringify(session).replace(/<\//g,"<\\/")}
+        });
 
   body
     nav.navbar.navbar-fixed-top

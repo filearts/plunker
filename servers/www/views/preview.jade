@@ -11,10 +11,12 @@ html
       script(src="http://html5shim.googlecode.com/svn/trunk/html5.js")
     block scripts
       != js("pages/preview")
-      script(src="#{url.api}/session?callback=plunker.session.start&sessid=#{sessid}")
       script
-        plunker.router.map(!{JSON.stringify(url).replace(/<\//g,"<\\/")});
-        plunker.models.plunk = new plunker.Plunk(!{JSON.stringify(plunk).replace(/<\//g,"<\\/")});
+        plunker.bootstrap({
+          "url": !{JSON.stringify(url).replace(/<\//g,"<\\/")},
+          "session": !{JSON.stringify(session).replace(/<\//g,"<\\/")},
+          "plunk": new plunker.Plunk(!{JSON.stringify(plunk).replace(/<\//g,"<\\/")})
+        });
 
   body
     nav.navbar.navbar-fixed-top
@@ -42,24 +44,24 @@ html
 
           div.nav-collapse
             ul.nav
-              li.preview: a(href="#preview")
+              li.preview: a(href="/#{plunk.id}")
                 i.icon-play
                 | Preview
-              li.code: a(href="#code")
+              li.code: a(href="/#{plunk.id}/code")
                 i.icon-book
                 | Code
-              li.divider-vertical
               li.fullscreen: a(href="#{plunk.raw_url}")
-                i.icon-resize-full
+                i.icon-fullscreen
                 | Fullscreen
               li.divider-vertical
               li.dropdown.operations
-                a.dropdown-toggle(href="javascript:void(0)", data-toggle="dropdown") Operations
+                a.dropdown-toggle(href="javascript:void(0)", data-toggle="dropdown")
+                  i.icon-cogs
+                  | Operations
                   b.caret
                 ul#operations.dropdown-menu
     div#pages
       div.page.preview#preview
-        iframe#preview-frame(frameborder="0", height="100%", width="100%", src=plunk.raw_url)
       div#container.page.code.container
         div#code.page-header
           h1 Plunk #{plunk.id}
@@ -72,7 +74,7 @@ html
                 li.nav-header Files
                   for file, filename in plunk.files
                     li: a(href="##{filename.replace(/[^a-z0-9-]/ig,"-")}")=filename
-          div.span9(data-spy="scroll",data-target="#file-list",data-offset="50")
+          div.span9
             for file, filename in plunk.files
               h2(id="#{filename.replace(/[^a-z0-9-]/ig,"-")}")=filename
               pre.prettyprint.linenums=file.content

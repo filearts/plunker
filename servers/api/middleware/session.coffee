@@ -1,3 +1,5 @@
+nconf = require("nconf")
+
 module.exports.middleware = (config = {}) ->
   (req, res, next) ->
     if req.query.sessid then sessid = req.query.sessid
@@ -6,6 +8,9 @@ module.exports.middleware = (config = {}) ->
     if sessid and sessid.length then config.sessions.findById(sessid).populate("user").run (err, session) ->
       return next(err) if err
       return next() unless session
+      return next() if Date.now() - session.last_access.valueOf() > nconf.get("session:max_age")
+      session.last_access = new Date
+      session.save -> # Don't wait for the response
       
       req.session = session
       req.user = session.user if session.user

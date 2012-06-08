@@ -75,6 +75,7 @@ app.get "/sessions/:id", (req, res, next) ->
   Session.findById(req.params.id).populate("user").run (err, session) ->
     if err then next(err)
     else unless session then next(new apiErrors.NotFound)
+    else if Date.now() - session.last_access.valueOf() > nconf.get("session:max_age") then next(new apiErrors.NotFound)
     else
       unless session.user then res.json(session.toJSON())
       else User.findById session.user, (err, user) ->

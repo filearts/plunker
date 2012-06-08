@@ -30,22 +30,13 @@ app.configure ->
   app.use gzippo.staticGzip("#{__dirname}/static")
   app.use express.cookieParser()
   app.use express.bodyParser()
-  app.use (req, res, next) ->
-    res.local("sessid", req.cookies.plnk_session or "")
-    res.local("package", require("../../package"))
-    res.local("url", nconf.get("url"))
-    next()
-    
+  app.use require("./middleware/expose").middleware
+    "url": nconf.get("url")
+    "package": require("../../package")
+  app.use require("./middleware/session").middleware()    
   app.use app.router
-  
-  app.use (err, req, res, next) ->
-    json = if err.toJSON? then err.toJSON() else
-      message: err.message or "Unknown error"
-      code: err.code or 500
-    
-    res.json(json, json.code)
-    
-    throw err
+  app.use require("./middleware/error").middleware()    
+
 
   app.set "views", "#{__dirname}/views"
   app.set "view engine", "jade"
@@ -72,7 +63,7 @@ app.get "/browse", (req, res) ->
   res.render "browse"
 
 
-app.get "/:id", (req, res, next) ->
+app.get "/:id/:anything?", (req, res, next) ->
   request.get nconf.get("url:api") + "/plunks/#{req.params.id}?sessid=#{req.cookies.plnk_session or ''}", (err, response, body) ->
     return next(err) if err
     return next(new Error("Not found")) if response.statusCode >= 400

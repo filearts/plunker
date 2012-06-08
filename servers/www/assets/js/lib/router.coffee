@@ -1,21 +1,22 @@
+#= require ../../vendor/underscore
+#= require ../../vendor/page
+
+#= require ../models/plunks
+
 ((plunker) ->
   
-  plunker.router = new class extends Backbone.Router
-    initialize: ->
-      self = @
-      
+  class plunker.Router
+    constructor: ->
       @urls = {}
-      @map api: "#{@url()}/api"
       
-      if _.isArray(plunker.routes)
-        @route.apply @, route for route in plunker.routes
+    start: (options = {}) ->
+      page.base(@base) if @base
+      page.start(options)
       
-      plunker.routes = 
-        push: -> self.route.apply(self, arguments)
-    
+    route: (path, callbacks...) -> page(arguments...) if callbacks.length
+
     map: (urls = {}) -> _.extend(@urls, urls)
     
-    url: (type) -> @urls[type] or "#{location.protocol}//#{location.host}"
-  
+    url: (type) -> @urls[type] or "#{location.protocol}//#{location.host}"  
       
 )(@plunker or @plunker = {})

@@ -4,12 +4,6 @@
 #= require ../../vendor/handlebars
 #= require ../../vendor/prettify
 
-#= require ../lib/router
-
-#= require ../models/user
-#= require ../models/session
-#= require ../models/plunks
-
 #= require ../views/userpanel
 #= require ../views/operations
 
@@ -28,20 +22,29 @@ Handlebars.registerHelper "arrayJoinSpace", (array) ->
 ((plunker) ->
 
   $ ->
-    
+    $preview = $("<iframe></iframe>")
+      .attr("id", "preview-frame")
+      .attr("frameborder", "0")
+      .attr("height", "100%")
+      .attr("width", "100%")
+      .attr("src", plunker.models.plunk.get("raw_url"))
+      
     changePageTo = (page) ->
       $("#pages").attr("class", page)
       $(".nav .active").removeClass("active")
       $(".nav .#{page}").addClass("active")
+      
+    plunker.router.route "/:id", (ctx) ->
+      changePageTo("preview")
+      
+      $preview.appendTo("#preview")
     
-    plunker.router.route "*other", "blank", (page) ->
-      if page is "preview" or (not page)
-        changePageTo("preview")
-        $("#preview-frame").attr("src", plunker.models.plunk.get("raw_url"))
-      else
-        changePageTo("code")
-        $("#preview-frame").attr("src", "")
-        
+    plunker.router.route "/:id/code", (ctx) ->
+      changePageTo("code")
+      
+      $preview.detach()
+      
+    
     plunker.user.on "change:id", ->
       plunker.models.plunk.fetch
         # This annoying code is brought to you by Backbone.js issue #955
@@ -56,8 +59,8 @@ Handlebars.registerHelper "arrayJoinSpace", (array) ->
     plunker.views.operations = new plunker.Operations
       el: document.getElementById("operations")
       model: plunker.models.plunk
-
-    Backbone.history.start()
+  
+    plunker.router.start()
     
     prettyPrint()
 

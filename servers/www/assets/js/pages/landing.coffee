@@ -3,13 +3,10 @@
 #= require ../../bootstrap/js/bootstrap-all
 #= require ../../vendor/handlebars
 
-#= require ../lib/router
 #= require ../lib/importer
 
 #= require ../models/sections
 #= require ../models/plunks
-#= require ../models/user
-#= require ../models/session
 
 #= require ../views/navbar
 #= require ../views/userpanel

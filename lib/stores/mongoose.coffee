@@ -76,9 +76,11 @@ PlunkSchema = new Schema
   source: {}
   files: [PlunkFileSchema]
   user: { type: Schema.ObjectId, ref: "User", index: true }
+  comments: { type: Number, 'default': 0 }
 
 PlunkSchema.virtual("url").get -> nconf.get("url:api") + "/plunks/#{@_id}"
 PlunkSchema.virtual("raw_url").get -> nconf.get("url:raw") + "/#{@_id}/"
+PlunkSchema.virtual("comments_url").get -> nconf.get("url:www") + "/#{@_id}/comments"
 
 PlunkSchema.plugin(lastModified)
 

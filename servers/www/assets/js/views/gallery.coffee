@@ -1,5 +1,5 @@
-#= require ../../vendor/jquery.timeago
-#= require ../../vendor/jquery.lazyload
+#= require ../vendor/jquery.timeago
+#= require ../vendor/jquery.lazyload
 
 ((plunker) ->
   class Card extends Backbone.View
@@ -18,41 +18,46 @@
       <div class="thumbnail">
         <h5 class="description" title="{{description}}">{{description}}</h5>
         <a href="{{html_url}}">
-          <img src="http://placehold.it/205x154&text=Loading..." data-original="http://immediatenet.com/t/l3?Size=1024x768&URL={{raw_url}}?_={{dateToTimestamp updated_at created_at}}" class="lazy" />
-        </a>
-        <div class="caption">
-          <p>
-            {{#if user}}
-              by&nbsp;<span class="user">{{user.login}}</span>
-            {{else}}
-              by&nbsp;Anonymous
-            {{/if}}
-            <abbr class="timeago created_at" title="{{or updated_at created_at}}">{{dateToLocaleString updated_at created_at}}</abbr>
-            {{#if source}}
-              based on&nbsp;<a class="{{source.type}}" href="{{source.url}}" title="{{source.description}}" target="_blank">{{source.title}}</a>
-            {{/if}}
-          </p>
-        </div>
-          <div class="operations">
-            <div class="btn-toolbar">
-              {{#if token}}
-                <a class="btn btn-mini btn-primary edit" title="Edit in Plunker" href="{{edit_url}}">
-                  <i class="icon-pencil icon-white"></i>
-                </a>
-                <button class="btn btn-mini btn-danger delete" title="Delete">
-                  <i class="icon-trash icon-white"></i>
-                </button>
-              {{else}}
-                <a class="btn btn-mini btn-primary edit" title="Fork and edit in Plunker" href="{{edit_url}}">
-                  <i class="icon-pencil icon-white"></i>
-                </a>              
-              {{/if}}
-              <a class="btn btn-mini btn-info raw" title="Run the plunk full-screen" href="{{raw_url}}">
-                <i class="icon-fullscreen"></i>
-              </a>
-            </div>
+          <img src="http://placehold.it/205x154&text=Loading..." data-original="http://immediatenet.com/t/fs?Size=1024x768&URL={{raw_url}}?_={{dateToTimestamp updated_at created_at}}" class="lazy" />
+          <div class="caption">
+            <p>
+              <abbr class="timeago created_at" title="{{or updated_at created_at}}">{{dateToLocaleString updated_at created_at}}</abbr>
+            </p>
           </div>
+        </a>
+        <ul class="meta">
+          <li class="edit">
+            <a href="{{edit_url}}" title="Edit this plunk">
+              <i class="icon-edit" />
+            </a>
+          </li>
+          <li class="comments">
+            <a href="{{comments_url}}" title="Join the discussion">
+              <i class="icon-comments" />
+              {{comments}}
+            </a>
+          </li>
+
+        </ul>
+        <ul class="extras">
+          {{#if source}}
+            <li>
+              <a href="{{source.url}}" title="This plunk was imported. Click here to go to its source" target="_blank">
+                <i class="icon-link" />
+              </a>
+            </li>
+          {{/if}}
+        </ul>
       </div>
+      <div class="user">
+        {{#if user}}
+          <a href="/users/{{user.login}}">
+            <img class="gravatar" src="http://www.gravatar.com/avatar/{{user.gravatar_id}}?s=18" />
+            {{user.login}}
+          </a>
+        {{/if}}
+      </div>
+
     """
     
     viewModel: =>
@@ -66,6 +71,7 @@
       @$el.html @template(@viewModel())
       @$(".timeago").timeago()
       @$("img.lazy").lazyload()
+      @$(".tooltip").tooltip()
       @
     
     flash: (message, type = "success") =>

@@ -1,5 +1,5 @@
-#= require ../../vendor/underscore
-#= require ../../vendor/page
+#= require ../vendor/underscore
+#= require ../vendor/page
 
 #= require ../models/plunks
 

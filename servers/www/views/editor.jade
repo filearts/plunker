@@ -1,0 +1,41 @@
+!!! 5
+html
+  head
+    meta(charset="utf-8")
+    meta(name="viewport",content="width=device-width, initial-scale=1.0")
+    block title
+      title Plunker - Editor
+    block styles
+      != css("pages/editor")
+    // if lt IE 9
+      script(src="http://html5shim.googlecode.com/svn/trunk/html5.js")
+    block scripts
+      != js("pages/editor")
+      script
+        plunker.bootstrap({
+          "url": !{JSON.stringify(url).replace(/<\//g,"<\\/")},
+          "session": !{JSON.stringify(session).replace(/<\//g,"<\\/")}
+        });
+
+  body
+    nav.navbar.navbar-fixed-top
+      div.navbar-inner
+        a.brand(href="/") Plunker
+          span.version v#{package.version}
+
+        div#userpanel.pull-right
+          div.btn-group
+            button.btn.dropdown-toggle(data-toggle="dropdown")
+              i.icon-user
+              span.text Sign in
+              span.caret
+            ul.dropdown-menu
+              li
+                a.github(href="/auth/github")
+                  i.icon-github-sign
+                  span Github
+    div#editor
+      div.ui-layout-center
+      div.ui-layout-east
+      div.ui-layout-west
+

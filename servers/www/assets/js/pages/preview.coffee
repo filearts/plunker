@@ -1,8 +1,8 @@
 #= require ../plunker
 
 #= require ../../bootstrap/js/bootstrap-all
-#= require ../../vendor/handlebars
-#= require ../../vendor/prettify
+#= require ../vendor/handlebars
+#= require ../vendor/prettify
 
 #= require ../views/userpanel
 #= require ../views/operations

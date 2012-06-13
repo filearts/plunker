@@ -1,7 +1,7 @@
-#= require ../../vendor/jquery
-#= require ../../vendor/underscore
-#= require ../../vendor/backbone
-#= require ../../vendor/handlebars
+#= require ../vendor/jquery
+#= require ../vendor/underscore
+#= require ../vendor/backbone
+#= require ../vendor/handlebars
 
 ((plunker) ->
 

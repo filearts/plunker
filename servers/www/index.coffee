@@ -27,7 +27,7 @@ github = authom.createServer
 
 app.configure ->
   app.use assets(src: "#{__dirname}/assets")
-  app.use gzippo.staticGzip("#{__dirname}/static")
+  app.use gzippo.staticGzip("#{__dirname}/assets")
   app.use express.cookieParser()
   app.use express.bodyParser()
   app.use require("./middleware/expose").middleware
@@ -62,6 +62,8 @@ app.get "/", (req, res) ->
 app.get "/browse", (req, res) ->
   res.render "browse"
 
+app.get "/edit/*", (req, res, next) ->
+  res.render "editor"
 
 app.get "/:id/:anything?", (req, res, next) ->
   request.get nconf.get("url:api") + "/plunks/#{req.params.id}?sessid=#{req.cookies.plnk_session or ''}", (err, response, body) ->

@@ -1,7 +1,7 @@
 #= require ../plunker
 
 #= require ../../bootstrap/js/bootstrap-all
-#= require ../../vendor/handlebars
+#= require ../vendor/handlebars
 
 #= require ../lib/importer
 

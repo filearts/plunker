@@ -1,0 +1,66 @@
+@import url(http://fonts.googleapis.com/css?family=Exo:900);
+
+@import "../../bootstrap/less/bootstrap";
+
+@import "../components/navbar";
+@import "../components/userpanel";
+
+@import "../vendor/jquery-layout";
+
+#container {
+  padding-top: 50px;
+}
+
+@media (max-width: 979px) {
+  #container {
+    padding-top: 0;
+  }
+  .navbar-fixed-top .navbar-inner {
+    padding: 0;
+    position: relative;
+    z-index: 5;
+  }
+}
+
+#editor {
+  position: absolute;
+  top: 40px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  
+  .ui-layout-pane {
+    position: relative;
+    border: none;
+  }
+  
+  .editor-canvas {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 18px;
+  }
+  .editor-status {
+    position: absolute;
+    height: 18px; left: 0; right: 0; bottom: 0;
+    background-color: #333;
+    
+    .navbar-fixed-bottom {
+      position: absolute;
+      
+      .nav {
+        margin: 0;
+        
+        .divider-vertical {
+          height: 20px;
+        }
+      }
+      .nav > li > a {
+        padding-top: 0;
+        padding-bottom: 0;
+      }
+    }
+    .navbar-inner {
+      min-height: 20px;
+      height: 20px;
+    }
+  }
+}

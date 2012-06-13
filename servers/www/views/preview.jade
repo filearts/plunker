@@ -69,12 +69,14 @@ html
             small=plunk.description || "Untitled"
         div.row
           div.span3
-            div#file-list
+            h2 Skip to file...
+            div#file-list.well(style="padding: 8px 0;")
               ul.nav.nav-list
                 li.nav-header Files
                   for file, filename in plunk.files
                     li: a(href="##{filename.replace(/[^a-z0-9-]/ig,"-")}")=filename
           div.span9
+
             for file, filename in plunk.files
               h2(id="#{filename.replace(/[^a-z0-9-]/ig,"-")}")=filename
               pre.prettyprint.linenums=file.content

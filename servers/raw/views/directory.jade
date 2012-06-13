@@ -2,18 +2,29 @@
 html
   head
     title #{plunk.description}
-    style
+    link(href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css",rel="stylesheet")
+    link(href="http://twitter.github.com/bootstrap/assets/css/bootstrap-responsive.css",rel="stylesheet")
 
   body
-    h1 Directory listing
-    h2 Plunk:#{plunk.id}
-      if plunk.description
-        | &nbsp;- #{plunk.description}
-    p.
-      This is an automatically-generated directory listing. You are seeing this
-      because the plunk you are trying to access does not have an 'index.html'.
-    hr
-    ul.files
-      each file, filename in plunk.files
-        li.file
-          a(href="#{file.raw_url}") #{file.filename}
+    div.container
+      section
+        div.page-header
+          h1 Plunk:#{plunk.id}
+            if plunk.description
+              | &nbsp;
+              small=plunk.description
+        div.row
+          div.span3
+            div.well(style="padding: 8px 0;")
+              ul.files.nav.nav-list
+                li.nav-header Files
+                each file, filename in plunk.files
+                  li.file
+                    a(href="#{file.raw_url}") #{file.filename}
+          div.span9
+            h2 Directory listing
+            p.
+              The plunk that you've accessed does not have an index.html file.
+              Instead of showing a useless blank page or trying to guess which
+              file you really wanted to see, Plunker shows this default page
+              that lets you skip to each file.

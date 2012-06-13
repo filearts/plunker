@@ -340,7 +340,8 @@
    */
 
   function sameOrigin(href) {
-    var origin = location.protocol + "//" + location.hostname + ":" + location.port;
+    var origin = location.protocol + "//" + location.hostname;
+    if (location.port) origin += ":" + location.port;
     return 0 == href.indexOf(origin);
   }
 

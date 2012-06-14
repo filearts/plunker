@@ -2,7 +2,6 @@
 #= require vendor/jquery.cookie
 #= require vendor/underscore
 #= require vendor/backbone
-#= require vendor/page
 
 #= require lib/router
 

@@ -43,6 +43,7 @@
   
   
   class plunker.Sidebar extends plunker.Panel
+    className: "plnk-sidebar"
     template: Handlebars.compile """
       <ul class="nav nav-list">
         <li class="nav-header">

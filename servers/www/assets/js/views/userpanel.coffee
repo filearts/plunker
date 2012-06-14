@@ -12,7 +12,6 @@
           <button class="user-menu btn dropdown-toggle" data-toggle="dropdown">
             <img class="gravatar" src="http://www.gravatar.com/avatar/{{user.gravatar_id}}?s=20" />
             <span class="text">{{user.login}}</span>
-            <i class="icon-github" />
             <b class="caret" />
           </button>
           <ul class="dropdown-menu">
@@ -29,7 +28,7 @@
           <ul class="dropdown-menu">
             <li>
               <a class="login login-github" data-service="github" href="/auth/github">
-                <i class="icon-github-sign" />
+                <i class="icon-github" />
                 Sign in with Github
               </a>
             </li>

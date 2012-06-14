@@ -78,6 +78,9 @@
     svg:
       title: "SVG"
       extensions: ["svg"]
+    text:
+      title: "Text"
+      extensions: ["txt"]
     textile:
       title: "Textile"
       extensions: ["textile"]

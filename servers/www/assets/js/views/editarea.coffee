@@ -2,7 +2,6 @@
 #= require ../vendor/underscore
 #= require ../vendor/backbone
 #= require ../vendor/handlebars
-#= require ../vendor/ace/ace
 
 #= require ../lib/panel
 

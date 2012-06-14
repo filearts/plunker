@@ -23,7 +23,7 @@
         east:
           initClosed: true
         west:
-          initClosed: true
+          initClosed: false
           size: 160
           minSize: 160
           maxSize: 320

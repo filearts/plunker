@@ -23,7 +23,7 @@
     plunker.request(params)
 
   class plunker.Plunk extends Backbone.Model
-    url: => @get("url") or plunker.router.url("api") + "/plunks"
+    url: => @get("url") or plunker.router.url("api") + "/plunks" + if @id then "/#{@id}" else ""
     sync: sync
     defaults: ->
       description: ""
@@ -53,7 +53,9 @@
         delete self.changes.files if self.changes # Kill the old changes; the whole files hash changes
 
         for filename, file of previous
-          unless _.isEqual(file, value[filename])
+          unless value
+            changes[filename] = null
+          else unless _.isEqual(file, value[filename])
             changes[filename] = file
 
         self._changes.files = changes unless _.isEmpty(changes)

@@ -58,6 +58,7 @@ html
               a(href="/edit?stream=stream&live=compile") Discussion
               | .
 
+        section#importer-section
           div#importer.well
             form.import-form
               input.import-source(type="text",placeholder="Gist ID or URL")
@@ -67,48 +68,11 @@ html
                 attempt to create a plunk from the source given. You will be
                 taken to the preview if the import succeeds.
 
-          div.row
-            div.span3
-              h2 Features
-              ul
-                li: strong Arbitrary number of files
-                li: strong Make internal XHR requests
-                li: a(href="/documentation") RESTful API
-                li: a(href="/edit") Online, multi-file editor
-                li: a(href="#browse") Gallery of recent plunks
-                li: a(href="https://github.com/ajaxorg/ace",target="_blank") ACE editor
-      
-            div.span6
-              h2 What were you thinking?
-              p.
-                There are some pretty amazing services out there already. Why would
-                anyone try and reinvent the wheel <i>again</i>?
-              ol
-                li.
-                  <b>For fun and for profit</b>. OK. Just for fun. And I had a lot of it
-                  learning about node.js, Express and the whole asynchronous js world.
-                li.
-                  <b>Dissatisfaction with existing services</b>. They're good and all
-                  but I wanted to make internal XHR and have tons of files.
-              p.
-                Just go ahead and check out the <a href="/edit">editor</a> and you'll
-                see.
-      
-            div.span3
-              h2 Inspiration
-              ul
-                li: a(href="http://jsFiddle.net",target="_blank") jsFiddle
-                li: a(href="http://jsbin.com",target="_blank") JS Bin
-                li: a(href="http://dabblet.com",target="_blank") Dabblet
-                li: a(href="http://gist.github.com",target="_blank") Github's Gist
-                li: a(href="http://tinker.io",target="_blank") Tinker
-                li: a(href="http://bl.ocks.org/") bl.ocks.org
-
 
         section#browse
+          div.page-header
+            h1 Recent plunks
           div.row
-            div.span12
-              h2 Gallary of recent plunks
             div.span12
               ul#gallery.thumbnails
       hr

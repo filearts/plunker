@@ -1,4 +1,5 @@
 #= require ../vendor/underscore
+#= require ../vendor/jquery.history.js
 #= require ../vendor/page
 
 #= require ../models/plunks

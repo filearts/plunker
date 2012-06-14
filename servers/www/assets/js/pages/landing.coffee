@@ -3,8 +3,6 @@
 #= require ../../bootstrap/js/bootstrap-all
 #= require ../vendor/handlebars
 
-#= require ../lib/importer
-
 #= require ../models/sections
 #= require ../models/plunks
 
@@ -53,6 +51,10 @@ Handlebars.registerHelper "arrayJoinSpace", (array) ->
       title: "Browse"
       url: "/browse"
       icon: "icon-th"
+    plunker.collections.sections.add
+      title: "Editor"
+      url: "/edit/"
+      icon: "icon-edit"
     plunker.collections.sections.add
       title: "About"
       url: "/about"

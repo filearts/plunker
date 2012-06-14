@@ -19,7 +19,6 @@
     unless matches = source.match(githubRegex) then next()
     else
       promise = $.ajax "https://api.github.com/gists/#{matches[1]}",
-        timeout: 8 * 1000
         dataType: "jsonp"
         error: -> next("Import failed")
         success: (data) ->

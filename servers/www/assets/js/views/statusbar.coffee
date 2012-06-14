@@ -15,7 +15,7 @@
           <ul class="nav">
             <li class="dropdown">
               <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown">
-                index.html
+                {{active}}
                 <b class="caret"></b>
               </a>
               
@@ -24,8 +24,17 @@
                   <a href="javascript:void(0)">Add file...</a>
                 </li>
                 <li class="divider"></li>
-                <li class="active"><a>index.html</a></li>
-                <li><a>style.css</a></li>
+                {{#each buffers}}
+                  {{#if this.active}}
+                    <li class="buffer active">
+                      <a href="\#{{slugify this.filename}}">{{this.filename}}</a>
+                    </li>
+                  {{else}}
+                    <li class="buffer">
+                      <a href="\#{{slugify this.filename}}">{{this.filename}}</a>
+                    </li>
+                  {{/if}}
+                {{/each}}
               </ul>
             </li>
             <li class="divider-vertical"></li>
@@ -34,10 +43,24 @@
       </div>
     """
     
+    events:
+      "click .buffer": "onClickBuffer"
+    
     initialize: ->
+      self = @
+      
+      @model.buffers.on "reset add remove", @render
+      @model.on "change:active", @render
+      
+      @render = _.throttle(@render, 100)
       @render()
       
-    viewModel: -> {}
+    onClickBuffer: (e) ->
+      plunker.mediator.trigger "intent:file:activate", $(e.target).text()
+      
+    viewModel: ->
+      buffers: @model.buffers.toJSON()
+      active: @model.get("active")
 
     render: =>
       @$el.html @template(@viewModel())

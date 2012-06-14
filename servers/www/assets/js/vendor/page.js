@@ -77,8 +77,9 @@
   page.start = function(options){
     options = options || {};
     if (false === options.dispatch) dispatch = false;
-    if (false !== options.popstate) addEventListener('popstate', onpopstate, false);
+    if (false !== options.popstate) History.Adapter.bind(window, "statechange", onpopstate, false);
     if (false !== options.click) addEventListener('click', onclick, false);
+    if (dispatch) page.show(location.pathname, null, true, dispatch);
   };
 
   /**
@@ -105,7 +106,7 @@
     ctx.init = init;
     if (null == dispatch) dispatch = true;
     if (dispatch) page.dispatch(ctx);
-    if (!init && !ctx.unhandled) history.pushState(ctx.state, ctx.title, ctx.canonicalPath);
+    if (!init && !ctx.unhandled) History.pushState(ctx.state, ctx.title, ctx.canonicalPath);
   };
 
   /**
@@ -120,7 +121,7 @@
     var ctx = new Context(path, state);
     ctx.init = init;
     page.dispatch(ctx);
-    history.replaceState(ctx.state, ctx.title, ctx.canonicalPath);
+    History.replaceState(ctx.state, ctx.title, ctx.canonicalPath);
   };
 
   /**
@@ -184,7 +185,7 @@
    */
 
   Context.prototype.save = function(){
-    history.replaceState(this.state, this.title, this.canonicalPath);
+    History.replaceState(this.state, this.title, this.canonicalPath);
   };
 
   /**

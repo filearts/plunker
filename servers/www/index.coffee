@@ -65,6 +65,8 @@ app.get "/browse", (req, res) ->
 app.get "/edit/*", (req, res, next) ->
   res.render "editor"
 
+app.get "/edit", (req, res, next) -> res.redirect("/edit/", 302)
+
 app.get "/:id/:anything?", (req, res, next) ->
   request.get nconf.get("url:api") + "/plunks/#{req.params.id}?sessid=#{req.cookies.plnk_session or ''}", (err, response, body) ->
     return next(err) if err

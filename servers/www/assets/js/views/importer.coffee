@@ -3,6 +3,8 @@
 #= require ../vendor/backbone
 #= require ../vendor/handlebars
 
+#= require ../lib/importer
+
 ((plunker) ->
 
   messageTemplate = Handlebars.compile """
@@ -21,7 +23,7 @@
 
   class plunker.Importer extends Backbone.View
     initialize: ->
-      @on "import", (plunk) -> window.location = plunk.getPreviewUrl()
+      @on "import", (plunk) -> window.location = plunk.getEditUrl()
       @on "error", (message) ->
         $("#importer").after $ messageTemplate
           title: "Import failed: #{message}"

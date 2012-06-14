@@ -3,12 +3,15 @@
 #= require ../../bootstrap/js/bootstrap-all
 #= require ../vendor/handlebars
 
+#= require ../models/creation
+
 #= require ../views/userpanel
 #= require ../views/operations
 #= require ../views/layout
 #= require ../views/editarea
 #= require ../views/sidebar
 #= require ../views/statusbar
+#= require ../views/overlay
 
 
 Handlebars.registerHelper "or", (arg1, arg2) -> arg1 or arg2
@@ -22,9 +25,14 @@ Handlebars.registerHelper "dateToTimestamp", (updated_at, created_at) ->
 Handlebars.registerHelper "arrayJoinSpace", (array) ->
   array.join(" ")
 
+Handlebars.registerHelper "slugify", (str) ->
+  str.replace(/[\.]/g, "_")
+
 ((plunker) ->
 
   $ ->
+    
+    plunker.models.creation = new plunker.Creation
       
     plunker.views.userpanel = new plunker.UserPanel
       el: document.getElementById("userpanel")
@@ -34,15 +42,34 @@ Handlebars.registerHelper "arrayJoinSpace", (array) ->
       el: document.getElementById("editor")
       
     plunker.views.editarea = new plunker.Editarea
-    plunker.views.sidebar = new plunker.Sidebar
-    plunker.views.statusbar = new plunker.Statusbar
+      model: plunker.models.creation
       
-    plunker.views.layout.attachPanel "center", plunker.views.statusbar, "append"
+    plunker.views.sidebar = new plunker.Sidebar
+      model: plunker.models.creation
+
+    plunker.views.statusbar = new plunker.Statusbar
+      model: plunker.models.creation
+      
+    plunker.views.overlay = new plunker.Overlay
+      el: document.getElementById("editor")
+      enableEvents: ["editor:enable"]
+      disableEvents: ["editor:disable"]
+      
     plunker.views.layout.attachPanel "center", plunker.views.editarea, "append"
+    plunker.views.layout.attachPanel "center", plunker.views.statusbar, "append"
     plunker.views.layout.attachPanel "west", plunker.views.sidebar
     
-    plunker.router.route "/edit/:id", (ctx) ->
-  
+    plunker.router.route "/edit/from::id", (ctx, next) ->
+      plunker.models.creation.import ctx.params.id,
+        error: -> plunker.router.navigate("/edit/")
+
+    plunker.router.route "/edit/:id", (ctx, next) ->
+      console.log "Routed", arguments...
+      plunker.models.creation.load ctx.params.id,
+        error: -> plunker.router.navigate("/edit/")
+
+    plunker.router.route "/edit/", (ctx, next) ->
+      plunker.models.creation.import("2312729")
 
     plunker.router.start()
 

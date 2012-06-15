@@ -2,7 +2,6 @@
 #= require ../vendor/underscore
 #= require ../vendor/backbone
 #= require ../vendor/handlebars
-#= require ../vendor/ace/ace
 
 #= require ../lib/panel
 
@@ -15,13 +14,17 @@
     template: Handlebars.compile """
       <a href="#\{{slugify filename}}">
         {{filename}}
+        <ul class="file-ops">
+          <li class="delete"><button class="btn btn-mini"><i class="icon-remove"></i></button></li>
+        </ul>
       </a>
     """
 
 
     events:
-      "click":    (e) -> plunker.mediator.trigger "intent:file:activate", @model.get("filename")
-      "dblclick": (e) -> plunker.mediator.trigger "intent:file:rename", @model.get("filename")
+      "click":    (e) -> plunker.mediator.trigger("intent:file:activate", @model.id)
+      "dblclick": (e) -> plunker.mediator.trigger("intent:file:rename", @model.id)
+      "click .delete": (e) -> plunker.mediator.trigger("intent:file:delete", @model.id) and e.stopPropagation()
     
     initialize: ->
       self = @
@@ -31,6 +34,8 @@
         self.model.off "change:content", self.onChangeContent
       
       @model.on "change:active change:filename", @render
+
+
     
     render: =>
       @$el.html @template
@@ -48,9 +53,13 @@
       <ul class="nav nav-list">
         <li class="nav-header">
           Files
+          <button class="file-add"><i class="icon-plus"></i>New...</button>
         </li>
       </ul>
     """
+    
+    events:
+      "click .file-add": -> plunker.mediator.trigger "prompt:file:add"
     
     initialize: ->
       self = @

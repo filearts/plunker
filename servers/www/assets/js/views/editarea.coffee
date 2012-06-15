@@ -16,14 +16,12 @@
       
       @on "attached", (layout) ->
         layout.on "resize", -> self.ace.resize()
+      
+      plunker.mediator.on "file:activate", (filename) ->
+        if buffer = self.model.buffers.get(filename)
+          self.ace.setSession(buffer.session)
+          self.ace.focus()
         
-      plunker.mediator.on "intent:file:activate", @onIntentActivate
-        
-    onIntentActivate: (filename) =>
-      if buffer = @model.buffers.get(filename)
-        @ace.setSession buffer.session
-        @ace.focus()
-        
-        plunker.mediator.trigger "file:activate", filename
+
       
 )(@plunker or @plunker = {})

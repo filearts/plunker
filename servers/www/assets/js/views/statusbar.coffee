@@ -20,7 +20,7 @@
               </a>
               
               <ul id="editor-file-list" class="dropdown-menu">
-                <li class="add">
+                <li class="file-add">
                   <a href="javascript:void(0)">Add file...</a>
                 </li>
                 <li class="divider"></li>
@@ -45,6 +45,7 @@
     
     events:
       "click .buffer": "onClickBuffer"
+      "click .file-add": -> plunker.mediator.trigger "prompt:file:add"
     
     initialize: ->
       self = @

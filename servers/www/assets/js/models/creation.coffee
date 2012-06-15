@@ -1,5 +1,3 @@
-#= require ../vendor/ace/ace
-
 #= require ../models/plunks
 
 #= require ../lib/importer
@@ -11,9 +9,14 @@
   UndoManager = require("ace/undomanager").UndoManager
   
 
+
   # Model to represent a text buffer in a Plunker session
   class Buffer extends Backbone.Model
     idAttribute: "filename"
+    defaults: ->
+      filename: "Untitled-#{@cid}"
+      content: ""
+      
     initialize: ->
       self = @
 
@@ -23,21 +26,21 @@
       @session.setUseSoftTabs(true)
       @session.setUndoManager(new UndoManager())
       
-      @set("filename", "Untitled-#{@cid}.txt") unless @id
+      @session.on "change", -> self.set("content", self.session.getValue())   
 
       @setMode()
         
       @on "change:filename", @setMode
       
-      @session.on "change", -> self.set("content", self.session.getValue())   
     
-    setMode: ->
-      if mime = plunker.mime.findByFilename(@get("filename"))
+    setMode: =>
+      if (mime = plunker.mime.findByFilename(@get("filename"))) and mime.name
         @session.setMode("ace/mode/#{mime.name}")
         @set("mime", mime)
 
   class BufferCollection extends Backbone.Collection
     model: Buffer
+    comparator: (model) -> model.id and model.id.toLowerCase()
 
   class plunker.Creation extends Backbone.Model
     initialize: ->
@@ -59,12 +62,42 @@
       @buffers.on "remove", (model) -> self.queue = _.without self.queue, model.get("filename")
       @buffers.on "reset", (coll) -> self.queue = coll.pluck("filename")
       
-      plunker.mediator.on "file:ename", (to, from) -> self.queue = _.map self.queue, (el) -> if el == from then to else el
+      plunker.mediator.on "file:rename", (to, from) -> self.queue = _.map self.queue, (el) -> if el == from then to else el
       plunker.mediator.on "file:activate", (filename) -> self.queue = [filename].concat _.without(self.queue, filename)
 
       @on "import:start", -> plunker.mediator.trigger "editor:disable"
       @on "import:error import:success", -> plunker.mediator.trigger "editor:enable"
 
+      plunker.mediator.on "prompt:file:add", @onPromptFileAdd
+
+      plunker.mediator.on "intent:file:activate", @onIntentFileActivate
+      plunker.mediator.on "intent:file:add", @onIntentFileAdd
+      plunker.mediator.on "intent:file:delete", @onIntentFileDelete
+
+    
+    onPromptFileAdd: (e) ->
+      if filename = prompt("Please enter the filename")
+        plunker.mediator.trigger "intent:file:add", filename
+
+    onIntentFileActivate: (filename) =>
+      if @buffers.get(filename)
+        plunker.mediator.trigger "file:activate", filename
+    
+    onIntentFileAdd: (filename) =>
+      if filename and not @buffers.get(filename)
+        @buffers.add
+          filename: filename
+        
+        plunker.mediator.trigger "intent:file:activate", filename
+    
+    onIntentFileDelete: (filename) =>
+      last = @last()
+      
+      if buffer = @buffers.get(filename) and confirm("Are you sure you would like to delete #{filename}?")
+        @buffers.remove(filename)
+        
+        if last is filename
+          plunker.mediator.trigger "intent:file:activate", @last()
     
     last: -> _.first(@queue)
     getActiveBuffer: -> @buffers.get(@last())
@@ -94,8 +127,8 @@
           self.buffers.reset _.map json.files, (file, filename) -> _.defaults file,
             filename: filename
           
-          self.trigger "import:success", @
           options.success(@) 
+          self.trigger "import:success", @
 
     load: (id, options = {}) ->
       self = @
@@ -119,8 +152,8 @@
           self.trigger "import:success", @
           onSuccess(@)
         error: (err) ->
-          self.trigger "import:error"
           onError(@)
+          self.trigger "import:error"
 
 
 )(@plunker or @plunker = {})

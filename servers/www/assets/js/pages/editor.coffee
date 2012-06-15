@@ -64,7 +64,6 @@ Handlebars.registerHelper "slugify", (str) ->
         error: -> plunker.router.navigate("/edit/")
 
     plunker.router.route "/edit/:id", (ctx, next) ->
-      console.log "Routed", arguments...
       plunker.models.creation.load ctx.params.id,
         error: -> plunker.router.navigate("/edit/")
 

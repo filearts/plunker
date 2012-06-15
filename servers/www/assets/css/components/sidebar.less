@@ -1,0 +1,55 @@
+.plnk-sidebar {
+  position: absolute;
+  top: 0; bottom: 0; left: 0; right: 0;
+  background-color: #f5f5f5;
+  
+  button.file-add {
+    font-size: 80%;
+    color: #666;
+    background: none;
+    border: none;
+    margin: 0; padding: 2px 0;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+  }
+  button.file-add:hover {
+    color: white;
+  }
+
+  
+  .file {
+    position: relative;
+    
+    .file-ops {
+      display: none;
+    }
+  }
+  
+  .file:hover {
+    .file-ops {
+      display: inline-block;
+      list-style: none;
+      margin: 0; padding: 0;
+      position: absolute;
+      right: -13px;
+      top: 0;
+      
+      li {
+        display: inline-block;
+        
+        button {
+          background: none;
+          border: none;
+          margin: 0; padding: 5px 0;
+          -webkit-box-shadow: none;
+          -moz-box-shadow: none;
+          box-shadow: none;
+        }
+        button:hover {
+          color: white;
+        }
+      }
+    }
+  }
+}

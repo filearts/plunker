@@ -59,6 +59,18 @@ Handlebars.registerHelper "arrayJoinSpace", (array) ->
     plunker.views.operations = new plunker.Operations
       el: document.getElementById("operations")
       model: plunker.models.plunk
+      
+    if plunk = plunker.models.plunk
+      presenceRef = new Firebase("http://gamma.firebase.com/filearts/#{plunk.id}/viewers")
+
+      setOwnStatus = ->
+        ownStatusRef.removeOnDisconnect()
+        ownStatusRef.set plunker.user.get("login") or "Anonymous"
+      
+      ownStatusRef = presenceRef.child(plunker.session.get("public_id"))
+      ownStatusRef.on "value", (snapshot) ->
+        setOwnStatus() if snapshot.val() is null
+
   
     plunker.router.start()
     

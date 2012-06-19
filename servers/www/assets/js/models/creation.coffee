@@ -81,7 +81,7 @@
       
       @plunk.on "change:id", ->
         if self.plunk.id
-          presenceRef = new Firebase("http://gamma.firebase.com/filearts/#{self.plunk.id}/viewers")
+          presenceRef = new Firebase("http://gamma.firebase.com/filearts/#{self.plunk.id}/editors")
           
           self.ownStatusRef.remove() if self.ownStatusRef
           

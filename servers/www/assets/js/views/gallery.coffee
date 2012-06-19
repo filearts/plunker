@@ -29,6 +29,7 @@
           <li class="edit">
             <a href="{{edit_url}}" title="Edit this plunk">
               <i class="icon-edit" />
+              <span class="live-editors">0</span>
             </a>
           </li>
           <li class="viewers">
@@ -80,13 +81,22 @@
       @$(".tooltip").tooltip()
       
       $viewers = @$(".live-viewers")
+      $editors = @$(".live-editors")
       
-      viewersRef = new Firebase("http://gamma.firebase.com/filearts/#{@model.id}/viewers")
+      plunkRef = new Firebase("http://gamma.firebase.com/filearts/#{@model.id}")
+      
+      viewersRef = plunkRef.child("viewers")
       
       viewersRef.on "value", (snapshot) -> $viewers.text(snapshot.val().length) unless snapshot.val() is null
       viewersRef.on "child_added", (snapshot) -> $viewers.text parseInt($viewers.text(), 10) + 1
       viewersRef.on "child_removed", (snapshot) -> $viewers.text parseInt($viewers.text(), 10) - 1
       
+      editorsRef = plunkRef.child("editors")
+      
+      editorsRef.on "value", (snapshot) -> $editors.text(snapshot.val().length) unless snapshot.val() is null
+      editorsRef.on "child_added", (snapshot) -> $editors.text parseInt($editors.text(), 10) + 1
+      editorsRef.on "child_removed", (snapshot) -> $editors.text parseInt($editors.text(), 10) - 1
+
       @
     
     flash: (message, type = "success") =>

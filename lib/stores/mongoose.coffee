@@ -40,6 +40,7 @@ SessionSchema = new Schema
     type: Schema.ObjectId
     ref: "User"
   last_access: { type: Date, index: true, 'default': Date.now }
+  public_id: { type: String, 'default': genid }
   auth: {}
   keychain: [TokenSchema]
 

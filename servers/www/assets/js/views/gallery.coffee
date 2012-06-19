@@ -31,6 +31,12 @@
               <i class="icon-edit" />
             </a>
           </li>
+          <li class="viewers">
+            <a href="{{edit_url}}" title="People currently viewing this plunk">
+              <i class="icon-eye-open" />
+              <span class="live-viewers">0</span>
+            </a>
+          </li>
           <li class="comments">
             <a href="{{comments_url}}" title="Join the discussion">
               <i class="icon-comments" />
@@ -72,6 +78,15 @@
       @$(".timeago").timeago()
       @$("img.lazy").lazyload()
       @$(".tooltip").tooltip()
+      
+      $viewers = @$(".live-viewers")
+      
+      viewersRef = new Firebase("http://gamma.firebase.com/filearts/#{@model.id}/viewers")
+      
+      viewersRef.on "value", (snapshot) -> $viewers.text(snapshot.val().length) unless snapshot.val() is null
+      viewersRef.on "child_added", (snapshot) -> $viewers.text parseInt($viewers.text(), 10) + 1
+      viewersRef.on "child_removed", (snapshot) -> $viewers.text parseInt($viewers.text(), 10) - 1
+      
       @
     
     flash: (message, type = "success") =>

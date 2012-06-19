@@ -43,7 +43,7 @@
         self.downgrade()
       
       @on "change:id", (model, value, options) ->
-        if value then $.cookie "plnk_session", value, expires: 7
+        if value then $.cookie "plnk_session", value, expires: 7, path: "/"
         else $.cookie "plnk_session", null
     
     fetch: ->

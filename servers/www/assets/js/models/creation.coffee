@@ -73,6 +73,21 @@
       plunker.mediator.on "intent:file:activate", @onIntentFileActivate
       plunker.mediator.on "intent:file:add", @onIntentFileAdd
       plunker.mediator.on "intent:file:delete", @onIntentFileDelete
+      
+      setOwnStatus = ->
+        self.ownStatusRef.removeOnDisconnect()
+        self.ownStatusRef.set plunker.user.get("login") or plunker.session.get("public_id")
+
+      
+      @plunk.on "change:id", ->
+        if self.plunk.id
+          presenceRef = new Firebase("http://gamma.firebase.com/filearts/#{self.plunk.id}/viewers")
+          
+          self.ownStatusRef.remove() if self.ownStatusRef
+          
+          self.ownStatusRef = presenceRef.child(plunker.session.get("public_id"))
+          self.ownStatusRef.on "value", (snapshot) ->
+            setOwnStatus() if snapshot.val() is null
 
     
     onPromptFileAdd: (e) ->

@@ -144,14 +144,17 @@ app.post "/sessions/:id/user", (req, res, next) ->
 # Plunks
 ###
 
-preparePlunk = (session, json) ->
+ownsPlunk = (session, json) ->
   owner = false
   
   if session
     owner ||= !!(json.user and session.user and json.user.login is session.user.login)
     owner ||= !!(session.keychain and session.keychain.id(json.id)?.token is json.token)
+
+  owner
   
-  delete json.token unless owner
+preparePlunk = (session, json) ->
+  delete json.token unless ownsPlunk(session, json)
   
   json.files = do ->
     files = {}
@@ -222,12 +225,60 @@ app.get "/plunks/:id", (req, res, next) ->
   Plunk.findById(req.params.id).populate("user").run (err, plunk) ->
     if err or not plunk then next(new apiErrors.NotFound)
     else res.json(preparePlunk(req.session, plunk.toJSON()))
-
+    
+# Update plunk
+app.post "/plunks/:id", (req, res, next) ->
+  Plunk.findById(req.params.id).populate("user").run (err, plunk) ->
+    if err or not plunk or not ownsPlunk(req.session, plunk.toJSON()) then next(new apiErrors.NotFound)
+    else
+      json = req.body
+      schema = require("./schema/plunks/update")
+      {valid, errors} = validator.validate(json, schema)
+      
+      # Despite its awesomeness, validator does not support disallow or additionalProperties; we need to check plunk.files size
+      if json.files and _.isEmpty(json.files)
+        valid = false
+        errors.push
+          attribute: "minProperties"
+          property: "files"
+          message: "A minimum of one file is required"
+      
+      unless valid then next(new apiErrors.ValidationError(errors))
+      else
+        oldFiles = {}
+        
+        for file, index in plunk.files
+          oldFiles[file.filename] = file
+        
+        for filename, file of json.files
+          # Attempt to delete
+          if file is null
+            oldFiles[filename].remove() if oldFiles[filename]
+          # Modification to an existing file
+          else if old = oldFiles[filename]
+            if file.filename
+              old.filename = file.filename
+              old.mime = mime.lookup(file.filename, "text/plain")
+            if file.content
+              old.content = file.content
+            
+            if file.filename or file.content then old.save()
+          # New file; handle only if content provided
+          else if file.content
+            plunk.files.push
+              filename: filename
+              content: file.content
+              mime: mime.lookup(filename, "text/plain")
+        
+        plunk.description = json.description if json.description
+        plunk.save (err) ->
+          if err then next(new apiErrors.InternalServerError(err))
+          else res.json(preparePlunk(req.session, plunk.toJSON()))
+    
 # Delete plunk
 app.del "/plunks/:id", (req, res, next) ->
   Plunk.findById(req.params.id).populate("user").run (err, plunk) ->
-    if err or not plunk then next(new apiErrors.NotFound)
-    else unless preparePlunk(req.session, plunk.toJSON()).token then next(new apiErrors.NotFound)
+    if err or not plunk or not ownsPlunk(req.session, plunk.toJSON()) then next(new apiErrors.NotFound)
     else plunk.remove ->
       res.send(204)
 

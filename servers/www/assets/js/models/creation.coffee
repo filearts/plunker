@@ -74,6 +74,8 @@
       plunker.mediator.on "intent:file:add", @onIntentFileAdd
       plunker.mediator.on "intent:file:delete", @onIntentFileDelete
       
+      plunker.mediator.on "intent:save", @onIntentSave
+      
       setOwnStatus = ->
         self.ownStatusRef.removeOnDisconnect()
         self.ownStatusRef.set plunker.user.get("login") or plunker.session.get("public_id")
@@ -113,6 +115,21 @@
         
         if last is filename
           plunker.mediator.trigger "intent:file:activate", @last()
+          
+    onIntentSave: =>
+      files = {}
+      
+      @buffers.each (buffer) ->
+        files[buffer.id] =
+          content: buffer.get("content")
+      
+      @plunk.set
+        description: @get("description")
+        files: files
+        
+      @plunk.save {},
+        success: -> plunker.mediator.trigger "save", @plunk
+        error: -> plunker.mediator.trigger "save:error", arguments...
     
     last: -> _.first(@queue)
     getActiveBuffer: -> @buffers.get(@last())
@@ -163,7 +180,7 @@
             description: plunk.get("description")
           
           self.buffers.reset _.values(plunk.get("files"))
-          
+          self.plunk.trigger "sync"
           self.trigger "import:success", @
           onSuccess(@)
         error: (err) ->

@@ -11,6 +11,7 @@
 #= require ../views/editarea
 #= require ../views/sidebar
 #= require ../views/statusbar
+#= require ../views/actionbar
 #= require ../views/overlay
 
 
@@ -45,6 +46,10 @@ Handlebars.registerHelper "slugify", (str) ->
       model: plunker.models.creation
       
     plunker.views.sidebar = new plunker.Sidebar
+      model: plunker.models.creation
+    
+    plunker.views.actionbar = new plunker.Actionbar
+      el: document.getElementById("actionbar")
       model: plunker.models.creation
 
     plunker.views.statusbar = new plunker.Statusbar

@@ -1,0 +1,38 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "minProperties": 1,
+  "properties": {
+    "description": {
+      "type": "string",
+      "default": ""
+    },
+    "index": {
+      "type": "string"
+    },
+    "files": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-zA-z0-9_-]+(\\.[a-zA-Z0-9]+)?$": {
+          "type": [
+            {
+              "type": "null"
+            }, {
+              "type": "object",
+              "properties": {
+                "filename": {
+                  "type": "string"
+                },
+                "content": {
+                  "type": "string"
+                }
+              },
+              "minProperties": 1
+            }
+          ]
+        }
+      }
+    }
+  }
+}

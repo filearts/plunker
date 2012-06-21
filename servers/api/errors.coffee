@@ -19,3 +19,7 @@ module.exports =
     constructor: ->
       @code = 404
       @message = "Permission denied"
+  InternalServerError: class extends APIError
+    constructor: ->
+      @code = 500
+      @message = "Internal server error"

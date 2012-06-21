@@ -16,7 +16,7 @@
       when "update"
         params.type = "post"
         params.headers = "Content-Type": "application/json"
-        params.data = JSON.stringify(model.changes)
+        params.data = JSON.stringify(model._changes)
       when "delete"
         params.type = "delete"
 
@@ -33,7 +33,7 @@
       self = @
 
       @_changes = {}
-      @_synced = {}
+      @_synced = {files: {}}
 
       @on "sync", ->
         # Reset synced state and changes
@@ -46,18 +46,29 @@
           self._changes[key] = value unless value == self._synced[key]
 
       # Handle changes to files
-      @on "change:files", (model, value, options) ->
-        previous = model.previous("files") or {}
+      @on "change:files", (model, files, options) ->
+        previous = _.clone(self._synced.files) or {}
+        created = _.clone(files)
         changes = {}
 
         delete self.changes.files if self.changes # Kill the old changes; the whole files hash changes
 
         for filename, file of previous
-          unless value
+          former = previous[filename]
+          updated = files[filename]
+          
+          delete created[filename]
+          
+          # Check for deletion (file doesn't exist in new files)
+          unless updated
             changes[filename] = null
-          else unless _.isEqual(file, value[filename])
-            changes[filename] = file
+          else if updated.filename isnt former.filename or updated.content isnt former.content
+            changes[filename] = {}
+            changes[filename].filename = updated.filename if updated.filename isnt former.filename
+            changes[filename].content = updated.content if updated.content isnt former.content
 
+        _.extend changes, created
+        
         self._changes.files = changes unless _.isEmpty(changes)
     
     getEditUrl: -> plunker.router.url("www") + "/edit/#{@id}"

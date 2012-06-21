@@ -7,7 +7,7 @@ var nconf = require("nconf").use("memory")
   .env()
   .file({file: "config.json"})
   .defaults({
-    "PORT": 8080
+    "PORT": process.env.VCAP_APP_PORT || 8080
   });
 
 if (!nconf.get("host")) {

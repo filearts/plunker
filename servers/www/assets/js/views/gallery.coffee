@@ -33,7 +33,7 @@
             </a>
           </li>
           <li class="viewers">
-            <a href="{{edit_url}}" title="People currently viewing this plunk">
+            <a href="{{html_url}}" title="People currently viewing this plunk">
               <i class="icon-eye-open" />
               <span class="live-viewers">0</span>
             </a>

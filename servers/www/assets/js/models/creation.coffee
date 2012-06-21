@@ -82,14 +82,27 @@
 
       
       @plunk.on "change:id", ->
-        if self.plunk.id
-          presenceRef = new Firebase("http://gamma.firebase.com/filearts/#{self.plunk.id}/editors")
-          
-          self.ownStatusRef.remove() if self.ownStatusRef
-          
-          self.ownStatusRef = presenceRef.child(plunker.session.get("public_id"))
-          self.ownStatusRef.on "value", (snapshot) ->
-            setOwnStatus() if snapshot.val() is null
+        id = self.plunk.id
+        previous = self.plunk.previous("id")
+        ownId = plunker.user.get("login") or plunker.session.get("public_id")
+        
+        if previous isnt id
+          if previous
+            presenceRef = new Firebase("http://gamma.firebase.com/filearts/#{self.plunk.id}/editors/#{ownId}")
+            presenceRef.remove()
+            
+          if id
+            presenceRef = new Firebase("http://gamma.firebase.com/filearts/#{self.plunk.id}/editors")
+            
+            self.ownStatusRef.remove() if self.ownStatusRef
+            
+            self.ownStatusRef = presenceRef.child(plunker.session.get("public_id"))
+            self.ownStatusRef.on "value", (snapshot) ->
+              setOwnStatus() if snapshot.val() is null
+            
+            
+            plunker.router.navigate "/edit/#{id}", replace: true, trigger: false
+
 
     
     onPromptFileAdd: (e) ->

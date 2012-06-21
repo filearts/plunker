@@ -14,8 +14,14 @@
     start: (options = {}) ->
       page.base(@base) if @base
       page.start(options)
-      
+
     route: (path, callbacks...) -> page(arguments...) if callbacks.length
+    
+    navigate: (path, options = {replace: false, trigger: true}) ->
+      if options.replace
+        page.replace(path, null, null, options.trigger)
+      else
+        page.show(path)
 
     map: (urls = {}) -> _.extend(@urls, urls)
     

@@ -19,11 +19,6 @@
         <h5 class="description" title="{{description}}">{{description}}</h5>
         <a href="{{html_url}}">
           <img src="http://placehold.it/205x154&text=Loading..." data-original="http://immediatenet.com/t/fs?Size=1024x768&URL={{raw_url}}?_={{dateToTimestamp updated_at created_at}}" class="lazy" />
-          <div class="caption">
-            <p>
-              <abbr class="timeago created_at" title="{{or updated_at created_at}}">{{dateToLocaleString updated_at created_at}}</abbr>
-            </p>
-          </div>
         </a>
         <ul class="meta">
           <li class="edit">
@@ -63,6 +58,7 @@
             {{user.login}}
           </a>
         {{/if}}
+        <abbr class="timeago created_at" title="{{or updated_at created_at}}">{{dateToLocaleString updated_at created_at}}</abbr>
       </div>
 
     """

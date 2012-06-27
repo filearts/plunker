@@ -18,16 +18,16 @@ genid = (len = 16, prefix = "", keyspace = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghij
   prefix
 
 
-mongoose = require("../../lib/stores/mongoose")
+database = require("./lib/database")
 
-Session = mongoose.model("Session")
-User = mongoose.model("User")
-Plunk = mongoose.model("Plunk")
+Session = database.model("Session")
+User = database.model("User")
+Plunk = database.model("Plunk")
 
 app.configure ->
   app.use require("./middleware/cors").middleware()
   app.use require("./middleware/json").middleware()
-  app.use require("./middleware/session").middleware(sessions: mongoose.model("Session"))
+  app.use require("./middleware/session").middleware(sessions: database.model("Session"))
     
   app.use app.router
   
@@ -72,7 +72,7 @@ app.post "/sessions", (req, res, next) ->
     else res.json(session, 201)
 
 app.get "/sessions/:id", (req, res, next) ->
-  Session.findById(req.params.id).populate("user").run (err, session) ->
+  Session.findById(req.params.id).populate("user").exec (err, session) ->
     if err then next(err)
     else unless session then next(new apiErrors.NotFound)
     else if Date.now() - session.last_access.valueOf() > nconf.get("session:max_age") then next(new apiErrors.NotFound)
@@ -174,7 +174,7 @@ app.get "/plunks", (req, res, next) ->
   start = Math.max(0, parseInt(req.param("p", "1"), 10) - 1) * pp
   end = start + pp
   
-  Plunk.find({}).sort("updated_at", -1).limit(pp).skip(start).populate("user").run (err, plunks) ->
+  Plunk.find({}).sort("updated_at", -1).limit(pp).skip(start).populate("user").exec (err, plunks) ->
     if err then next(err)
     else res.json(preparePlunks(req.session, plunks))
   
@@ -222,13 +222,13 @@ app.post "/plunks", (req, res, next) ->
 
 # Read plunk
 app.get "/plunks/:id", (req, res, next) ->
-  Plunk.findById(req.params.id).populate("user").run (err, plunk) ->
+  Plunk.findById(req.params.id).populate("user").exec (err, plunk) ->
     if err or not plunk then next(new apiErrors.NotFound)
     else res.json(preparePlunk(req.session, plunk.toJSON()))
     
 # Update plunk
 app.post "/plunks/:id", (req, res, next) ->
-  Plunk.findById(req.params.id).populate("user").run (err, plunk) ->
+  Plunk.findById(req.params.id).populate("user").exec (err, plunk) ->
     if err or not plunk or not ownsPlunk(req.session, plunk.toJSON()) then next(new apiErrors.NotFound)
     else
       json = req.body
@@ -277,7 +277,7 @@ app.post "/plunks/:id", (req, res, next) ->
     
 # Delete plunk
 app.del "/plunks/:id", (req, res, next) ->
-  Plunk.findById(req.params.id).populate("user").run (err, plunk) ->
+  Plunk.findById(req.params.id).populate("user").exec (err, plunk) ->
     if err or not plunk or not ownsPlunk(req.session, plunk.toJSON()) then next(new apiErrors.NotFound)
     else plunk.remove ->
       res.send(204)

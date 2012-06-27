@@ -20,6 +20,7 @@
       @$overlay.remove() if @$overlay
       
     onDisable: =>
+      @$overlay.remove() if @$overlay
       @$overlay = $('<div class="plnkr-overlay"></div>').prependTo(@$el)
     
 )(@plunker or @plunker = {})

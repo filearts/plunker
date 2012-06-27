@@ -56,6 +56,7 @@
       @buffers.on "reset", (coll) ->
         plunker.mediator.trigger "intent:file:activate", self.guessStartingFilename()
 
+      # Maintain the queue of buffer history
       @queue = []
       
       @buffers.on "add", (model) -> self.queue.unshift model.get("filename")
@@ -65,6 +66,7 @@
       plunker.mediator.on "file:rename", (to, from) -> self.queue = _.map self.queue, (el) -> if el == from then to else el
       plunker.mediator.on "file:activate", (filename) -> self.queue = [filename].concat _.without(self.queue, filename)
 
+      
       @on "import:start", -> plunker.mediator.trigger "editor:disable"
       @on "import:error import:success", -> plunker.mediator.trigger "editor:enable"
 
@@ -80,6 +82,12 @@
         self.ownStatusRef.removeOnDisconnect()
         self.ownStatusRef.set plunker.user.get("login") or plunker.session.get("public_id")
 
+      
+      plunker.mediator.on "save", (plunk) ->
+        if plunk.id isnt plunk.previous("id")
+          plunker.router.navigate "/edit/#{id}", replace: true, trigger: false
+
+        
       
       @plunk.on "change:id", ->
         id = self.plunk.id
@@ -99,10 +107,6 @@
             self.ownStatusRef = presenceRef.child(plunker.session.get("public_id"))
             self.ownStatusRef.on "value", (snapshot) ->
               setOwnStatus() if snapshot.val() is null
-            
-            
-            plunker.router.navigate "/edit/#{id}", replace: true, trigger: false
-
 
     
     onPromptFileAdd: (e) ->
@@ -194,8 +198,8 @@
           
           self.buffers.reset _.values(plunk.get("files"))
           self.plunk.trigger "sync"
-          self.trigger "import:success", @
           onSuccess(@)
+          self.trigger "import:success", @
         error: (err) ->
           onError(@)
           self.trigger "import:error"

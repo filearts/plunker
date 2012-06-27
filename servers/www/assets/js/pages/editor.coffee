@@ -65,14 +65,17 @@ Handlebars.registerHelper "slugify", (str) ->
     plunker.views.layout.attachPanel "west", plunker.views.sidebar
     
     plunker.router.route "/edit/from::id", (ctx, next) ->
+      console.log "routed", ":/edit/from::id"
       plunker.models.creation.import ctx.params.id,
         error: -> plunker.router.navigate("/edit/")
 
     plunker.router.route "/edit/:id", (ctx, next) ->
+      console.log "routed", ":/edit/:id"
       plunker.models.creation.load ctx.params.id,
         error: -> plunker.router.navigate("/edit/")
 
     plunker.router.route "/edit/", (ctx, next) ->
+      console.log "routed", ":/edit/"
       plunker.models.creation.import("2312729")
 
     plunker.router.start()

@@ -23,7 +23,7 @@
             "type": {
               "type": "string",
               "required": true,
-              "enum": [ "plunker", "gist" ]
+              "enum": [ "plunker_no_de", "gist" ]
             },
             "url": {
               "type": "string",

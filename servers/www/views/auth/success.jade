@@ -7,7 +7,7 @@ html
 
   body
     script
-      if (window.opener) {
+      if (window.opener && window.opener.plunker) {
         window.opener.plunker.mediator.trigger("event:auth", !{JSON.stringify(auth)});
         window.close();
       }

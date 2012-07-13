@@ -2,6 +2,7 @@
 var coffee = require("coffee-script");
 var express = require("express");
 
+
 var nconf = require("nconf").use("memory")
   .argv()
   .env()
@@ -35,4 +36,8 @@ if (!nconf.get("host")) {
     .use("/raw", require("./servers/raw"))
     .use(require("./servers/www"))
     .listen(nconf.get("PORT"));
+  
+  console.log("Started plunker at", nconf.get("host"), "on port", nconf.get("PORT"), "using subdomains:", !nconf.get("nosubdomains"));
+  console.log("Database", nconf.get("mongodb"));
+  console.log("Endpoints", nconf.get("url"));
 }

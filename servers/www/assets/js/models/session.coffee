@@ -17,10 +17,14 @@
       top = 0
       if (screenHeight > height)
           top = Math.round((screenHeight / 2) - (height / 2))
+          
+      debugger
 
       login = window.open "/auth/github", "Sign in with Github", """
         left=#{left},top=#{top},width=#{width},height=#{height},personalbar=0,toolbar=0,scrollbars=1,resizable=1
       """
+      
+      debugger
 
       winCloseCheck = ->
         return if login && !login.closed

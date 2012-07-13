@@ -54,9 +54,14 @@
       <div class="user">
         {{#if user}}
           <a href="/users/{{user.login}}">
-            <img class="gravatar" src="http://www.gravatar.com/avatar/{{user.gravatar_id}}?s=18" />
+            <img class="gravatar" src="http://www.gravatar.com/avatar/{{user.gravatar_id}}?s=18&d=mm" />
             {{user.login}}
           </a>
+        {{else}}
+          <span>
+            <img class="gravatar" src="http://www.gravatar.com/avatar/0?s=18&d=mm" />
+            Anonymous
+          </span>
         {{/if}}
         <abbr class="timeago created_at" title="{{or updated_at created_at}}">{{dateToLocaleString updated_at created_at}}</abbr>
       </div>

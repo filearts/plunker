@@ -16,7 +16,7 @@
           </button>
           <ul class="dropdown-menu">
             <li>
-              <a class="logout" href="/logout">Logout</a>
+              <a class="logout" href="javascript:void(0)">Logout</a>
             </li>
           </ul>
         {{else}}
@@ -27,7 +27,7 @@
           </button>
           <ul class="dropdown-menu">
             <li>
-              <a class="login login-github" data-service="github" href="/auth/github">
+              <a class="login login-github" data-service="github" href="javascript:void(0)">
                 <i class="icon-github" />
                 Sign in with Github
               </a>
@@ -63,13 +63,7 @@
         left=#{left},top=#{top},width=#{width},height=#{height},scrollbars=1,resizable=1
       """
       
-      winCloseCheck = ->
-        return if login && !login.closed
-        clearInterval(winListener)
-
-      winListener = setInterval(winCloseCheck, 1000)
-      
-      if login then login.focus();
+      if login then login.focus()
 
     render: =>
       @$el.html @template

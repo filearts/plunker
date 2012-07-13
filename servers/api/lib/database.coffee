@@ -5,10 +5,16 @@ url = require("url")
 
 mongoose.connect "mongodb:" + url.format(nconf.get("mongodb"))
 
+connectTimeout = setTimeout(errorConnecting, 1000 * 30)
+
+errorConnecting = ->
+  console.error "Error connecting to mongodb"
+  process.exit(1)
+  
+mongoose.connection.on "open", -> clearTimeout(connectTimeout)
+
 {Schema, Document} = mongoose
 {ObjectId} = Schema
-
-
 
 genid = (len = 16, prefix = "", keyspace = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789") ->
   prefix += keyspace.charAt(Math.floor(Math.random() * keyspace.length)) while len-- > 0

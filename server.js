@@ -8,7 +8,7 @@ var nconf = require("nconf").use("memory")
   .env()
   .file({file: "config.json"})
   .defaults({
-    "PORT": process.env.VCAP_APP_PORT || 8080
+    "PORT": process.env.VCAP_APP_PORT || 80
   });
 
 if (!nconf.get("host")) {
@@ -27,7 +27,7 @@ if (!nconf.get("host")) {
     nconf.set("url:raw", "http://raw." + host);
     nconf.set("url:api", "http://api." + host);
   }
-
+  
   // Create and start the parent server
   express.createServer()
     .use(express.logger())
@@ -38,6 +38,4 @@ if (!nconf.get("host")) {
     .listen(nconf.get("PORT"));
   
   console.log("Started plunker at", nconf.get("host"), "on port", nconf.get("PORT"), "using subdomains:", !nconf.get("nosubdomains"));
-  console.log("Database", nconf.get("mongodb"));
-  console.log("Endpoints", nconf.get("url"));
 }

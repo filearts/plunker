@@ -26,7 +26,7 @@ github = authom.createServer
 ###
 
 app.configure ->
-  app.use assets(src: "#{__dirname}/assets")
+  app.use assets(src: "#{__dirname}/assets", minifyBuilds: true)
   app.use gzippo.staticGzip("#{__dirname}/assets")
   app.use express.cookieParser()
   app.use express.bodyParser()

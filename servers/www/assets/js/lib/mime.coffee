@@ -96,4 +96,4 @@
   plunker.mime.findByFilename = (filename) ->
     _.find plunker.mime, (mime) -> filename.match(mime.regex)
           
-)(@plunker ||= {})
+)(@plunker or @plunker = {})

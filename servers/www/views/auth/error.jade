@@ -4,10 +4,18 @@ html
     meta(charset="utf-8")
     meta(name="viewport",content="width=device-width, initial-scale=1.0")
     title Plunker - Authorization failed to #{auth.service}
-
+    != js("/js/vendor/postmessage")
   body
     script
-      if (window.opener && window.opener.plunker) {
-        window.opener.plunker.mediator.trigger("error:auth", !{JSON.stringify(auth)});
-        window.close();
+      if (window.opener) {
+        pm({
+          target: window.opener,
+          type: "oauth:fail",
+          data: !{JSON.stringify(auth)},
+          success: function() { window.close(); }
+        });
+      } else {
+        window.location = "/";
       }
+
+          

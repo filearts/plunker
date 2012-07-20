@@ -43,6 +43,11 @@ app.configure ->
   app.set "view options", layout: false
 
 
+app.get "/auth/:service", (req, res, next) ->
+  req.headers.host = nconf.get("host")
+  
+  next()
+
 app.get "/auth/:service", authom.app
 
 

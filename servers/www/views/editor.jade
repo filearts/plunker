@@ -1,23 +1,23 @@
 !!! 5
-html
+html(ng-app="plunker.landing")
   head
     meta(charset="utf-8")
     meta(name="viewport",content="width=device-width, initial-scale=1.0")
     block title
-      title Plunker - Editor
+      title Plunker
     block styles
       != css("pages/editor")
     // if lt IE 9
       script(src="http://html5shim.googlecode.com/svn/trunk/html5.js")
     block scripts
       script(src="http://static.firebase.com/v0/firebase.js")
-      script(src="/js/vendor/ace/ace.js")
-      != js("pages/editor")
+      script(src="/js/vendor/ace/ace.js") // Ace needs to be 
       script
-        plunker.bootstrap({
+        var _plunker = {
           "url": !{JSON.stringify(url).replace(/<\//g,"<\\/")},
           "session": !{JSON.stringify(session).replace(/<\//g,"<\\/")}
-        });
+        };
+      != js("pages/editor")
 
   body
     nav.navbar.navbar-fixed-top
@@ -25,21 +25,14 @@ html
         a.brand(href="/") Plunker
           span.version v#{package.version}
 
-        div#userpanel.pull-right
-          div.btn-group
-            button.btn.dropdown-toggle(data-toggle="dropdown")
-              i.icon-user
-              span.text Sign in
-              span.caret
-            ul.dropdown-menu
-              li
-                a.github(href="/auth/github")
-                  i.icon-github-sign
-                  span Github
+        <userpanel></userpanel>
+        
         div#actionbar.pull-right
 
-    div#editor
+    div#editor(plunker-layout)
       div.ui-layout-center
+        div.editor-canvas(plunker-ace)
       div.ui-layout-east
+        
       div.ui-layout-west
 

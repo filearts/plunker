@@ -1,5 +1,5 @@
 !!! 5
-html
+html(ng-app="plunker.landing")
   head
     meta(charset="utf-8")
     meta(name="viewport",content="width=device-width, initial-scale=1.0")
@@ -11,12 +11,12 @@ html
       script(src="http://html5shim.googlecode.com/svn/trunk/html5.js")
     block scripts
       script(src="http://static.firebase.com/v0/firebase.js")
-      != js("pages/landing")
       script
-        plunker.bootstrap({
+        var _plunker = {
           "url": !{JSON.stringify(url).replace(/<\//g,"<\\/")},
           "session": !{JSON.stringify(session).replace(/<\//g,"<\\/")}
-        });
+        };
+      != js("pages/landing")
 
   body
     nav.navbar.navbar-fixed-top
@@ -30,17 +30,7 @@ html
           a.brand(href="/") Plunker
             span.version v#{package.version}
 
-          div#userpanel.pull-right
-            div.btn-group
-              button.btn.dropdown-toggle(data-toggle="dropdown")
-                i.icon-user
-                span.text Sign in
-                span.caret
-              ul.dropdown-menu
-                li
-                  a.github(href="/auth/github")
-                    i.icon-github-sign
-                    span Github
+          <userpanel></userpanel>
 
           div.nav-collapse
             ul#navbar.nav
@@ -60,9 +50,9 @@ html
               | .
 
         section#importer-section
-          div#importer.well
+          div#importer.well(ng-controller="ImporterController")
             form.import-form
-              input.import-source(type="text",placeholder="Gist ID or URL")
+              input.import-source(type="text",placeholder="Gist ID or URL",ng-model="value")
               input.import-submit.btn.btn-large.btn-primary(type="submit", value="Import")
               p.help-text.
                 Enter a gist id or url in the box above and hit Import. Plunker will
@@ -75,7 +65,8 @@ html
             h1 Recent plunks
           div.row
             div.span12
-              ul#gallery.thumbnails
+              ul#gallery.thumbnails(ng-controller="GalleryController")
+                <card ng-repeat="plunk in plunks"></card>
       hr
       footer
         p Built by <a href="https://github.com/ggoodman">Geoff Goodman</a> (<a href="http://twitter.com/g_goodman">@g_goodman</a>)

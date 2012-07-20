@@ -8,12 +8,14 @@ var nconf = require("nconf").use("memory")
   .env()
   .file({file: "config.json"})
   .defaults({
-    "PORT": process.env.VCAP_APP_PORT || 80
+    "PORT": 80
   });
 
 if (!nconf.get("host")) {
   console.error("The host option is required for Plunker to start");
 } else {
+  
+  //process.env.NODE_ENV = "production";
 
   var host = nconf.get("host");
 

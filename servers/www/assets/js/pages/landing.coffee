@@ -1,13 +1,12 @@
 #= require ../vendor/jquery
 #= require ../vendor/angular
-#= require ../vendor/angular-resource
 
-#= require ../modules/plunker
+#= require ../services/plunks
+
 #= require ../directives/userpanel
-#= require ../modules/plunks
-#= require ../modules/gallery
+#= require ../directives/card
 
 #= require ../controllers/importer
+#= require ../controllers/gallery
 
-
-angular.module("plunker.landing", ["plunker", "plunker.userpanel", "plunker.plunks", "plunker.gallery"])
+angular.module("plunker.landing", ["plunker.userpanel", "plunker.plunks", "plunker.card", "plunker.importer", "plunker.gallery"])

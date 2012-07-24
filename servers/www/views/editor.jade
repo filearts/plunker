@@ -1,5 +1,5 @@
 !!! 5
-html(ng-app="plunker.landing")
+html(ng-app="plunker.editor")
   head
     meta(charset="utf-8")
     meta(name="viewport",content="width=device-width, initial-scale=1.0")
@@ -29,10 +29,36 @@ html(ng-app="plunker.landing")
         
         div#actionbar.pull-right
 
-    div#editor(plunker-layout)
+    div#editor(plunker-layout,ng-controller="editor")
       div.ui-layout-center
         div.editor-canvas(plunker-ace)
-      div.ui-layout-east
+        div.editor-status
+          div.navbar.navbar-fixed-bottom
+            div.navbar-inner
+              ul.nav
+                li.dropdown
+                  a.dropdown-toggle(href="javascript:void(0)", data-toggle="dropdown") {{active.filename}}
+                    b.caret
         
+                  ul#editor-file-list.dropdown-menu
+                    li.file-add
+                      a(href="javascript:void(0)") Add file...
+                    li.divider
+                    li(ng-repeat="(filename, file) in scratch.files",ng-class="{active:file==active}")
+                      a.buffer(ng-click="setActive(file)") {{file.filename}}
+                li.divider-vertical
+      div.ui-layout-east
+        <previewer></previewer>
       div.ui-layout-west
-
+        div.plnk-sidebar
+          ul.nav.nav-list
+            li.nav-header Files
+              button.file-add
+                i.icon-plus
+                | New...
+          ul.nav.nav-list(ng-repeat="(filename, file) in scratch.files")
+            li.file(ng-class="{active:file==active}")
+              a(ng-click="setActive(file)") {{file.filename}}
+              ul.file-ops
+                li.delete: button.btn.btn-mini: i.icon-remove
+        

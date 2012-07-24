@@ -1,6 +1,7 @@
 #= require ../vendor/jquery
 #= require ../vendor/jquery.ui.custom
 #= require ../vendor/jquery.layout
+#= require ../vendor/angular
 
 module = angular.module("plunker.layout", [])
 
@@ -16,7 +17,8 @@ module.directive "plunkerLayout", ->
       south:
         initClosed: true
       east:
-        initClosed: true
+        initClosed: false
+        size: Math.max(0, ($("body").width() - 160) / 2)
       west:
         initClosed: false
         size: 160

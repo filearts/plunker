@@ -1,0 +1,28 @@
+!!! 5
+html
+  head
+    title Plunker - Preview
+    link(href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css",rel="stylesheet")
+    link(href="http://twitter.github.com/bootstrap/assets/css/bootstrap-responsive.css",rel="stylesheet")
+
+  body
+    div.container
+      section
+        div.page-header
+          h1 Preview:#{plunk.id}
+        div.row
+          div.span3
+            h2 Files
+            div.well(style="padding: 8px 0;")
+              ul.files.nav.nav-list
+                li.nav-header Files
+                each file, filename in plunk.files
+                  li.file
+                    a(href="#{file.run_url}") #{file.filename}
+          div.span9
+            h2 Directory listing
+            p.
+              The plunk that you've accessed does not have an index.html file.
+              Instead of showing a useless blank page or trying to guess which
+              file you really wanted to see, Plunker shows this default page
+              that lets you skip to each file.

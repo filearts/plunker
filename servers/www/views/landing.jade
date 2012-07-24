@@ -66,7 +66,7 @@ html(ng-app="plunker.landing")
           div.row
             div.span12
               ul#gallery.thumbnails(ng-controller="GalleryController")
-                <card ng-repeat="plunk in plunks"></card>
+                <card ng-repeat="plunk in plunks | limitTo:8"></card>
       hr
       footer
         p Built by <a href="https://github.com/ggoodman">Geoff Goodman</a> (<a href="http://twitter.com/g_goodman">@g_goodman</a>)

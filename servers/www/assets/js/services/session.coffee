@@ -1,11 +1,14 @@
+#= require ../vendor/angular
+#= require ../vendor/angular-cookies
+
 #= require ../vendor/postmessage
 
 #= require ../services/url
 
 
-module = angular.module("plunker.session", ["plunker.url"])
+module = angular.module("plunker.session", ["ngCookies", "plunker.url"])
 
-module.factory "session", ($http, $rootScope, url) ->
+module.factory "session", ["$http", "$rootScope", "$cookies", "url", ($http, $rootScope, $cookies, url) ->
   new class Session
     constructor: ->
       angular.copy(_plunker.session, @) if _plunker and _plunker.session
@@ -13,6 +16,7 @@ module.factory "session", ($http, $rootScope, url) ->
       pm.bind "oauth:success", angular.bind(@, @handleAuth)
       pm.bind "oauth:error", angular.bind(@, @handleError)
       
+      $cookies.plnk_session = @id
     
     upgrade: ->
       console.log "Upgrade", arguments...
@@ -58,4 +62,4 @@ module.factory "session", ($http, $rootScope, url) ->
         angular.copy(response.data, self)
       , (error) ->
         console.error "login:error", arguments...
-        
+]

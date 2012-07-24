@@ -282,5 +282,45 @@ app.del "/plunks/:id", (req, res, next) ->
     else plunk.remove ->
       res.send(204)
 
+
+LRU = require("lru-cache")
+previews = LRU(100)
+
+app.post "/previews", (req, res, next) ->
+  json = req.body
+  schema = require("./schema/previews/create")
+  {valid, errors} = validator.validate(json, schema)
+  
+  # Despite its awesomeness, validator does not support disallow or additionalProperties; we need to check plunk.files size
+  if json.files and _.isEmpty(json.files)
+    valid = false
+    errors.push
+      attribute: "minProperties"
+      property: "files"
+      message: "A minimum of one file is required"
+  
+  unless valid then next(new apiErrors.ValidationError(errors))
+  else
+    id = genid() # Don't care about id clashes. They are disposable anyway
+    json.url = nconf.get("url:api") + "/previews/#{id}"
+    json.run_url = nconf.get("url:run") + "/#{id}/"
+
+    _.each json.files, (file, filename) ->
+      json.files[filename] =
+        filename: filename
+        content: file.content
+        mime: mime.lookup(filename, "text/plain")
+        run_url: json.run_url + filename
+
+    
+    previews.set(id, json)
+    
+    res.json(json, 201)
+
+app.get "/previews/:id", (req, res, next) ->
+  unless json = previews.get(req.params.id) then next(new apiErrors.NotFound)
+  else
+    res.json(json)
+
 app.all "*", (req, res, next) ->
   next new apiErrors.NotFound

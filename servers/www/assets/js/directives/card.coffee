@@ -4,9 +4,9 @@
 
 #= require ../vendor/angular
 
-#= require ../modules/plunks
+#= require ../services/plunks
 
-module = angular.module("plunker.gallery", ["plunker.plunks"])
+module = angular.module("plunker.card", ["plunker.plunks"])
 
 module.filter "toHumanReadable", ->
   (value) -> value.toString()
@@ -68,9 +68,3 @@ module.directive "card", ->
     $scope.$watch 'plunk', (plunk) ->
       $(".timeago", $el).timeago() if plunk.updated_at
       $(".lazyload", $el).lazyload() if plunk.raw_url
-        
-
-  controller: ($scope, $element, Plunk) ->
-
-@GalleryController = ($scope, Plunk) ->
-  $scope.plunks = Plunk.query()

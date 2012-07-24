@@ -15,7 +15,7 @@ if (!nconf.get("host")) {
   console.error("The host option is required for Plunker to start");
 } else {
   
-  //process.env.NODE_ENV = "production";
+  process.env.NODE_ENV = "production";
 
   var host = nconf.get("host");
 
@@ -23,10 +23,12 @@ if (!nconf.get("host")) {
   if (nconf.get("nosubdomains")) {
     nconf.set("url:www", "http://" + host);
     nconf.set("url:raw", "http://" + host + "/raw");
+    nconf.set("url:run", "http://" + host + "/run");
     nconf.set("url:api", "http://" + host + "/api");
   } else {
     nconf.set("url:www", "http://" + host);
     nconf.set("url:raw", "http://raw." + host);
+    nconf.set("url:run", "http://run." + host);
     nconf.set("url:api", "http://api." + host);
   }
   
@@ -36,8 +38,9 @@ if (!nconf.get("host")) {
     .use(require("express-subdomains").use("raw").use("api").middleware)
     .use("/api", require("./servers/api"))
     .use("/raw", require("./servers/raw"))
+    .use("/run", require("./servers/run"))
     .use(require("./servers/www"))
     .listen(nconf.get("PORT"));
   
-  console.log("Started plunker at", nconf.get("host"), "on port", nconf.get("PORT"), "using subdomains:", !nconf.get("nosubdomains"));
+  console.log("Started plunker in", nconf.get("NODE_ENV") || "development", "at", nconf.get("host"), "on port", nconf.get("PORT"), "using subdomains:", !nconf.get("nosubdomains"));
 }

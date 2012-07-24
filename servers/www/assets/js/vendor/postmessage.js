@@ -208,11 +208,11 @@ var NO_JQUERY = {};
                  var msg = JSON.parse(e.data);
              }
              catch (ex) {
-                 console.warn("postmessage data invalid json: ", ex);
+                 //console.warn("postmessage data invalid json: ", ex);
                  return;
              }
              if (!msg.type) {
-                 console.warn("postmessage message type required");
+                 //console.warn("postmessage message type required");
                  return;
              }
              var cbs = pm.data("callbacks.postmessage") || {},

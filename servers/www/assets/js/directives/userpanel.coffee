@@ -4,7 +4,7 @@
 
 module = angular.module("plunker.userpanel", ["plunker.session"])
 
-module.directive "userpanel", ->
+module.directive "userpanel", [ ->
   restrict: "E"
   replace: true
   template: """
@@ -38,6 +38,8 @@ module.directive "userpanel", ->
       </div>
     </div>
   """
-  controller: ($scope, session) ->
+  controller: ["$scope", "session", ($scope, session) ->
     console.log "Session", session
     $scope.session = session
+  ]
+]

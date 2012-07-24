@@ -1,0 +1,23 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "files": {
+      "required": true,
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-zA-z0-9_-]+(\\.[a-zA-Z0-9]+)?$": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "content": {
+              "type": "string",
+              "required": true
+            }
+          }
+        }
+      }
+    }
+  }
+}

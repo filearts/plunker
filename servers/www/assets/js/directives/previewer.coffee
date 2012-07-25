@@ -31,8 +31,11 @@ module.directive "plunkerPreviewer", ["$http", "url", ($http, url) ->
       request = $http.post("#{url.api}/previews", json)
       
       request.then (response) ->
-        $preview.remove() if $preview
-        $preview = $("<iframe>", src: response.data.run_url, class: "plnk-runner", frameborder: 0, width: "100%", height: "100%", scrolling: "auto").appendTo(el).fadeIn()
+        $old = $preview
+        $preview = $("<iframe>", src: response.data.run_url, class: "plnk-runner", frameborder: 0, width: "100%", height: "100%", scrolling: "auto").appendTo(el)
+        $preview.ready ->
+          if $old then $old.fadeOut -> $old.remove()
+          $preview.fadeIn()
         
         
     

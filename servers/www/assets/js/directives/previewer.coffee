@@ -21,7 +21,7 @@ module.directive "plunkerPreviewer", ["$http", "url", ($http, url) ->
   link: ($scope, el, attrs) ->
     $preview = null
     
-    $scope.refreshPreview = debounce ->
+    $scope.refreshPreview = ->
       json = { files: {} }
       
       for filename, file of $scope.scratch.files
@@ -33,12 +33,8 @@ module.directive "plunkerPreviewer", ["$http", "url", ($http, url) ->
       request.then (response) ->
         $preview.remove() if $preview
         $preview = $("<iframe>", src: response.data.run_url, class: "plnk-runner", frameborder: 0, width: "100%", height: "100%", scrolling: "auto").appendTo(el).fadeIn()
-
-    , 1000
         
         
     
-    $scope.$watch "scratch.files", ->
-      $scope.refreshPreview()
-    , true
+    $scope.$watch "scratch.files", debounce($scope.refreshPreview.bind(@), 1000), true
 ]

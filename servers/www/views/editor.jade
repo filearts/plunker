@@ -51,6 +51,11 @@ html(ng-app="plunker.editor")
                           button.btn.btn-mini(ng-click="scratch.promptFileRemove(filename)"): i.icon-remove
                 li.divider-vertical
       div.ui-layout-east(plunker-previewer)
+        #preview-ops
+          .btn-toolbar
+            .btn-group
+              button#refresh-preview.btn.btn-mini.btn-success(ng-click="refreshPreview()")
+                i.icon-refresh.icon-white
       div.ui-layout-west
         div.plnk-sidebar
           ul.nav.nav-list

@@ -15,7 +15,7 @@ if (!nconf.get("host")) {
   console.error("The host option is required for Plunker to start");
 } else {
   
-  process.env.NODE_ENV = "production";
+  //process.env.NODE_ENV = "production";
 
   var host = nconf.get("host");
 
@@ -35,7 +35,7 @@ if (!nconf.get("host")) {
   // Create and start the parent server
   express.createServer()
     .use(express.logger())
-    .use(require("express-subdomains").use("raw").use("api").middleware)
+    .use(require("express-subdomains").use("raw").use("api").use("run").middleware)
     .use("/api", require("./servers/api"))
     .use("/raw", require("./servers/raw"))
     .use("/run", require("./servers/run"))

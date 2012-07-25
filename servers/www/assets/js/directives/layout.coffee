@@ -25,3 +25,4 @@ module.directive "plunkerLayout", ->
         minSize: 160
         maxSize: 320
       onresize: -> $scope.$broadcast "layout:resize"
+      maskContents: true

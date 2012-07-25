@@ -1,4 +1,5 @@
 #= require ../vendor/jquery
+#= require ../vendor/underscore
 #= require ../vendor/angular
 
 #= require ../services/plunks
@@ -16,12 +17,20 @@ module = angular.module("plunker.editor", ["plunker.scratch", "plunker.plunks", 
 module.controller "editor", ["$scope", "scratch", "Plunk", ($scope, scratch, Plunk) ->
   $scope.scratch = scratch
   
-  window.scratch = scratch
-  
-  $scope.setActive = (active) ->
-    $scope.active = active
-  
-  $scope.guessActive = ->
-    $scope.active = scratch.files["index.html"]
-  $scope.guessActive()
+  $scope.history = new class
+    constructor: ->
+      self = @
+      self.queue = _.values(scratch.files)
+      
+      $scope.$watch "scratch.files", (files) ->
+        filenames = _.values(scratch.files)
+        self.queue = _.chain(self.queue).intersection(filenames).union(filenames).value()
+      , true
+      
+      @activate(index) if index = scratch.files["index.html"]
+    
+    last: -> @queue[0]
+    activate: (file) ->
+      @queue.splice(i, 1) if (i = @queue.indexOf(file)) >= 0
+      @queue.unshift(file)
 ]

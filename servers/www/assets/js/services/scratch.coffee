@@ -16,40 +16,51 @@ module.factory "scratch", ["$http", "$q", "url", ($http, $q, url) ->
                 <script src="script.js"></script>
               </head>
               <body>
+                <h1>Basic Plunk</h1>
               </body>
             </html>
             """
           filename: "index.html"
         "style.css":
-          content: ""
+          content: """
+            /* CSS goes here */
+            h1 {
+              color: blue;
+            }
+          """
           filename: "style.css"
         "script.js":
-          content: ""
+          content: """
+            // Javascript goes here
+          """
           filename: "script.js"
           
         
     constructor: ->
       angular.copy Scratch.defaults, @
-      
     
-    requestPreview: ->
-      dfd = $q.defer()
-      
-      request = $http.post("#{url.api}/previews", @toPreviewJSON())
-      request.then (response) ->
-        dfd.resolve(response.data)
-      , (error) ->
-        dfd.reject(error)
-      
-      dfd.promise
+    promptFileAdd: (new_filename) ->
+      if new_filename ||= prompt("Please enter the name for the new file:")
+        for filename, file of @files
+          if file.filename == new_filename
+            alert("A file already exists called: '#{new_filename}'")
+            return
+        
+        @files[new_filename] =
+          filename: new_filename
+          content: ""
     
-    toPreviewJSON: ->
-      json =
-        files: {}
+    promptFileRemove: (filename) ->
+      if @files[filename] and confirm("Are you sure that you would like to remove the file '#{filename}?")
+        delete @files[filename]
+    
+    promptFileRename: (filename, new_filename) ->
+      if @files[filename] and (new_filename ||= prompt("Please enter the name for new name for the file:"))
+        for filename, file of @files
+          if file.filename == new_filename
+            alert("A file already exists called: '#{new_filename}'")
+            return
       
-      angular.forEach @files, (file, filename) ->
-        json.files[filename] =
-          content: file.content
+        @files[filename].filename = new_filename
       
-      json
 ]

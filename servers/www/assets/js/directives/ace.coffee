@@ -8,36 +8,54 @@ UndoManager = require("ace/undomanager").UndoManager
 
 module = angular.module("plunker.ace", ["plunker.modes"])
 
+module.directive "plunkerSession", ["modes", (modes) ->
+  restrict: "E"
+  require: "?ngModel"
+  template: """
+    <div style="display: none" ng-model="file.content"></div>
+  """
+  replace: true
+  link: ($scope, el, attrs, ngModel) ->
+    file = $scope.file
+    
+    session = new EditSession(file.content or "")
+    session.setTabSize(2)
+    session.setUseSoftTabs(true)
+    session.setUndoManager(new UndoManager())
+    session.setMode(mode.source) if mode = modes.findByFilename(file.filename)
+    
+    ngModel.$render = ->
+      session.setValue(ngModel.$viewValue or "")
+    
+    read = -> ngModel.$setViewValue(session.getValue())
+    session.on 'change', -> $scope.$apply(read)
+    
+    read()
+    
+    $scope.$on "$destroy", ->
+      # How do I destroy the session?
+      
+    $scope.$watch "file.filename", (filename) ->
+      session.setMode(mode.source) if mode = modes.findByFilename(file.filename)
+    
+    $scope.$watch "history.last()", (active) ->
+      if active == file
+        $scope.ace.setSession(session)
+        $scope.ace.focus()
+] 
+
 module.directive "plunkerAce", ["modes", (modes) ->
-  restrict: "A"
+  restrict: "E"
+  template: """
+    <div class="editor-canvas">
+      <plunker-session ng-repeat="(filename, file) in scratch.files"></plunker-session>
+    </div>
+  """
+  replace: true
   link: ($scope, el, attrs, ngModel) ->
     $scope.ace = ace.edit(el[0])
+    
+    
     $scope.$on "layout:resize", ->
       $scope.ace.resize()
-    
-    $scope.$watch "scratch.files", (files) ->
-      for filename, file of files then do (filename, file) ->
-        unless file.session
-          session = new EditSession(file.content or "")
-          session.setTabSize(2)
-          session.setUseSoftTabs(true)
-          session.setUndoManager(new UndoManager())
-          session.setMode(modes.findByFilename(file.filename).source)
-          
-          changing = false
-          
-          #$scope.$watch file.content, (content) ->
-          #  console.log "VALUE", content
-          #  changing = true
-          #  session.setValue(content)
-          #  changing = false
-          
-          read = -> file.content = session.getValue()
-          session.on 'change', -> $scope.$apply(read) unless changing
-          
-          file.session = session
-
-    $scope.$watch "active", (active) ->
-      console.log "active$watch", arguments...
-      $scope.ace.setSession(active.session) if active.session
 ]

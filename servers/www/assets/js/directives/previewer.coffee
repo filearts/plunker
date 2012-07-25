@@ -16,12 +16,8 @@ debounce = (func, wait, immediate) ->
 
 module = angular.module("plunker.previewer", ["plunker.url"])
 
-module.directive "previewer", ["$http", "url", ($http, url) ->
-  restrict: "E"
-  replace: true
-  template: """
-    <div class="plnk-previewer"></div>
-  """
+module.directive "plunkerPreviewer", ["$http", "url", ($http, url) ->
+  restrict: "A"
   link: ($scope, el, attrs) ->
     $preview = null
     
@@ -36,12 +32,13 @@ module.directive "previewer", ["$http", "url", ($http, url) ->
       
       request.then (response) ->
         $preview.remove() if $preview
-        $preview = $("<iframe>", src: response.data.run_url, class: "plnk-runner").appendTo(el).fadeIn()
+        $preview = $("<iframe>", src: response.data.run_url, class: "plnk-runner", frameborder: 0, width: "100%", height: "100%", scrolling: "auto").appendTo(el).fadeIn()
 
     , 1000
         
         
     
-    $scope.$watch "active.content", ->
+    $scope.$watch "scratch.files", ->
       $scope.refreshPreview()
+    , true
 ]

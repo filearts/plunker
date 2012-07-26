@@ -3,6 +3,7 @@ html(ng-app="plunker.editor")
   head
     meta(charset="utf-8")
     meta(name="viewport",content="width=device-width, initial-scale=1.0")
+    base(href="/edit/")
     block title
       title Plunker
     block styles
@@ -19,17 +20,35 @@ html(ng-app="plunker.editor")
         };
       != js("pages/editor")
 
-  body
+  body(ng-controller="editor")
     nav.navbar.navbar-fixed-top
       div.navbar-inner
-        a.brand(href="/") Plunker
+        a.brand(href="{{url.www}}") Plunker
           span.version v#{package.version}
 
         <userpanel></userpanel>
         
-        div#actionbar.pull-right
+        div#toolbar.btn-toolbar
+          .btn-group
+            button.btn.btn-primary(ng-click="save()")
+              i.icon-save
+              |  Save
+          .btn-group
+            button.btn.btn-success(ng-click="builder.launch()",title="Launch the Plunk builder (coming soon...)")
+              i.icon-beaker
+              |  Build
+            button.btn.btn-success.dropdown-toggle(data-toggle="dropdown"): span.caret
+            ul.dropdown-menu
+              li: a(href="/edit/") Basic snippet
+              li.divider
+              li: a(href="/edit/gist:1986619") jQuery
+                a.alt(href="/edit/gist:1992850") (.coffee)
+              li: a(href="/edit/gist:1986619") jQuery UI
+              li.divider
+              li: a(href="/edit/gist:2246015") AngularJS
 
-    div#editor(plunker-layout,ng-controller="editor")
+    div#editor(plunker-layout, ng-class="{loading:loading}")
+      div.plnk-overlay
       div.ui-layout-center
         <plunker-ace class="editor-canvas"></plunker-ace>
         div.editor-status
@@ -45,7 +64,7 @@ html(ng-app="plunker.editor")
                       a(href="javascript:void(0)", ng-click="scratch.promptFileAdd()") Add file...
                     li.divider
                     li.file(ng-repeat="(filename, file) in scratch.files",ng-class="{active:file==history.last()}")
-                      a.buffer(ng-click="history.activate(file)", ng-dblclick="scratch.promptFileRename(filename)") {{file.filename}}
+                      a.buffer(href="javascript:void(0)", ng-click="history.activate(file)", ng-dblclick="scratch.promptFileRename(filename)") {{file.filename}}
                       ul.file-ops
                         li.delete
                           button.btn.btn-mini(ng-click="scratch.promptFileRemove(filename)"): i.icon-remove
@@ -65,7 +84,7 @@ html(ng-app="plunker.editor")
                 | New...
           ul.nav.nav-list(ng-repeat="(filename, file) in scratch.files")
             li.file(ng-class="{active:file==history.last()}")
-              a(ng-click="history.activate(file)", ng-dblclick="scratch.promptFileRename(filename)") {{file.filename}}
+              a(href="javascript:void(0)", ng-click="history.activate(file)", ng-dblclick="scratch.promptFileRename(filename)") {{file.filename}}
               ul.file-ops
                 li.delete
                   button.btn.btn-mini(ng-click="scratch.promptFileRemove(filename)"): i.icon-remove

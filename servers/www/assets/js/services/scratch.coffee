@@ -2,7 +2,7 @@
 
 module = angular.module("plunker.scratch", ["plunker.url"])
 
-module.factory "scratch", ["$http", "$q", "url", ($http, $q, url) ->
+module.factory "scratch", ["$http", "$q", "url", ($http, $q, url, plunk) ->
   new class Scratch
     @defaults:
       description: "Untitled"

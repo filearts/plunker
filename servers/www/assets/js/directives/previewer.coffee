@@ -20,24 +20,36 @@ module.directive "plunkerPreviewer", ["$http", "url", ($http, url) ->
   restrict: "A"
   link: ($scope, el, attrs) ->
     $preview = null
+    enabled = true
+    deferred = false
     
     $scope.refreshPreview = ->
-      json = { files: {} }
-      
-      for filename, file of $scope.scratch.files
-        json.files[file.filename] =
-          content: file.content
-      
-      request = $http.post("#{url.api}/previews", json)
-      
-      request.then (response) ->
-        $old = $preview
-        $preview = $("<iframe>", src: response.data.run_url, class: "plnk-runner", frameborder: 0, width: "100%", height: "100%", scrolling: "auto").appendTo(el)
-        $preview.ready ->
-          if $old then $old.fadeOut -> $old.remove()
-          $preview.fadeIn()
+      unless enabled
+        deferred = true
+      else
+        json = { files: {} }
         
+        for filename, file of $scope.scratch.files
+          json.files[file.filename] =
+            content: file.content
         
+        request = $http.post("#{url.api}/previews", json)
+        
+        request.then (response) ->
+          $old = $preview
+          $preview = $("<iframe>", src: response.data.run_url, class: "plnk-runner", frameborder: 0, width: "100%", height: "100%", scrolling: "auto").appendTo(el)
+          $preview.ready ->
+            if $old then $old.fadeOut -> $old.remove()
+            $preview.fadeIn()
+        
+    $scope.$watch "layout.state.east.isClosed", (closed) ->
+      enabled = !closed
+      
+      if closed
+        $preview.remove() if $preview
+      else if deferred
+        $scope.refreshPreview()
+        deferred = false
     
     $scope.$watch "scratch.files", debounce($scope.refreshPreview.bind(@), 1000), true
 ]

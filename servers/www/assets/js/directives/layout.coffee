@@ -8,7 +8,7 @@ module = angular.module("plunker.layout", [])
 module.directive "plunkerLayout", ->
   restrict: "A"
   link: ($scope, el, attrs) ->
-    $(el).layout
+    $scope.layout = layout = $(el).layout
       defaults:
         spacing_open: 4
         spacing_closed: 8
@@ -24,5 +24,8 @@ module.directive "plunkerLayout", ->
         size: 160
         minSize: 160
         maxSize: 320
-      onresize: -> $scope.$broadcast "layout:resize"
+      onresize: ->
+        $scope.$apply ->
+          $scope.layout.state = layout.state
+          $scope.$broadcast "layout:resize"
       maskContents: true

@@ -4,40 +4,9 @@ module = angular.module("plunker.scratch", ["plunker.url"])
 
 module.factory "scratch", ["$http", "$q", "url", ($http, $q, url, plunk) ->
   new class Scratch
-    @defaults:
-      description: "Untitled"
-      files:
-        "index.html":
-          content: """
-            <!doctype html>
-            <html>
-              <head>
-                <link rel="stylesheet" href="style.css" />
-                <script src="script.js"></script>
-              </head>
-              <body>
-                <h1>Basic Plunk</h1>
-              </body>
-            </html>
-            """
-          filename: "index.html"
-        "style.css":
-          content: """
-            /* CSS goes here */
-            h1 {
-              color: blue;
-            }
-          """
-          filename: "style.css"
-        "script.js":
-          content: """
-            // Javascript goes here
-          """
-          filename: "script.js"
-          
-        
+    files: {}
+    
     constructor: ->
-      angular.copy Scratch.defaults, @
     
     promptFileAdd: (new_filename) ->
       if new_filename ||= prompt("Please enter the name for the new file:")

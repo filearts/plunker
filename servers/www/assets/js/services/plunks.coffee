@@ -9,7 +9,7 @@ module.factory "Plunk", ["$http", "$rootScope", "$cookies", "url", ($http, $root
   class window.Plunk
     @defaults:
       description: "Untitled"
-      tags: []
+      #tags: []
       files:
         "index.html": {filename: "index.html", content: ""}
     @base_url: "#{url.api}/plunks"
@@ -78,7 +78,7 @@ module.factory "Plunk", ["$http", "$rootScope", "$cookies", "url", ($http, $root
       
     save: (attributes, success = angular.noop, error = angular.noop) ->
       self = @
-      angular.copy(attributes, self) if attributes
+      angular.extend(self, attributes) if attributes
       
       console.log "Self", @
       

@@ -23,7 +23,7 @@ githubRegex = ///
 ///i
 
 
-module = angular.module("plunker.importer", ["plunker.plunk"])
+module = angular.module("plunker.importer", ["plunker.plunks"])
 
 module.factory "importer", [ "$q", "$http", "Plunk", ($q, $http, Plunk) ->
   import: (source) ->

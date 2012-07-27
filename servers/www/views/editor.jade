@@ -42,10 +42,18 @@ html(ng-app="plunker.editor")
               li: a(href="/edit/") Basic snippet
               li.divider
               li: a(href="/edit/gist:1986619") jQuery
-                a.alt(href="/edit/gist:1992850") (.coffee)
+                a.coffee(href="/edit/gist:1992850"): img(src="/img/coffeescript-logo-small_med.png")
               li: a(href="/edit/gist:1986619") jQuery UI
               li.divider
               li: a(href="/edit/gist:2246015") AngularJS
+              li.divider
+              li: a(href="/edit/gist:2016721") Bootstrap
+                a.coffee(href="/edit/gist:2016721"): img(src="/img/coffeescript-logo-small_med.png")
+              li.divider
+              li: a(href="/edit/gist:2050713") Backbone.js
+                a.coffee(href="/edit/gist:2050746"): img(src="/img/coffeescript-logo-small_med.png")
+              li.divider
+              li: a(href="/edit/gist:1990582") YUI
 
     div#editor(plunker-layout, ng-class="{loading:loading}")
       div.plnk-overlay

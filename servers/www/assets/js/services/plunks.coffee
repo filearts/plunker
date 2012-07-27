@@ -1,11 +1,11 @@
 #= require ../vendor/angular
-#= require ../vendor/angular-cookies
+#= require ../vendor/jquery.cookie
 
 #= require ../services/url
 
-module = angular.module("plunker.plunks", ["ngCookies", "plunker.url"])
+module = angular.module("plunker.plunks", ["plunker.url"])
 
-module.factory "Plunk", ["$http", "$rootScope", "$cookies", "url", ($http, $rootScope, $cookies, url) ->
+module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) ->
   class window.Plunk
     @defaults:
       description: "Untitled"
@@ -20,7 +20,7 @@ module.factory "Plunk", ["$http", "$rootScope", "$cookies", "url", ($http, $root
         method: "GET"
         url: "#{url.api}/plunks"
         headers:
-          Authorization: "token #{$cookies.plnk_session}"
+          Authorization: "token " + $.cookie("plnk_session")
       
       request.then (response) ->
         for plunk in response.data
@@ -44,7 +44,7 @@ module.factory "Plunk", ["$http", "$rootScope", "$cookies", "url", ($http, $root
         url: "#{url.api}/plunks"
         data: plunk
         headers:
-          Authorization: "token #{$cookies.plnk_session}"
+          Authorization: "token " + $.cookie("plnk_session")
           
       request.then (response) ->
         angular.copy(response.data, plunk)
@@ -65,7 +65,7 @@ module.factory "Plunk", ["$http", "$rootScope", "$cookies", "url", ($http, $root
         method: "GET"
         url: "#{url.api}/plunks/#{plunk.id}"
         headers:
-          Authorization: "token #{$cookies.plnk_session}"
+          Authorization: "token " + $.cookie("plnk_session")
       
       request.then (response) ->
         angular.copy(response.data, plunk)
@@ -74,13 +74,50 @@ module.factory "Plunk", ["$http", "$rootScope", "$cookies", "url", ($http, $root
       , error
     
       @
-    
-    save: (attributes, success = angular.noop, error = angular.noop) ->
+      
+    destroy: (success = angular.noop, error = angular.noop) ->
+      return error("Impossible to delete a plunk that is not saved") unless @id
+      return error("Impossible to delete a plunk that you do not own") unless @token
+      
       self = @
+      
+      path = "#{url.api}/plunks"
+      path += "/#{self.id}" if self.id
+
+      request = $http
+        method: "DELETE"
+        url: path
+        headers:
+          Authorization: "token " + $.cookie("plnk_session")
+          
+      request.then (response) ->
+        angular.copy(Plunk.defaults, self)
+        success()
+      , error
+      
+      self
+    
+    save: (a0, a1, a2) ->
+      self = @
+      
+      switch arguments.length
+        when 3
+          attributes = a0
+          success = a1
+          error = a2
+        when 2
+          success = a0
+          error = a1
+        when 1
+          attributes = a0
+        
+      success ||= angular.noop
+      error ||= angular.noop
+      
       angular.extend(self, attributes) if attributes
 
-      url = "#{url.api}/plunks"
-      url += "/#{self.id}" if self.id
+      path = "#{url.api}/plunks"
+      path += "/#{self.id}" if self.id
       
       data =
         description: self.description
@@ -96,19 +133,16 @@ module.factory "Plunk", ["$http", "$rootScope", "$cookies", "url", ($http, $root
         data.source = self.source if self.source
       
         # Normalize filenames vs files for unsaved plunks
-        old_files = data.files
-        data.files = {}
-        
-        for filename, file of data.files
+        for filename, file of self.files
           data.files[file.filename] =
             content: file.content
           
       request = $http
         method: "POST"
-        url: url
+        url: path
         data: data
         headers:
-          Authorization: "token #{$cookies.plnk_session}"
+          Authorization: "token " + $.cookie("plnk_session")
           
       request.then (response) ->
         data = angular.copy(response.data) # Is this copy needed?

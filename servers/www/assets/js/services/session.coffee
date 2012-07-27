@@ -1,14 +1,14 @@
 #= require ../vendor/angular
-#= require ../vendor/angular-cookies
+#= require ../vendor/jquery.cookie
 
 #= require ../vendor/postmessage
 
 #= require ../services/url
 
 
-module = angular.module("plunker.session", ["ngCookies", "plunker.url"])
+module = angular.module("plunker.session", ["plunker.url"])
 
-module.factory "session", ["$http", "$rootScope", "$cookies", "url", ($http, $rootScope, $cookies, url) ->
+module.factory "session", ["$http", "$rootScope", "url", ($http, $rootScope, url) ->
   new class Session
     constructor: ->
       angular.copy(_plunker.session, @) if _plunker and _plunker.session
@@ -16,7 +16,9 @@ module.factory "session", ["$http", "$rootScope", "$cookies", "url", ($http, $ro
       pm.bind "oauth:success", angular.bind(@, @handleAuth)
       pm.bind "oauth:error", angular.bind(@, @handleError)
       
-      $cookies.plnk_session = @id
+      $.cookie "plnk_session", @id,
+        expires: 14 # 14 days from now
+        path: "/"
     
     login: (width = 1000, height = 650) ->
       screenHeight = screen.height

@@ -36,13 +36,16 @@ module.controller "editor", ["$scope", "$location", "$routeParams", "importer", 
     if path is "/" then $scope.plunk = new Plunk
     else
       loadPlunk(path) unless path is "/" or path.slice(1) is $scope.plunk.id
-  
-  # Watch for changes tot he plunk id and update accordingly
-  $scope.$watch "plunk.id", (id, old_id) ->
-    $location.path("/#{id}").replace() if id and not old_id
-  
+    
   $scope.save = ->
-    $scope.plunk.save()
+    $scope.plunk.save (plunk) ->
+      $location.path("/#{plunk.id}").replace()
+    , (error) -> alert("Save error: #{error}")
+  
+  $scope.destroy = ->
+    $scope.plunk.destroy ->
+      $location.path("/").replace()
+    , (error) -> alert("Delete error: #{error}")
     
   $scope.history = new class
     constructor: ->

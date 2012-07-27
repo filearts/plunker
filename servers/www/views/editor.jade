@@ -30,17 +30,18 @@ html(ng-app="plunker.editor")
         
         div#toolbar.btn-toolbar
           .btn-group
-            button.btn.btn-primary(ng-click="save()")
+            button.btn.btn-primary(ng-click="save()", title="Save your work")
               i.icon-save
               |  Save
+          .btn-group(ng-show="plunk.token")
+            button.btn.btn-danger(ng-click="destroy()", title="Delete the current plunk")
+              i.icon-trash
           .btn-group
-            button.btn.btn-success(ng-click="builder.launch()",title="Launch the Plunk builder (coming soon...)")
-              i.icon-beaker
-              |  Build
+            a.btn.btn-success(href="/edit/", title="Start a new plunk from a blank slate")
+              i.icon-file
+              |  New
             button.btn.btn-success.dropdown-toggle(data-toggle="dropdown"): span.caret
             ul.dropdown-menu
-              li: a(href="/edit/") Basic snippet
-              li.divider
               li: a(href="/edit/gist:1986619") jQuery
                 a.coffee(href="/edit/gist:1992850"): img(src="/img/coffeescript-logo-small_med.png")
               li: a(href="/edit/gist:1986619") jQuery UI
@@ -54,6 +55,10 @@ html(ng-app="plunker.editor")
                 a.coffee(href="/edit/gist:2050746"): img(src="/img/coffeescript-logo-small_med.png")
               li.divider
               li: a(href="/edit/gist:1990582") YUI
+              li.divider
+              li: div(ng-click="builder.launch()",title="Launch the Plunk builder (coming soon...)")
+                i.icon-beaker
+                | Launch builder...
 
     div#editor(plunker-layout, ng-class="{loading:loading}")
       div.plnk-overlay
@@ -100,5 +105,8 @@ html(ng-app="plunker.editor")
           details.information(open)
             summary.header Information
             textarea.description(ng-model="plunk.description")
-            input.tags(ng-model="plunk.tags")
+            // input.tags(ng-model="plunk.tags")
+            div.user(ng-show="plunk.user")
+              img.gravatar(ng-src="http://www.gravatar.com/avatar/{{plunk.user.gravatar_id}}?s=18&d=mm")
+              span.login {{plunk.user.login}}
         

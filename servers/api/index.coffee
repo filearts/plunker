@@ -195,20 +195,21 @@ app.post "/plunks", (req, res, next) ->
   unless valid then next(new apiErrors.ValidationError(errors))
   else
     
-    json.user = req.user if req.user
-    
     json.files = _.map json.files, (file, filename) ->
       filename: filename
       content: file.content
       mime: mime.lookup(filename, "text/plain")
-    
+
+    plunk = new Plunk(json)
+    plunk.user = req.user if req.user
+
     
     # TODO: This is inefficient as the number space fills up; consider: http://www.faqs.org/patents/app/20090063601
     # Keep generating new ids until not taken
     savePlunk = ->
-      json._id = genid(6)
+      plunk._id = genid(6)
     
-      Plunk.create json, (err, plunk) ->
+      plunk.save (err) ->
         if err
           if err.code is 11000 then savePlunk()
           else next(err)
@@ -216,7 +217,13 @@ app.post "/plunks", (req, res, next) ->
           unless req.user
             req.session.keychain.push _id: plunk._id, token: plunk.token
             req.session.save()
-          res.json(preparePlunk(req.session, plunk.toJSON()), 201)
+            
+          # Annoying Mongoose limitation... user is cast to the objectID
+          # do it in json land instead
+          json = plunk.toJSON()
+          json.user = req.user.toJSON() if req.user
+            
+          res.json(preparePlunk(req.session, json), 201)
           
     savePlunk()
 

@@ -39,7 +39,6 @@ module.directive "userpanel", [ ->
     </div>
   """
   controller: ["$scope", "session", ($scope, session) ->
-    console.log "Session", session
     $scope.session = session
   ]
 ]

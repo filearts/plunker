@@ -18,9 +18,6 @@ module.factory "session", ["$http", "$rootScope", "$cookies", "url", ($http, $ro
       
       $cookies.plnk_session = @id
     
-    upgrade: ->
-      console.log "Upgrade", arguments...
-      
     login: (width = 1000, height = 650) ->
       screenHeight = screen.height
       left = Math.round((screen.width / 2) - (width / 2))
@@ -42,7 +39,6 @@ module.factory "session", ["$http", "$rootScope", "$cookies", "url", ($http, $ro
         method: "DELETE"
       
       request.then (response) ->
-        console.log "logout:success", response
         angular.copy(response.data, self)
       , (error) ->
         console.error "logout:error", arguments...

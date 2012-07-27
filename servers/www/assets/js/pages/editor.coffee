@@ -3,7 +3,6 @@
 #= require ../vendor/angular
 
 #= require ../services/plunks
-#= require ../services/scratch
 #= require ../services/importer
 
 #= require ../directives/userpanel
@@ -12,21 +11,15 @@
 #= require ../directives/previewer
 
 
-module = angular.module("plunker.editor", ["plunker.scratch", "plunker.plunks", "plunker.userpanel", "plunker.layout", "plunker.ace", "plunker.previewer", "plunker.importer"])
+module = angular.module("plunker.editor", ["plunker.plunks", "plunker.userpanel", "plunker.layout", "plunker.ace", "plunker.previewer", "plunker.importer"])
 
 module.config ["$routeProvider", "$locationProvider", ($routeProvider, $locationProvider) ->
   $locationProvider.html5Mode(true).hashPrefix("!")
 ]
 
 
-class SourceController
-  @$inject = ["$routeParams", "plunk", "importer"]
-  constructor: ($routeParams, plunk, importer) ->
-    console.log "source", arguments...
-
-module.controller "editor", ["$scope", "$location", "$routeParams", "scratch", "importer", "Plunk", "plunk", "url", ($scope, $location, $routeParams, scratch, importer, Plunk, plunk, url) ->
+module.controller "editor", ["$scope", "$location", "$routeParams", "importer", "Plunk", "plunk", "url", ($scope, $location, $routeParams, importer, Plunk, plunk, url) ->
   $scope.url = url
-  $scope.scratch = scratch 
   $scope.plunk = new Plunk
   
   loadPlunk = (source) ->
@@ -44,38 +37,66 @@ module.controller "editor", ["$scope", "$location", "$routeParams", "scratch", "
     else
       loadPlunk(path) unless path is "/" or path.slice(1) is $scope.plunk.id
   
-  # Watch for changes to the plunk *reference*
-  $scope.$watch "plunk.files", (files) ->
-    scratch.files = angular.copy(files)
-    
   # Watch for changes tot he plunk id and update accordingly
   $scope.$watch "plunk.id", (id, old_id) ->
     $location.path("/#{id}").replace() if id and not old_id
   
   $scope.save = ->
-    $scope.plunk.save(scratch)
+    $scope.plunk.save()
     
   $scope.history = new class
     constructor: ->
       self = @
-      self.queue = _.values(scratch.files)
+      self.queue = []#_.values($scope.plunk.files)
       
-      $scope.$watch "scratch.files", (files) ->
-        filenames = _.values(scratch.files)
-        self.queue = _.chain(self.queue).intersection(filenames).union(filenames).value()
+      $scope.$watch "plunk.files", (files) ->
+        files = _.values(files)
+        self.queue = _.chain(self.queue).intersection(files).union(files).value()
       , true
       
       # This time watch for changes to the reference only (triggered on reset)
-      $scope.$watch "scratch.files", (files) ->
-        self.activateGuess()
+      $scope.$watch "plunk.files", (files) ->
+        self.queue = _.values(files)
+        self.activateGuess(files)
       
-      @activateGuess()
+      #@activateGuess()
     
-    activateGuess: ->
-      @activate(index) if index = scratch.files["index.html"]
+    activateGuess: (files) ->
+      @activate(index) if index = files["index.html"]
     
     last: -> @queue[0]
     activate: (file) ->
       @queue.splice(i, 1) if (i = @queue.indexOf(file)) >= 0
       @queue.unshift(file)
+  
+    $scope.promptFileAdd = (new_filename) ->
+      files = $scope.plunk.files
+      
+      if new_filename ||= prompt("Please enter the name for the new file:")
+        for filename, file of files
+          if file.filename == new_filename
+            alert("A file already exists called: '#{new_filename}'")
+            return
+        
+        files[new_filename] =
+          filename: new_filename
+          content: ""
+    
+    $scope.promptFileRemove = (filename) ->
+      files = $scope.plunk.files
+      
+      if files[filename] and confirm("Are you sure that you would like to remove the file '#{filename}?")
+        delete files[filename]
+    
+    $scope.promptFileRename = (filename, new_filename) ->
+      files = $scope.plunk.files
+      
+      if files[filename] and (new_filename ||= prompt("Please enter the name for new name for the file:"))
+        for existing_filename, file of files
+          if file.filename == new_filename
+            alert("A file already exists called: '#{new_filename}'")
+            return
+      
+        files[filename].filename = new_filename
+
 ]

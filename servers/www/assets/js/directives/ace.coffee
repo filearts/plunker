@@ -48,7 +48,7 @@ module.directive "plunkerAce", ["modes", (modes) ->
   restrict: "E"
   template: """
     <div class="editor-canvas">
-      <plunker-session ng-repeat="(filename, file) in scratch.files"></plunker-session>
+      <plunker-session ng-repeat="(filename, file) in plunk.files"></plunker-session>
     </div>
   """
   replace: true

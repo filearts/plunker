@@ -61,13 +61,13 @@ html(ng-app="plunker.editor")
         
                   ul#editor-file-list.dropdown-menu
                     li.file-add
-                      a(href="javascript:void(0)", ng-click="scratch.promptFileAdd()") Add file...
+                      a(href="javascript:void(0)", ng-click="promptFileAdd()") Add file...
                     li.divider
-                    li.file(ng-repeat="(filename, file) in scratch.files",ng-class="{active:file==history.last()}")
-                      a.buffer(href="javascript:void(0)", ng-click="history.activate(file)", ng-dblclick="scratch.promptFileRename(filename)") {{file.filename}}
+                    li.file(ng-repeat="(filename, file) in plunk.files",ng-class="{active:file==history.last()}")
+                      a.buffer(href="javascript:void(0)", ng-click="history.activate(file)", ng-dblclick="promptFileRename(filename)") {{file.filename}}
                       ul.file-ops
                         li.delete
-                          button.btn.btn-mini(ng-click="scratch.promptFileRemove(filename)"): i.icon-remove
+                          button.btn.btn-mini(ng-click="promptFileRemove(filename)"): i.icon-remove
                 li.divider-vertical
       div.ui-layout-east(plunker-previewer)
         #preview-ops
@@ -79,13 +79,13 @@ html(ng-app="plunker.editor")
         div.plnk-sidebar
           ul.nav.nav-list
             li.nav-header Files
-              button.file-add(ng-click="scratch.promptFileAdd()")
+              button.file-add(ng-click="promptFileAdd()")
                 i.icon-plus
                 | New...
-          ul.nav.nav-list(ng-repeat="(filename, file) in scratch.files")
+          ul.nav.nav-list(ng-repeat="(filename, file) in plunk.files")
             li.file(ng-class="{active:file==history.last()}")
-              a(href="javascript:void(0)", ng-click="history.activate(file)", ng-dblclick="scratch.promptFileRename(filename)") {{file.filename}}
+              a(href="javascript:void(0)", ng-click="history.activate(file)", ng-dblclick="promptFileRename(filename)") {{file.filename}}
               ul.file-ops
                 li.delete
-                  button.btn.btn-mini(ng-click="scratch.promptFileRemove(filename)"): i.icon-remove
+                  button.btn.btn-mini(ng-click="promptFileRemove(filename)"): i.icon-remove
         

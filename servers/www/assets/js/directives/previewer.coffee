@@ -25,7 +25,7 @@ module.directive "plunkerPreviewer", ["$http", "url", ($http, url) ->
     
     $scope.refreshPreview = (files) ->
       unless enabled
-        deferred = true
+        deferred = $scope.refreshPreview.bind(@, files)
       else
         json = { files: {} }
         
@@ -48,7 +48,7 @@ module.directive "plunkerPreviewer", ["$http", "url", ($http, url) ->
       if closed
         $preview.remove() if $preview
       else if deferred
-        $scope.refreshPreview()
+        deferred() if deferred
         deferred = false
     
     $scope.$watch "plunk.files", debounce($scope.refreshPreview.bind(@), 1000), true

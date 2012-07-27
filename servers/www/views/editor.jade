@@ -77,23 +77,28 @@ html(ng-app="plunker.editor")
                         li.delete
                           button.btn.btn-mini(ng-click="promptFileRemove(filename)"): i.icon-remove
                 li.divider-vertical
-      div.ui-layout-east(plunker-previewer)
-        #preview-ops
-          .btn-toolbar
-            .btn-group
-              button#refresh-preview.btn.btn-mini.btn-success(ng-click="refreshPreview()")
-                i.icon-refresh.icon-white
+      div.ui-layout-east
+        div.plnk-previewer(plunker-previewer)
+          #preview-ops
+            .btn-toolbar
+              .btn-group
+                button#refresh-preview.btn.btn-mini.btn-success(ng-click="refreshPreview()")
+                  i.icon-refresh.icon-white
       div.ui-layout-west
         div.plnk-sidebar
-          ul.nav.nav-list
-            li.nav-header Files
+          details.file-list(open)
+            summary.header Files
               button.file-add(ng-click="promptFileAdd()")
                 i.icon-plus
                 | New...
-          ul.nav.nav-list(ng-repeat="(filename, file) in plunk.files")
-            li.file(ng-class="{active:file==history.last()}")
-              a(href="javascript:void(0)", ng-click="history.activate(file)", ng-dblclick="promptFileRename(filename)") {{file.filename}}
-              ul.file-ops
-                li.delete
-                  button.btn.btn-mini(ng-click="promptFileRemove(filename)"): i.icon-remove
+            ul.nav.nav-list(ng-repeat="(filename, file) in plunk.files")
+              li.file(ng-class="{active:file==history.last()}")
+                a(href="javascript:void(0)", ng-click="history.activate(file)", ng-dblclick="promptFileRename(filename)") {{file.filename}}
+                ul.file-ops
+                  li.delete
+                    button.btn.btn-mini(ng-click="promptFileRemove(filename)"): i.icon-remove
+          details.information(open)
+            summary.header Information
+            textarea.description(ng-model="plunk.description")
+            input.tags(ng-model="plunk.tags")
         

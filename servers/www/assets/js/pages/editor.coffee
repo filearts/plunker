@@ -45,9 +45,11 @@ module.controller "editor", ["$scope", "$location", "$routeParams", "importer", 
     if isOwner
       $scope.saveText = "Save"
       $scope.saveTitle = "Save your work as a new Plunk"
+      $scope.saveIcon = "icon-save"
     else
       $scope.saveText = "Fork"
       $scope.saveTitle = "Save your work as a fork of the original Plunk"
+      $scope.saveIcon = "icon-git-fork"
     
   $scope.save = ->
     old_id = $scope.plunk.id

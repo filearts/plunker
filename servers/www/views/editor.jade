@@ -41,7 +41,7 @@ html(ng-app="plunker.editor")
         div#toolbar.btn-toolbar
           .btn-group
             button.btn.btn-primary(ng-click="save()", title="{{saveTitle}}")
-              i.icon-save
+              i(ng-class="saveIcon")
               |  {{saveText}}
           .btn-group(ng-show="plunk.token")
             button.btn.btn-danger(ng-click="destroy()", title="Delete the current plunk")

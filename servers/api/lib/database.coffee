@@ -14,13 +14,15 @@ errorConnecting = ->
   
 mongoose.connection.on "open", -> clearTimeout(connectTimeout)
 
-{Schema, Document} = mongoose
+{Schema, Document, Query} = mongoose
 {ObjectId} = Schema
 
 genid = (len = 16, prefix = "", keyspace = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789") ->
   prefix += keyspace.charAt(Math.floor(Math.random() * keyspace.length)) while len-- > 0
   prefix
 
+
+# Change object _id to normal id
 Document::toJSON = ->
   json = @toObject(json: true, virtuals: true)
   json.id = json._id
@@ -28,6 +30,17 @@ Document::toJSON = ->
   
   json
   
+Query::paginate = (page, limit, cb) ->
+  page = Math.max(1, parseInt(page, 10))
+  limit = Math.max(4, Math.min(12, parseInt(limit, 10))) # [4, 10]
+  query = @
+  model = @model
+  
+  query.skip(page * limit - limit).limit(limit).exec (err, docs) ->
+    if err then return cb(err, null, null)
+    model.count query._conditions, (err, count) ->
+      if err then return cb(err, null, null)
+      cb(null, docs, count, Math.ceil(count / limit), page)
   
 lastModified = (schema, options = {}) ->
   schema.add updated_at: Date

@@ -52,14 +52,12 @@ html(ng-app="plunker.landing")
           div.marketing
             h1 Plunker lets you edit, fork and preview web snippets online
             p.marketing-byline
-              | Try it out. Take any gist url and pop it in the box below.
-              | Alternatively, try out the&nbsp;
-              a(href="/edit") Editor
-              | &nbsp;or join the live&nbsp;
-              a(href="/edit?stream=stream&live=compile") Discussion
-              | .
+              | Your ideas ideas can now live in the cloud.
+              | Why not&nbsp;
+              a(href="/edit") Share them
+              | ?
 
-        section#importer-section
+        section#importer-section(ng-show="false")
           div#importer.well(ng-controller="ImporterController")
             form.import-form
               input.import-source(type="text",placeholder="Gist ID or URL",ng-model="value")
@@ -70,13 +68,24 @@ html(ng-app="plunker.landing")
                 taken to the preview if the import succeeds.
 
 
-        section#browse
+        section#browse(ng-controller="GalleryController")
           div.page-header
+            ul.pagination.pull-right
+              li(ng-class="{disabled: !plunks.pager.prev}")
+                a(ng-href="javascript:void(0)", ng-click="pageTo(plunks.pager.prev)") «
+              li(ng-class="{disabled: !plunks.pager.next}")
+                a(ng-href="javascript:void(0)", ng-click="pageTo(plunks.pager.next)") »
             h1 Recent plunks
+              
           div.row
             div.span12
-              ul#gallery.thumbnails(ng-controller="GalleryController")
-                <card ng-repeat="plunk in plunks | limitTo:8"></card>
+              ul#gallery.thumbnails
+                <card ng-repeat="plunk in plunks"></card>
+              ul.pager
+                li.previous(ng-show="plunks.pager.prev")
+                  a(ng-href="", ng-click="pageTo(plunks.pager.prev)") &larr; Newer
+                li.next(ng-show="plunks.pager.next")
+                  a(ng-href="javascript:void(0)", ng-click="pageTo(plunks.pager.next)") Older  &rarr;
       hr
       footer
         p Built by <a href="https://github.com/ggoodman">Geoff Goodman</a> (<a href="http://twitter.com/g_goodman">@g_goodman</a>)

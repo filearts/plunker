@@ -13,20 +13,35 @@ module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) 
       files:
         "index.html": {filename: "index.html", content: ""}
     @base_url: "#{url.api}/plunks"
-    @query: ->
+    @query: (source, success = angular.noop, error = angular.noop) ->
       plunks = []
+      
+      unless angular.isObject(source)
+        source = 
+          url: source
+          
+      source.url ||= "#{url.api}/plunks"
+      source.url += "?p=#{source.page}&pp=#{source.size}" if source.page and source.size
       
       request = $http
         method: "GET"
-        url: "#{url.api}/plunks"
+        url: source.url
         headers:
           Authorization: "token " + $.cookie("plnk_session")
       
       request.then (response) ->
+        if link = response.headers("link")
+          plunks.pager = {}
+          
+          link.replace /<([^>]+)>;\s*rel="(next|prev|first|last)"/gi, (match, href, rel) ->
+            plunks.pager[rel] = href
+        
         for plunk in response.data
           plunks.push new Plunk angular.extend plunk,
             html_url: "/#{plunk.id}"
             edit_url: "/edit/#{plunk.id}"
+        
+        success(plunks)
       , (error) ->
         console.log "Error", error
         

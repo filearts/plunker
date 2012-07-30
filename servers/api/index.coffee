@@ -170,10 +170,10 @@ preparePlunks = (session, plunks) -> _.map plunks, (plunk) -> preparePlunk(sessi
 
 # List plunks
 app.get "/plunks", (req, res, next) ->
-  page = Math.max(1, parseInt(req.param("p", "1"), 10))
-  limit = Math.max(1, Math.min(4, parseInt(req.param("pp", "8"))))
+  page = parseInt(req.param("p", "1"), 10)
+  limit = parseInt(req.param("pp", "8"))
   
-  Plunk.find({}).limit(8).sort("updated_at", -1).populate("user").exec (err, plunks, count, pages, current) ->
+  Plunk.find({}).sort("updated_at", -1).populate("user").paginate page, limit, (err, plunks, count, pages, current) ->
     if err then next(err)
     else
       link = []

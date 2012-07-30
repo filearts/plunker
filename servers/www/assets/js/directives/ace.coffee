@@ -33,6 +33,7 @@ module.directive "plunkerSession", ["modes", (modes) ->
     read()
     
     $scope.$on "$destroy", ->
+      #console.log "$destroy", arguments...
       # How do I destroy the session?
       
     $scope.$watch "file.filename", (filename) ->
@@ -48,7 +49,7 @@ module.directive "plunkerAce", ["modes", (modes) ->
   restrict: "E"
   template: """
     <div class="editor-canvas">
-      <plunker-session ng-repeat="(filename, file) in plunk.files"></plunker-session>
+      <plunker-session ng-repeat="(filename, file) in validFiles(plunk.files)"></plunker-session>
     </div>
   """
   replace: true

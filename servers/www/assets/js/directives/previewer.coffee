@@ -30,8 +30,9 @@ module.directive "plunkerPreviewer", ["$http", "url", ($http, url) ->
         json = { files: {} }
         
         for filename, file of files
-          json.files[file.filename] =
-            content: file.content
+          if file
+            json.files[file.filename] =
+              content: file.content
         
         request = $http.post("#{url.api}/previews", json)
         

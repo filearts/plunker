@@ -170,13 +170,23 @@ preparePlunks = (session, plunks) -> _.map plunks, (plunk) -> preparePlunk(sessi
 
 # List plunks
 app.get "/plunks", (req, res, next) ->
-  pp = Math.max(1, parseInt(req.param("pp", "12"), 10))
-  start = Math.max(0, parseInt(req.param("p", "1"), 10) - 1) * pp
-  end = start + pp
+  page = Math.max(1, parseInt(req.param("p", "1"), 10))
+  limit = Math.max(1, Math.min(4, parseInt(req.param("pp", "8"))))
   
-  Plunk.find({}).sort("updated_at", -1).limit(pp).skip(start).populate("user").exec (err, plunks) ->
+  Plunk.find({}).limit(8).sort("updated_at", -1).populate("user").exec (err, plunks, count, pages, current) ->
     if err then next(err)
-    else res.json(preparePlunks(req.session, plunks))
+    else
+      link = []
+      
+      if current < pages
+        link.push "<#{nconf.get('url:api')}/plunks?p=#{page+1}&pp=#{limit}>; rel=\"next\""
+        link.push "<#{nconf.get('url:api')}/plunks?p=#{pages}&pp=#{limit}>; rel=\"last\""
+      if current > 1
+        link.push "<#{nconf.get('url:api')}/plunks?p=#{page-1}&pp=#{limit}>; rel=\"prev\""
+        link.push "<#{nconf.get('url:api')}/plunks?p=#1&pp=#{limit}>; rel=\"first\""
+        
+      res.header("Link", link.join(", ")) if link.length
+      res.json(preparePlunks(req.session, plunks))
   
 # Create plunk
 app.post "/plunks", (req, res, next) ->
@@ -229,7 +239,7 @@ app.post "/plunks", (req, res, next) ->
 
 # Read plunk
 app.get "/plunks/:id", (req, res, next) ->
-  Plunk.findById(req.params.id).populate("user").exec (err, plunk) ->
+  Plunk.findById(req.params.id).populate("user").populate("forks").populate("fork_of").exec (err, plunk) ->
     if err or not plunk then next(new apiErrors.NotFound)
     else res.json(preparePlunk(req.session, plunk.toJSON()))
     
@@ -277,10 +287,68 @@ app.post "/plunks/:id", (req, res, next) ->
               content: file.content
               mime: mime.lookup(filename, "text/plain")
         
+        plunk.updated_at = new Date
         plunk.description = json.description if json.description
         plunk.save (err) ->
           if err then next(new apiErrors.InternalServerError(err))
           else res.json(preparePlunk(req.session, plunk.toJSON()))
+    
+# Fork an existing plunk
+app.post "/plunks/:id/forks", (req, res, next) ->
+  Plunk.findById(req.params.id).populate("user").exec (err, parent) ->
+    if err or not parent then next(new apiErrors.NotFound)
+    else
+      json = req.body
+      schema = require("./schema/plunks/create")
+      {valid, errors} = validator.validate(json, schema)
+      
+      # Despite its awesomeness, revalidator does not support disallow or additionalProperties; we need to check plunk.files size
+      if json.files and _.isEmpty(json.files)
+        valid = false
+        errors.push
+          attribute: "minProperties"
+          property: "files"
+          message: "A minimum of one file is required"
+      
+      unless valid then next(new apiErrors.ValidationError(errors))
+      else
+        
+        json.files = _.map json.files, (file, filename) ->
+          filename: filename
+          content: file.content
+          mime: mime.lookup(filename, "text/plain")
+    
+        plunk = new Plunk(json)
+        plunk.user = req.user if req.user
+        plunk.fork_of = parent._id
+                
+        # TODO: This is inefficient as the number space fills up; consider: http://www.faqs.org/patents/app/20090063601
+        # Keep generating new ids until not taken
+        savePlunk = ->
+          plunk._id = genid(6)
+        
+          plunk.save (err) ->
+            if err
+              if err.code is 11000 then savePlunk()
+              else next(err)
+            else
+              # Update syntax to avoid triggering auto-update of updated_at on parent
+              parent.forks.push(plunk._id)
+              parent.save()
+              
+              unless req.user
+                req.session.keychain.push _id: plunk._id, token: plunk.token
+                req.session.save()
+                
+              # Annoying Mongoose limitation... user is cast to the objectID
+              # do it in json land instead
+              json = plunk.toJSON()
+              json.user = req.user.toJSON() if req.user
+              json.fork_of = parent.toJSON()
+                
+              res.json(preparePlunk(req.session, json), 201)
+              
+        savePlunk()
     
 # Delete plunk
 app.del "/plunks/:id", (req, res, next) ->

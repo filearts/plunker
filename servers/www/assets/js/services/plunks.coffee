@@ -38,26 +38,15 @@ module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) 
       
     @create: (json, success = angular.noop, error = angular.noop) ->
       plunk = new Plunk(json)
-      
-      request = $http
-        method: "POST"
-        url: "#{url.api}/plunks"
-        data: plunk
-        headers:
-          Authorization: "token " + $.cookie("plnk_session")
-          
-      request.then (response) ->
-        angular.copy(response.data, plunk)
-        
-        success(plunk, response.headers)
-      , error
-      
-      plunk
+      plunk.save(success, error)
+
 
     constructor: (attributes = {}) ->
       angular.copy(Plunk.defaults, @)
       angular.extend(@, attributes)
       
+    isOwner: -> if @id then !!@token else true
+    
     fetch: (success = angular.noop, error = angular.noop) ->
       plunk = @
       
@@ -118,6 +107,7 @@ module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) 
 
       path = "#{url.api}/plunks"
       path += "/#{self.id}" if self.id
+      path += "/forks" unless self.isOwner()
       
       data =
         description: self.description
@@ -125,17 +115,24 @@ module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) 
       
       if self.id
         for filename, file of self.files
-          data.files[filename] =
-            content: file.content
-          data.files[filename].filename = file.filename if filename != file.filename
+          if file
+            data.files[filename] =
+              content: file.content
+            data.files[filename].filename = file.filename if filename != file.filename
+          else
+            data.files[filename] = null
       
       else
         data.source = self.source if self.source
       
         # Normalize filenames vs files for unsaved plunks
         for filename, file of self.files
-          data.files[file.filename] =
-            content: file.content
+          # Skip files that are set to null
+          if file
+            data.files[file.filename] =
+              content: file.content
+          else
+            delete self.files[filename]
           
       request = $http
         method: "POST"

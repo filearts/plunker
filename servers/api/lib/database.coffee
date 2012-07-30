@@ -1,4 +1,5 @@
 mongoose = require("mongoose")
+pagination = require("mongoose-troop-pagination")
 nconf = require("nconf")
 mime = require("mime")
 url = require("url")
@@ -79,17 +80,22 @@ PlunkSchema = new Schema
   _id: { type: String, index: true }
   description: String
   created_at: { type: Date, 'default': Date.now }
+  updated_at: { type: Date, 'default': Date.now }
   token: { type: String, 'default': genid.bind(null, 16) }
   source: {}
   files: [PlunkFileSchema]
   user: { type: Schema.ObjectId, ref: "User", index: true }
   comments: { type: Number, 'default': 0 }
+  fork_of: { type: String, ref: "Plunk", index: true }
+  forks: [{ type: String, ref: "Plunk", index: true }]
 
 PlunkSchema.virtual("url").get -> nconf.get("url:api") + "/plunks/#{@_id}"
 PlunkSchema.virtual("raw_url").get -> nconf.get("url:raw") + "/#{@_id}/"
 PlunkSchema.virtual("comments_url").get -> nconf.get("url:www") + "/#{@_id}/comments"
 
-PlunkSchema.plugin(lastModified)
+#PlunkSchema.plugin(pagination)
+
+#PlunkSchema.plugin(lastModified)
 
 mongoose.model "Plunk", PlunkSchema
 

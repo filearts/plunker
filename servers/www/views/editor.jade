@@ -12,13 +12,23 @@ html(ng-app="plunker.editor")
       script(src="http://html5shim.googlecode.com/svn/trunk/html5.js")
     block scripts
       script(src="http://static.firebase.com/v0/firebase.js")
-      script(src="/js/vendor/ace/ace.js") // Ace needs to be 
+      script(src="/js/vendor/ace/ace.js")
       script
         var _plunker = {
           "url": !{JSON.stringify(url).replace(/<\//g,"<\\/")},
           "session": !{JSON.stringify(session).replace(/<\//g,"<\\/")}
         };
       != js("pages/editor")
+      script
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-28928507-1']);
+        _gaq.push(['_trackPageview']);
+      
+        (function() {
+          var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+          ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+          var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
 
   body(ng-controller="editor")
     nav.navbar.navbar-fixed-top
@@ -30,9 +40,9 @@ html(ng-app="plunker.editor")
         
         div#toolbar.btn-toolbar
           .btn-group
-            button.btn.btn-primary(ng-click="save()", title="Save your work")
+            button.btn.btn-primary(ng-click="save()", title="{{saveTitle}}")
               i.icon-save
-              |  Save
+              |  {{saveText}}
           .btn-group(ng-show="plunk.token")
             button.btn.btn-danger(ng-click="destroy()", title="Delete the current plunk")
               i.icon-trash
@@ -77,7 +87,7 @@ html(ng-app="plunker.editor")
                     li.file-add
                       a(href="javascript:void(0)", ng-click="promptFileAdd()") Add file...
                     li.divider
-                    li.file(ng-repeat="(filename, file) in plunk.files",ng-class="{active:file==history.last()}")
+                    li.file(ng-repeat="(filename, file) in validFiles(plunk.files)",ng-class="{active:file==history.last()}")
                       a.buffer(href="javascript:void(0)", ng-click="history.activate(file)", ng-dblclick="promptFileRename(filename)") {{file.filename}}
                       ul.file-ops
                         li.delete
@@ -97,7 +107,7 @@ html(ng-app="plunker.editor")
               button.file-add(ng-click="promptFileAdd()")
                 i.icon-plus
                 | New...
-            ul.nav.nav-list(ng-repeat="(filename, file) in plunk.files")
+            ul.nav.nav-list(ng-repeat="(filename, file) in validFiles(plunk.files)")
               li.file(ng-class="{active:file==history.last()}")
                 a(href="javascript:void(0)", ng-click="history.activate(file)", ng-dblclick="promptFileRename(filename)") {{file.filename}}
                 ul.file-ops

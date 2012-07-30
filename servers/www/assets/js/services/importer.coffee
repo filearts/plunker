@@ -51,9 +51,9 @@ module.factory "importer", [ "$q", "$http", "Plunk", ($q, $http, Plunk) ->
           
           json.description = json.source.description = gist.description if gist.description
 
-          if manifest = gist.files["plunker.json"]
-            try
-              angular.copy(angular.fromJson(manifest.content), json)                
+          #if manifest = gist.files["plunker.json"]
+          #  try
+          #    angular.copy(angular.fromJson(manifest.content), json)                
 
           for filename, file of gist.files
             unless filename == "plunker.json"

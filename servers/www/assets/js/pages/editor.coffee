@@ -17,10 +17,14 @@ module.config ["$routeProvider", "$locationProvider", ($routeProvider, $location
   $locationProvider.html5Mode(true).hashPrefix("!")
 ]
 
-
 module.controller "editor", ["$scope", "$location", "$routeParams", "importer", "Plunk", "plunk", "url", ($scope, $location, $routeParams, importer, Plunk, plunk, url) ->
   $scope.url = url
   $scope.plunk = new Plunk
+  
+  $scope.validFiles = (files) ->
+    ret = {}
+    ret[filename] = file for filename, file of files when file
+    ret
   
   loadPlunk = (source) ->
     $scope.loading = true
@@ -36,10 +40,20 @@ module.controller "editor", ["$scope", "$location", "$routeParams", "importer", 
     if path is "/" then $scope.plunk = new Plunk
     else
       loadPlunk(path) unless path is "/" or path.slice(1) is $scope.plunk.id
+      
+  $scope.$watch "plunk.isOwner()", (isOwner) ->
+    if isOwner
+      $scope.saveText = "Save"
+      $scope.saveTitle = "Save your work as a new Plunk"
+    else
+      $scope.saveText = "Fork"
+      $scope.saveTitle = "Save your work as a fork of the original Plunk"
     
   $scope.save = ->
+    old_id = $scope.plunk.id
     $scope.plunk.save (plunk) ->
-      $location.path("/#{plunk.id}").replace()
+      $location.path("/#{plunk.id}")
+      $location.replace() unless old_id and old_id != plunk.id
     , (error) -> alert("Save error: #{error}")
   
   $scope.destroy = ->
@@ -89,7 +103,7 @@ module.controller "editor", ["$scope", "$location", "$routeParams", "importer", 
       files = $scope.plunk.files
       
       if files[filename] and confirm("Are you sure that you would like to remove the file '#{filename}?")
-        delete files[filename]
+        files[filename] = null
     
     $scope.promptFileRename = (filename, new_filename) ->
       files = $scope.plunk.files

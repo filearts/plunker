@@ -26,6 +26,7 @@ Plunk = database.model("Plunk")
 
 app.configure ->
   app.use require("./middleware/cors").middleware()
+  app.use require("./middleware/cache").middleware()
   app.use require("./middleware/json").middleware()
   app.use require("./middleware/session").middleware(sessions: database.model("Session"))
     

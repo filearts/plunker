@@ -24,9 +24,17 @@ module.directive "plunkerPreviewer", ["$http", "url", ($http, url) ->
     deferred = false
     
     $scope.refreshPreview = (files) ->
+      files ||= $scope.plunk.files
+      
       unless enabled
         deferred = $scope.refreshPreview.bind(@, files)
+        $scope.panes[0].badge = # Dirty hack
+          class: "badge badge-important"
+          value: "*"
+          title: "Changes not previewed"
+      
       else
+        $scope.panes[0].badge = null # Dirty hack
         json = { files: {} }
         
         for filename, file of files
@@ -42,15 +50,21 @@ module.directive "plunkerPreviewer", ["$http", "url", ($http, url) ->
           $preview.ready ->
             if $old then $old.fadeOut -> $old.remove()
             $preview.fadeIn()
-        
-    $scope.$watch "layout.state.east.isClosed", (closed) ->
+    
+    toggle = (closed) ->
+      wasClosed = enabled
       enabled = !closed
-      
+
       if closed
         $preview.remove() if $preview
       else if deferred
-        deferred() if deferred
+        deferred()
         deferred = false
+      else
+        $scope.refreshPreview()
+        
+    $scope.$watch "layout.center.child.state.east.isClosed", toggle
+    $scope.$watch "activePane.name", (active) -> toggle(active != "preview")
     
     $scope.$watch "plunk.files", debounce($scope.refreshPreview.bind(@), 1000), true
 ]

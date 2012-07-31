@@ -11,7 +11,7 @@
 module = angular.module("plunker.landing", ["plunker.userpanel", "plunker.plunks", "plunker.card", "plunker.importer"])
 
 module.config ["$routeProvider", "$locationProvider", ($routeProvider, $locationProvider) ->
-  $locationProvider.html5Mode(true).hashPrefix("!")
+  #$locationProvider.html5Mode(true).hashPrefix("!")
 ]
 
 module.controller "GalleryController", ["$scope", "$location", "Plunk", ($scope, $location, Plunk) ->

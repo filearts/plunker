@@ -74,32 +74,49 @@ html(ng-app="plunker.editor")
     div#editor(plunker-layout, ng-class="{loading:loading}")
       div.plnk-overlay
       div.ui-layout-center
-        <plunker-ace class="editor-canvas"></plunker-ace>
-        div.editor-status
-          div.navbar.navbar-fixed-bottom
-            div.navbar-inner
-              ul.nav
-                li.dropdown
-                  a.dropdown-toggle(href="javascript:void(0)", data-toggle="dropdown") {{history.last().filename}}
-                    b.caret
-        
-                  ul#editor-file-list.dropdown-menu
-                    li.file-add
-                      a(href="javascript:void(0)", ng-click="promptFileAdd()") Add file...
-                    li.divider
-                    li.file(ng-repeat="(filename, file) in validFiles(plunk.files)",ng-class="{active:file==history.last()}")
-                      a.buffer(href="javascript:void(0)", ng-click="history.activate(file)", ng-dblclick="promptFileRename(filename)") {{file.filename}}
-                      ul.file-ops
-                        li.delete
-                          button.btn.btn-mini(ng-click="promptFileRemove(filename)"): i.icon-remove
-                li.divider-vertical
-      div.ui-layout-east
-        div.plnk-previewer(plunker-previewer)
-          #preview-ops
-            .btn-toolbar
-              .btn-group
-                button#refresh-preview.btn.btn-mini.btn-success(ng-click="refreshPreview()")
-                  i.icon-refresh.icon-white
+        div.ui-layout-center
+          <plunker-ace class="editor-canvas"></plunker-ace>
+          div.editor-status
+            div.navbar.navbar-fixed-bottom
+              div.navbar-inner
+                ul.nav
+                  li.dropdown
+                    a.dropdown-toggle(href="javascript:void(0)", data-toggle="dropdown") {{history.last().filename}}
+                      b.caret
+          
+                    ul#editor-file-list.dropdown-menu
+                      li.file-add
+                        a(href="javascript:void(0)", ng-click="promptFileAdd()") Add file...
+                      li.divider
+                      li.file(ng-repeat="(filename, file) in validFiles(plunk.files)",ng-class="{active:file==history.last()}")
+                        a.buffer(href="javascript:void(0)", ng-click="history.activate(file)", ng-dblclick="promptFileRename(filename)") {{file.filename}}
+                        ul.file-ops
+                          li.delete
+                            button.btn.btn-mini(ng-click="promptFileRemove(filename)"): i.icon-remove
+                  li.divider-vertical
+
+        div#multipane.ui-layout-east
+          div.plnk-previewer(plunker-previewer, ng-show="activePane.name=='preview'")
+            #preview-ops
+              .btn-toolbar
+                .btn-group
+                  button#refresh-preview.btn.btn-mini.btn-success(ng-click="refreshPreview()")
+                    i.icon-refresh.icon-white
+          div.plnk-compiler(plunker-compiler, ng-show="activePane.name=='compiler'")
+            h1 Live compilation and linting
+            h2 Coming soon!
+          div.plnk-comments(plunker-comments, ng-show="activePane.name=='comments'")
+            h1 Comments
+            h2 Coming soon!
+          div.plnk-streamer(plunker-streamer, ng-show="activePane.name=='stream'")
+            h1 Live collaboration
+            h2 Coming soon!
+      div#multipane-buttons.ui-layout-east
+        ul.nav.nav-list
+          li.pane-toggle(ng-repeat="pane in panes", ng-class="{active: activePane==pane}", title="{{pane.description}}")
+            a(href="javascript:void(0)", ng-click="togglePane(pane)")
+              i(ng-class="pane.icon")
+              span.badge(ng-class="pane.badge.class", ng-show="pane.badge", title="{{pane.badge.title}}") {{pane.badge.value}}
       div.ui-layout-west
         div.plnk-sidebar
           details.file-list(open)

@@ -17,6 +17,9 @@ module.directive "card", ->
   template: """
     <li class="span3 plunk">
       <div class="thumbnail">
+        <div class="pull-right owned" ng-show="plunk.token">
+          <i class="icon-unlock" title="You created this Plunk"></i>
+        </div>
         <h5 class="description" title="{{plunk.description}}">{{plunk.description}}</h5>
         <a href="{{plunk.html_url}}">
           <img class="lazyload" ng-src="http://placehold.it/205x154&text=Loading..." data-original="http://immediatenet.com/t/l3?Size=1024x768&URL={{plunk.raw_url}}?_={{plunk.updated_at}}" />

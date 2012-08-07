@@ -8,7 +8,7 @@ var nconf = require("nconf").use("memory")
   .env()
   .file({file: "config.json"})
   .defaults({
-    "PORT": 80
+    "PORT": 8080
   });
 
 if (!nconf.get("host")) {

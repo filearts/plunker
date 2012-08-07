@@ -11,7 +11,7 @@ module = angular.module("plunker.card", ["plunker.plunks"])
 module.filter "toHumanReadable", ->
   (value) -> value.toString()
 
-module.directive "card", ->
+module.directive "card", ["$timeout", ($timeout) ->
   restrict: "E"
   replace: true
   template: """
@@ -28,13 +28,13 @@ module.directive "card", ->
           <li class="edit">
             <a href="{{plunk.edit_url}}" title="Edit this plunk">
               <i class="icon-edit" />
-              <span class="live-editors">0</span>
+              <span class="live-editors">{{editors}}</span>
             </a>
           </li>
           <li class="viewers">
             <a href="{{plunk.html_url}}" title="People currently viewing this plunk">
               <i class="icon-eye-open" />
-              <span class="live-viewers">0</span>
+              <span class="live-viewers">{{viewers}}</span>
             </a>
           </li>
           <li class="comments">
@@ -68,6 +68,39 @@ module.directive "card", ->
     </li>
   """
   link: ($scope, $el, attrs) ->
+    $scope.viewers = 0
+    $scope.editors = 0
+    
     $scope.$watch 'plunk', (plunk) ->
       $(".timeago", $el).timeago() if plunk.updated_at
       $(".lazyload", $el).lazyload() if plunk.raw_url
+      
+      count_keys = (obj) ->
+        count = 0
+        count++ for key of obj
+        count
+      
+      plunkRef = new Firebase("https://gamma.firebase.com/filearts/#{plunk.id}")
+      
+      viewersRef = plunkRef.child("viewers")
+      
+      viewersRef.on "value", (snapshot) -> $timeout ->
+        $scope.viewers = count_keys(val) if val = snapshot.val()
+      viewersRef.on "child_added", (snapshot) -> $timeout ->
+        $scope.viewers ||= 0
+        $scope.viewers += 1
+      viewersRef.on "child_removed", (snapshot) -> $timeout ->
+        $scope.viewers ||= 1
+        $scope.viewers -= 1
+      
+      editorsRef = plunkRef.child("editors")
+      
+      editorsRef.on "value", (snapshot) -> $timeout ->
+        $scope.editors = count_keys(val) if val = snapshot.val()
+      editorsRef.on "child_added", (snapshot) -> $timeout ->
+        $scope.viewers ||= 0
+        $scope.editors += 1
+      editorsRef.on "child_removed", (snapshot) -> $timeout ->
+        $scope.viewers ||= 1
+        $scope.editors -= 1
+]

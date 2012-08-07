@@ -10,18 +10,41 @@ angular.module('ui.config', []).value('ui.config', {});
  * 
  * @param ui-jq {string} The $elm.[pluginName]() to call.
  * @param [ui-options] {mixed} Expression to be evaluated and passed as options to the function
- *   	Multiple parameters can be separated by commas
+ *     Multiple parameters can be separated by commas
+ *    Set {ngChange:false} to disable passthrough support for change events ( since angular watches 'input' events, not 'change' events )
  * 
  * @example <input ui-jq="datepicker" ui-options="{showOn:'click'},secondParameter,thirdParameter">
  */
-angular.module('ui.directives').directive('uiJq', [function(uiConfig) {
+angular.module('ui.directives', ["ui.config"]).directive('uiJq', ['ui.config', function(uiConfig) {
 	return {
-		link: {
-			post: function(scope, elm, attrs) {
-        setTimeout(function(){
-				  elm[attrs.uiJq]();
-        }, 100);
+		restrict: 'A',
+		compile: function(tElm, tAttrs) {  
+			if (!angular.isFunction(tElm[tAttrs.uiJq])) {
+				throw new Error('ui-jq: The "'+tAttrs.uiJq+'" function does not exist');
+				return;
 			}
+			var options = uiConfig['jq'] && uiConfig['jq'][tAttrs.uiJq];
+			return function (scope, elm, attrs) {
+				var linkOptions = [], ngChange = 'change';
+
+				if (attrs.uiOptions) {
+					linkOptions = scope.$eval('['+attrs.uiOptions+']');
+					if (angular.isObject(options) && angular.isObject(linkOptions[0])) {
+						linkOptions[0] = angular.extend(options, linkOptions[0]);
+					} 
+				} else if (options) {
+					linkOptions = [options]; 
+				}
+				if (attrs.ngModel && elm.is('select,input,textarea')) {
+					if (linkOptions && angular.isObject(linkOptions[0]) && linkOptions[0].ngChange !== undefined) {
+						ngChange = linkOptions[0].ngChange;
+					}
+					ngChange && elm.on(ngChange, function(){
+						elm.trigger('input');
+					});
+				}
+				elm[attrs.uiJq].apply(elm, linkOptions);
+			};
 		}
 	};
 }]);

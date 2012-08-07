@@ -39,7 +39,7 @@ module.directive "plunkerSession", ["modes", (modes) ->
     $scope.$watch "file.filename", (filename) ->
       session.setMode(mode.source) if mode = modes.findByFilename(file.filename)
     
-    $scope.$watch "history.last()", (active) ->
+    $scope.$watch "scratch.active()", (active) ->
       if active == file
         $scope.ace.setSession(session)
         $scope.ace.focus()
@@ -49,7 +49,7 @@ module.directive "plunkerAce", ["modes", (modes) ->
   restrict: "E"
   template: """
     <div class="editor-canvas">
-      <plunker-session ng-repeat="(filename, file) in validFiles(plunk.files)"></plunker-session>
+      <plunker-session ng-repeat="(filename, file) in scratch.getValidFiles()"></plunker-session>
     </div>
   """
   replace: true

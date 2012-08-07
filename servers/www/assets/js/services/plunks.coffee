@@ -128,7 +128,7 @@ module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) 
         description: self.description
         files: {}
       
-      if self.id
+      if self.id and self.isOwner()
         for filename, file of self.files
           if file
             data.files[filename] =
@@ -200,5 +200,3 @@ module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) 
       self
       
 ]
-
-module.factory "plunk", ["Plunk", (Plunk) -> new Plunk ]

@@ -6,12 +6,11 @@
 #= require ../directives/userpanel
 #= require ../directives/card
 
-#= require ../controllers/importer
-
-module = angular.module("plunker.landing", ["plunker.userpanel", "plunker.plunks", "plunker.card", "plunker.importer"])
+module = angular.module("plunker.landing", ["plunker.userpanel", "plunker.plunks", "plunker.card"])
 
 module.config ["$routeProvider", "$locationProvider", ($routeProvider, $locationProvider) ->
-  #$locationProvider.html5Mode(true).hashPrefix("!")
+  
+  #$locationProvider.html5Mode(true)
 ]
 
 module.controller "GalleryController", ["$scope", "$location", "Plunk", ($scope, $location, Plunk) ->
@@ -29,4 +28,12 @@ module.controller "GalleryController", ["$scope", "$location", "Plunk", ($scope,
     $location.search(matches[1])
     
     $scope.plunks = Plunk.query(url)
+]
+
+module.controller "ImporterController", ["$scope", "Plunk", ($scope, Plunk) ->
+  class ImporterController
+    @$inject = ["$scope", "Plunk"]
+    
+    constructor: ->
+      $scope.value = "HELLOOO"
 ]

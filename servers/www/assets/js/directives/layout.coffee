@@ -3,36 +3,16 @@
 #= require ../vendor/jquery.layout
 #= require ../vendor/angular
 
-module = angular.module("plunker.layout", [])
+#= require_tree ../services/panes
+#= require ../services/panels
 
-module.directive "plunkerLayout", ->
+module = angular.module("plunker.layout", ["plunker.panels"])
+
+module.directive "plunkerLayout", ["panels", (panels) ->
   restrict: "A"
   link: ($scope, el, attrs) ->
-    
-    togglers = """
-      <div class="btn-group">
-        <div style="background-color: black; border-bottom: 1px solid #333; width:28px; height: 28px;"><i class="icon-ban-circle" /></div>
-        <div style="background-color: black; border-bottom: 1px solid #333; width:28px; height: 28px;"><i class="icon-eye-open" /></div>
-      </div>
-    """
-    
-    $scope.panes = [
-        name: "preview"
-        description: "Show/hide the live preview pane"
-        icon: "icon-eye-open"
-      ,
-        name: "compiler"
-        description: "Show/hide the live compilation and linting pane"
-        icon: "icon-magic"
-      ,
-        name: "comments"
-        description: "Show/hide the comments pane"
-        icon: "icon-comments"
-      ,
-        name: "stream"
-        description: "Show/hide the streaming session pane"
-        icon: "icon-fire"
-    ]
+        
+    $scope.panels = panels
 
     $scope.layout = layout = $(el).layout
       defaults:
@@ -50,8 +30,11 @@ module.directive "plunkerLayout", ->
             spacing_closed: 0
             size: "50%"
             onclose: ->
-              if angularClose then $scope.activePane = null
-              else $scope.$apply -> $scope.activePane = null
+              if angularClose then panels.active = null
+              else $scope.$apply -> panels.active = null
+            onresize: (pane, $el, state) ->
+              panels.active.size = state.size
+
       east: # Multipane buttons
         size: 41 # 40px + 1px border
         closable: false
@@ -67,19 +50,26 @@ module.directive "plunkerLayout", ->
         $scope.$apply ->
           $scope.layout.state = layout.state
           $scope.$broadcast "layout:resize"
+          
+    innerLayout = layout.center.child
+    innerLayout.resizers.east.mousedown -> innerLayout.showMasks("east")
+    innerLayout.resizers.east.mouseup -> innerLayout.hideMasks("east")
     
     $scope.$watch "layout.center.child.state.east.isClosed", (closed) ->
       if closed then $
     
     angularClose = false
     
-    $scope.togglePane = (pane) ->
-      if $scope.activePane == pane
+    $scope.togglePanel = (panel) ->
+      if panels.active == panel
         angularClose = true
         layout.center.child.close("east")
         angularClose = false
+        delete panels.active
       else
-        $scope.activePane = pane
+        panels.active = panel
+        layout.center.child.sizePane("east", panel.size or "50%")
         layout.center.child.open("east")
           
-    $scope.togglePane()
+    $scope.togglePanel()
+]

@@ -11,7 +11,7 @@ html(ng-app="plunker.editor")
     // if lt IE 9
       script(src="http://html5shim.googlecode.com/svn/trunk/html5.js")
     block scripts
-      script(src="http://static.firebase.com/v0/firebase.js")
+      script(src="https://static.firebase.com/v0/firebase.js")
       script(src="/js/vendor/ace/ace.js")
       script
         var _plunker = {
@@ -37,104 +37,42 @@ html(ng-app="plunker.editor")
           span.version v#{package.version}
 
         <userpanel></userpanel>
-        
-        div#toolbar.btn-toolbar
-          .btn-group
-            button.btn.btn-primary(ng-click="save()", title="{{saveTitle}}")
-              i(ng-class="saveIcon")
-              |  {{saveText}}
-          .btn-group(ng-show="plunk.token")
-            button.btn.btn-danger(ng-click="destroy()", title="Delete the current plunk")
-              i.icon-trash
-          .btn-group
-            a.btn.btn-success(href="/edit/", title="Start a new plunk from a blank slate")
-              i.icon-file
-              |  New
-            button.btn.btn-success.dropdown-toggle(data-toggle="dropdown"): span.caret
-            ul.dropdown-menu
-              li: a(href="/edit/gist:1986619") jQuery
-                a.coffee(href="/edit/gist:1992850"): img(src="/img/coffeescript-logo-small_med.png")
-              li: a(href="/edit/gist:1986619") jQuery UI
-              li.divider
-              li: a(href="/edit/gist:2246015") AngularJS
-                a.coffee(href="/edit/gist:3189582"): img(src="/img/coffeescript-logo-small_med.png")
-              li.divider
-              li: a(href="/edit/gist:2016721") Bootstrap
-                a.coffee(href="/edit/gist:2016721"): img(src="/img/coffeescript-logo-small_med.png")
-              li.divider
-              li: a(href="/edit/gist:2050713") Backbone.js
-                a.coffee(href="/edit/gist:2050746"): img(src="/img/coffeescript-logo-small_med.png")
-              li.divider
-              li: a(href="/edit/gist:1990582") YUI
-              li.divider
-              li: div(ng-click="builder.launch()",title="Launch the Plunk builder (coming soon...)")
-                i.icon-beaker
-                | Launch builder...
+        <plunker-toolbar></plunker-toolbar>
 
-    div#editor(plunker-layout, ng-class="{loading:loading}")
+    div#editor(plunker-layout, ng-class="{loading:scratch.loading}")
       div.plnk-overlay
       div.ui-layout-center
         div.ui-layout-center
           <plunker-ace class="editor-canvas"></plunker-ace>
-          div.editor-status
-            div.navbar.navbar-fixed-bottom
-              div.navbar-inner
-                ul.nav
-                  li.dropdown
-                    a.dropdown-toggle(href="javascript:void(0)", data-toggle="dropdown") {{history.last().filename}}
-                      b.caret
-          
-                    ul#editor-file-list.dropdown-menu
-                      li.file-add
-                        a(href="javascript:void(0)", ng-click="promptFileAdd()") Add file...
-                      li.divider
-                      li.file(ng-repeat="(filename, file) in validFiles(plunk.files)",ng-class="{active:file==history.last()}")
-                        a.buffer(href="javascript:void(0)", ng-click="history.activate(file)", ng-dblclick="promptFileRename(filename)") {{file.filename}}
-                        ul.file-ops
-                          li.delete
-                            button.btn.btn-mini(ng-click="promptFileRemove(filename)"): i.icon-remove
-                  li.divider-vertical
+          <plunker-statusbar></plunker-statusbar>
 
-        div#multipane.ui-layout-east
-          div.plnk-previewer(plunker-previewer, ng-show="activePane.name=='preview'")
-            #preview-ops
-              .btn-toolbar
-                .btn-group
-                  button#refresh-preview.btn.btn-mini.btn-success(ng-click="refreshPreview()")
-                    i.icon-refresh.icon-white
-          div.plnk-compiler(plunker-compiler, ng-show="activePane.name=='compiler'")
-            h1 Live compilation and linting
-            h2 Coming soon!
-          div.plnk-comments(plunker-comments, ng-show="activePane.name=='comments'")
-            h1 Comments
-            h2 Coming soon!
-          div.plnk-streamer(plunker-streamer, ng-show="activePane.name=='stream'")
-            h1 Live collaboration
-            h2 Coming soon!
+
+        <plunker-multipanel id="multipanel" class="ui-layout-east" panes="panes"></plunker-multipanel>
+
       div#multipane-buttons.ui-layout-east
         ul.nav.nav-list
-          li.pane-toggle(ng-repeat="pane in panes", ng-class="{active: activePane==pane}", title="{{pane.description}}")
-            a(href="javascript:void(0)", ng-click="togglePane(pane)")
-              i(ng-class="pane.icon")
-              span.badge(ng-class="pane.badge.class", ng-show="pane.badge", title="{{pane.badge.title}}") {{pane.badge.value}}
+          li.pane-toggle(ng-repeat="panel in panels | orderBy:'order'", ng-class="{active: panels.active==panel}", title="{{panel.title}}")
+            a(href="javascript:void(0)", ng-click="togglePanel(panel)")
+              i(ng-class="panel.icon")
+              span.badge(ng-class="panel.badge.class", ng-show="panel.badge", title="{{panel.badge.title}}") {{panel.badge.value}}
       div.ui-layout-west
         div.plnk-sidebar
           details.file-list(open)
             summary.header Files
-              button.file-add(ng-click="promptFileAdd()")
+              button.file-add(ng-click="scratch.promptFileAdd()")
                 i.icon-plus
                 | New...
-            ul.nav.nav-list(ng-repeat="(filename, file) in validFiles(plunk.files)")
-              li.file(ng-class="{active:file==history.last()}")
-                a(href="javascript:void(0)", ng-click="history.activate(file)", ng-dblclick="promptFileRename(filename)") {{file.filename}}
+            ul.nav.nav-list(ng-repeat="file in scratch.getValidFiles()")
+              li.file(ng-class="{active:file==scratch.active()}")
+                a(href="javascript:void(0)", ng-click="scratch.activate(file)", ng-dblclick="scratch.promptFileRename(file.filename)") {{file.filename}}
                 ul.file-ops
                   li.delete
-                    button.btn.btn-mini(ng-click="promptFileRemove(filename)"): i.icon-remove
+                    button.btn.btn-mini(ng-click="scratch.promptFileRemove(file.filename)"): i.icon-remove
           details.information(open)
             summary.header Information
-            textarea.description(ng-model="plunk.description")
-            // input.tags(ng-model="plunk.tags")
-            div.user(ng-show="plunk.user")
-              img.gravatar(ng-src="http://www.gravatar.com/avatar/{{plunk.user.gravatar_id}}?s=18&d=mm")
-              span.login {{plunk.user.login}}
+            textarea.description(ng-model="scratch.plunk.description")
+            // input.tags(ng-model="scratch.plunk.tags")
+            div.user(ng-show="scratch.plunk.user")
+              img.gravatar(ng-src="http://www.gravatar.com/avatar/{{scratch.plunk.user.gravatar_id}}?s=18&d=mm")
+              span.login {{scratch.plunk.user.login}}
         

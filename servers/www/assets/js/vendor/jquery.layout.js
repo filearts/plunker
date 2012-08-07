@@ -4703,6 +4703,8 @@ $.fn.layout = function (opts) {
 	,	west:				false			// ditto
 	,	east:				false			// ditto
 	,	center:				false			// ditto
+  , showMasks: showMasks
+  , hideMasks: hideMasks
 	};
 
 	// create the border layout NOW

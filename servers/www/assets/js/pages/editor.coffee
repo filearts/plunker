@@ -26,7 +26,17 @@ module.controller "editor", ["$scope", "$location", "scratch", "url", ($scope, $
     if path is "/" then scratch.reset()
     else
       source = path.slice(1)
-      scratch.loadFrom(source) unless scratch.plunk.id is source
-        
+      unless scratch.plunk.id is source then scratch.loadFrom source, ->
+        # Hack to force a repaint after AngularJS does first rendering
+        setTimeout ->
+          console.log "Re-render hack"
+          el = $(".plnk-sidebar")[0]
+          el.style.display = "none"
+          el.offsetHeight
+          el.style.display = "block"
+        , 1
+  
   $scope.scratch = scratch
+  
+
 ]

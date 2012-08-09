@@ -35,6 +35,7 @@ app.get "/:id/:filename?", (req, res, next) ->
       file = plunk.files[filename]
       
       if file then res.send(file.content, {"Content-Type": if req.accepts(file.mime) then file.mime else "text/plain"})
+      else if filename then res.send(404)
       else
         res.local "plunk", plunk
         res.render "directory"

@@ -57,10 +57,13 @@ module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) 
 
 
     constructor: (attributes = {}) ->
-      angular.copy(Plunk.defaults, @)
+      @description = ""
+      @files = {}
       angular.extend(@, attributes)
       
-    isOwner: -> if @id then !!@token else true
+    reset: (attributes = {}) -> angular.copy(attributes, @)
+      
+    isOwner: -> !@id or !!@token
     
     fetch: (success = angular.noop, error = angular.noop) ->
       plunk = @
@@ -95,7 +98,7 @@ module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) 
           Authorization: "token " + $.cookie("plnk_session")
           
       request.then (response) ->
-        angular.copy(Plunk.defaults, self)
+        angular.copy({}, self)
         success()
       , error
       
@@ -118,36 +121,13 @@ module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) 
       success ||= angular.noop
       error ||= angular.noop
       
-      angular.extend(self, attributes) if attributes
-
       path = "#{url.api}/plunks"
       path += "/#{self.id}" if self.id
       path += "/forks" unless self.isOwner()
       
-      data =
+      data = attributes or 
         description: self.description
-        files: {}
-      
-      if self.id and self.isOwner()
-        for filename, file of self.files
-          if file
-            data.files[filename] =
-              content: file.content
-            data.files[filename].filename = file.filename if filename != file.filename
-          else
-            data.files[filename] = null
-      
-      else
-        data.source = self.source if self.source
-      
-        # Normalize filenames vs files for unsaved plunks
-        for filename, file of self.files
-          # Skip files that are set to null
-          if file
-            data.files[file.filename] =
-              content: file.content
-          else
-            delete self.files[filename]
+        files: self.files
           
       request = $http
         method: "POST"
@@ -157,42 +137,7 @@ module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) 
           Authorization: "token " + $.cookie("plnk_session")
           
       request.then (response) ->
-        data = angular.copy(response.data) # Is this copy needed?
-        
-        self.comments = data.comments
-        self.comments_url = data.comments_url
-        self.created_at = data.created_at
-        self.description = data.description
-        
-        unless self.id = data.id then delete self.id
-        
-        self.id = data.id if data.id
-        self.raw_url = data.raw_url
-        
-        unless self.token = data.token then delete self.token
-        
-        self.updated_at = data.updated_at
-        self.url = data.url
-        
-        unless self.user = data.user then delete self.user
-        
-        old_files = self.files
-
-        for filename, file of old_files
-          if file is null
-            if data.files[filename] then throw new Error("Data inconsistency; #{filename} marked for deletion but still present")
-            else delete self.files[filename]
-          else if filename != file.filename
-            # OK; file exists under new name
-            if new_file = data.files[file.filename]
-              angular.copy(new_file, file)
-              self.files[file.filename] = file
-              delete self.files[filename]
-            else throw new Error("Data inconsistency; #{filename} renamed to #{file.filename} but not returned by server")
-          else
-            if new_file = data.files[file.filename]
-              angular.extend(self.files[file.filename], new_file)
-            else throw new Error("Data inconsistency; #{filename} exists butwas not returned by server")
+        angular.copy(response.data, self)
         
         success(self, response.headers)
       , error

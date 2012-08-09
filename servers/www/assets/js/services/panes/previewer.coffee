@@ -41,9 +41,9 @@ module.run ["$http", "panels", "scratch", "url", ($http, panels, scratch, url) -
       self = @
       json = { files: {} }
       
-      for file in scratch.getValidFiles()
-        json.files[file.filename] =
-          content: file.content
+      for buffer in scratch.buffers.queue
+        json.files[buffer.filename] =
+          content: buffer.content
       
       request = $http.post("#{url.api}/previews", json)
       
@@ -69,7 +69,7 @@ module.run ["$http", "panels", "scratch", "url", ($http, panels, scratch, url) -
       $scope.scratch = scratch
       $scope.refreshPreview = refresh
       
-      $scope.$watch "scratch.plunk.files", (files) ->
+      handleChange = ->
         if self.enabled
           self.awaiting = false
           refresh()
@@ -78,9 +78,12 @@ module.run ["$http", "panels", "scratch", "url", ($http, panels, scratch, url) -
           self.badge =
             class: "badge badge-important"
             title: "Click here to preview your changes"
-            value: "*"
-          
-      , true
+            value: "*"        
+      
+      $scope.$on "buffer:change:content", handleChange
+      $scope.$on "buffer:change:filename", handleChange
+      $scope.$on "buffer:add", handleChange
+      $scope.$on "buffer:remove", handleChange
       
     deactivate: ($scope, el, attrs) ->
       @enabled = false

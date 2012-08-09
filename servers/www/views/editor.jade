@@ -11,8 +11,11 @@ html(ng-app="plunker.editor")
     // if lt IE 9
       script(src="http://html5shim.googlecode.com/svn/trunk/html5.js")
     block scripts
-      script(src="https://static.firebase.com/v0/firebase.js")
+      script(src="http://static.firebase.com/v0/firebase.js")
       script(src="/js/vendor/ace/ace.js")
+      script(src="/channel/bcsocket.js")
+      script(src="/share/share.js")
+      script(src="/share/json.js")
       script
         var _plunker = {
           "url": !{JSON.stringify(url).replace(/<\//g,"<\\/")},
@@ -62,12 +65,12 @@ html(ng-app="plunker.editor")
               button.file-add(ng-click="scratch.promptFileAdd()")
                 i.icon-plus
                 | New...
-            ul.nav.nav-list(ng-repeat="file in scratch.getValidFiles()")
-              li.file(ng-class="{active:file==scratch.active()}")
-                a(href="javascript:void(0)", ng-click="scratch.activate(file)", ng-dblclick="scratch.promptFileRename(file.filename)") {{file.filename}}
+            ul.nav.nav-list(ng-repeat="buffer in scratch.buffers.queue | orderBy:'filename'")
+              li.file(ng-class="{active:buffer==scratch.buffers.active()}")
+                a(href="javascript:void(0)", ng-click="scratch.buffers.activate(buffer)", ng-dblclick="scratch.promptFileRename(buffer.filename)") {{buffer.filename}}
                 ul.file-ops
                   li.delete
-                    button.btn.btn-mini(ng-click="scratch.promptFileRemove(file.filename)"): i.icon-remove
+                    button.btn.btn-mini(ng-click="scratch.promptFileRemove(buffer.filename)"): i.icon-remove
           details.information(open)
             summary.header Information
             textarea.description(ng-model="scratch.plunk.description")

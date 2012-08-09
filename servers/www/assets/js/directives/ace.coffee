@@ -8,21 +8,21 @@ UndoManager = require("ace/undomanager").UndoManager
 
 module = angular.module("plunker.ace", ["plunker.modes"])
 
-module.directive "plunkerSession", ["modes", (modes) ->
+module.directive "plunkerSession", ["$rootScope", "$timeout", "modes", ($rootScope, $timeout, modes) ->
   restrict: "E"
   require: "?ngModel"
   template: """
-    <div style="display: none" ng-model="file.content"></div>
+    <div style="display: none" ng-model="buffer.content"></div>
   """
   replace: true
   link: ($scope, el, attrs, ngModel) ->
-    file = $scope.file
+    buffer = $scope.buffer
     
-    session = new EditSession(file.content or "")
+    session = new EditSession(buffer.content or "")
     session.setTabSize(2)
     session.setUseSoftTabs(true)
     session.setUndoManager(new UndoManager())
-    session.setMode(mode.source) if mode = modes.findByFilename(file.filename)
+    session.setMode(mode.source) if mode = modes.findByFilename(buffer.filename)
     
     ngModel.$render = ->
       session.setValue(ngModel.$viewValue or "")
@@ -32,24 +32,31 @@ module.directive "plunkerSession", ["modes", (modes) ->
     
     read()
     
-    $scope.$on "$destroy", ->
-      #console.log "$destroy", arguments...
-      # How do I destroy the session?
-      
-    $scope.$watch "file.filename", (filename) ->
-      session.setMode(mode.source) if mode = modes.findByFilename(file.filename)
+    $scope.buffer.session = session
     
-    $scope.$watch "scratch.active()", (active) ->
-      if active == file
+    $scope.$on "$destroy", ->
+      $timeout -> $rootScope.$broadcast "buffer:remove", $scope.buffer
+    
+    $scope.$watch "buffer.content", (content, old_content) ->
+      $rootScope.$broadcast "buffer:change:content", $scope.buffer, content, old_content
+    
+    $scope.$watch "buffer.filename", (filename, old_filename) ->
+      session.setMode(mode.source) if mode = modes.findByFilename(buffer.filename)
+      $rootScope.$broadcast "buffer:change:filename", $scope.buffer, filename, old_filename
+    
+    $scope.$watch "scratch.buffers.active()", (active) ->
+      if active == buffer
         $scope.ace.setSession(session)
         $scope.ace.focus()
+    
+    $rootScope.$broadcast "buffer:add", $scope.buffer
 ] 
 
 module.directive "plunkerAce", ["modes", (modes) ->
   restrict: "E"
   template: """
     <div class="editor-canvas">
-      <plunker-session ng-repeat="(filename, file) in scratch.getValidFiles()"></plunker-session>
+      <plunker-session ng-repeat="buffer in scratch.buffers.queue"></plunker-session>
     </div>
   """
   replace: true

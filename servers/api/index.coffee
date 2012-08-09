@@ -277,7 +277,7 @@ app.post "/plunks/:id", (req, res, next) ->
             if file.filename
               old.filename = file.filename
               old.mime = mime.lookup(file.filename, "text/plain")
-            if file.content
+            if file.content?
               old.content = file.content
             
             if file.filename or file.content then old.save()

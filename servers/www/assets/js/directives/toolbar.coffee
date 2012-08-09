@@ -12,7 +12,7 @@ module.directive "plunkerToolbar", ["scratch", (scratch) ->
       <div class="btn-group">
         <button ng-click="scratch.save()" title="{{saveTitle}}" class="btn btn-primary"><i ng-class="saveIcon"></i> {{saveText}}</button>
       </div>
-      <div ng-show="scratch.isOwner() &amp;&amp; scratch.isSaved()" class="btn-group">
+      <div ng-show="scratch.isOwned() && scratch.isSaved()" class="btn-group">
         <button ng-click="scratch.promptDestroy()" title="Delete the current plunk" class="btn btn-danger"><i class="icon-trash"></i></button>
       </div>
       <div class="btn-group"><a href="/edit/" title="Start a new plunk from a blank slate" class="btn btn-success"><i class="icon-file"></i> New</a>
@@ -40,7 +40,7 @@ module.directive "plunkerToolbar", ["scratch", (scratch) ->
     $scope.scratch = scratch
 
     # Watch the ownership of the active plunk and change the save text accordingly
-    $scope.$watch "scratch.isOwner()", (isOwner) ->
+    $scope.$watch "scratch.isOwned()", (isOwner) ->
       if isOwner
         $scope.saveText = "Save"
         $scope.saveTitle = "Save your work as a new Plunk"

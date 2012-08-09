@@ -7,6 +7,7 @@ assets = require("connect-assets")
 nconf = require("nconf")
 authom = require("authom")
 request = require("request")
+sharejs = require("share")
 
 module.exports = app = express.createServer()
 
@@ -34,6 +35,10 @@ app.configure ->
     "url": nconf.get("url")
     "package": require("../../package")
   app.use require("./middleware/session").middleware()    
+  # Start the sharejs server before variable routes
+  sharejs.server.attach app,
+    db:
+      type: "none"
   app.use app.router
   app.use require("./middleware/error").middleware()    
 
@@ -84,6 +89,8 @@ app.get "/:id/:anything?", (req, res, next) ->
     
     res.local "plunk", body
     res.render "preview"
-  
+
+
+
 app.get "*", (req, res) ->
   res.send "Hello, you've reached the end of the internet. I don't know how you got here, or who told you this place exists, but its not somewhere you should be hanging out.", 404

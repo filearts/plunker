@@ -25,8 +25,6 @@ module = angular.module("plunker.scratch", ["plunker.plunks", "plunker.importer"
 module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", ($location, $q, Plunk, importer, session) ->
   ###
   Class to handle the list of active buffers
-  
-  This class if object-agnostic
   ###
   class Buffers
     constructor: ->
@@ -45,7 +43,7 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", ($
       return object for object in @queue when object[key] == value
     
     add: (add) ->
-      @queue.push(add)
+      @queue.push(new Buffer(add))
       @
     
     remove: (remove) ->
@@ -55,7 +53,7 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", ($
       
     reset: (queue = []) ->
       @queue.length = 0
-      @queue.concat(queue)
+      @add(item) for item in queue
       @
     
   ###
@@ -65,6 +63,7 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", ($
     nextID: do ->
       counter = 1
       -> "Untitled#{counter++}"
+      
     constructor: (attributes = {}) ->
       angular.copy(attributes, @)
       
@@ -103,11 +102,7 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", ($
       if @isSaved() and @isOwned() then angular.copy(json, @savedState)
       else delete @savedState
       
-      @buffers.reset()
-      
-      for filename, file of json.files
-        @buffers.add new Buffer(file)
-      
+      @buffers.reset(file for filename, file of json.files)
       @buffers.activate(index) if index = @buffers.findBy("filename", "index.html")
       
       @
@@ -198,9 +193,9 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", ($
 
       importer.import(source).then (json) ->
         self.reset(json)
-        
         deferred.resolve(@)
       , (msg) ->
+        $location.path("/").replace()
         deferred.reject("Import failed: #{msg}")
 
     addFile: (filename, content = "") ->
@@ -208,7 +203,7 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", ($
         console.error("Attempt to add an existing file, '#{filename}'")
         return @
       
-      @buffers.add new Buffer
+      @buffers.add
         filename: filename
         content: content
       

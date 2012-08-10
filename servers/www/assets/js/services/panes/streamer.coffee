@@ -16,34 +16,28 @@ module.directive "plunkerChannel", [ "stream", (stream) ->
   replace: true
   require: "?ngModel"
   template: """
-    <div style="display: none;" ng-model="buffer.file.content"></div>
+    <div style="display: none;" ng-model="buffer.content"></div>
   """
   link: ($scope, el, attr, ngModel) ->
-    console.log "Channel", $scope.buffer
-    console.log "Parent", stream
+    buffer = $scope.buffer
+
+    console.log "Channel is", $scope, buffer, stream
     
-    child = stream.doc.at(["files", $scope.id, "content"])
+    finalize = ->
+      buffer.channels =
+        filaname: stream.doc.at(["files", $scope.$index, "filename"])
+        content: stream.doc.at(["files", $scope.$index, "content"])
+  
+      buffer.channels.content.attach_ace(buffer.session, stream.keep)
+      
+      $scope.$on "$destroy", ->
+        if stream.doc.getAt(["files"])[$scope.$index]
+          stream.doc.removeAt(["files", $scope.$index]) # Kill it with fire
+        buffer.channels.content.detach_ace() if buffer.channels.content
+      
+    if stream.doc.getAt(["files"])[$scope.$index] then finalize()
+    else stream.doc.insertAt ["files"], $scope.$index, { filename: buffer.filename, content: buffer.content}, finalize
     
-    console.log "Child", child, child.getText()
-    console.log "Stream", stream
-    
-    child.attach_ace $scope.buffer.session.getDocument(), stream.keep
-    
-    $scope.$on "$destroy", ->
-      child.doc.detach_ace()
-]
-module.directive "plunkerDescription", [ () ->
-  restrict: "E"
-  replace: true
-  require: "?ngModel"
-  template: """
-    <div style="display: none;"></div>
-  """
-  link: ($scope, el, attr, ngModel) ->
-    console.log "Channel", $scope.buffer
-    
-    
-    $scope.$on "$destroy", -> #handleDestroy()
 ]
 
 module.factory "stream", [ () ->
@@ -53,7 +47,7 @@ module.factory "stream", [ () ->
   doc: null
 ]
 
-module.run [ "$location", "panels", "scratch", "stream", ($location, panels, scratch, stream) ->
+module.run [ "$location", "$timeout", "panels", "scratch", "stream", ($location, $timeout, panels, scratch, stream) ->
   panels.push new class
     name: "streamer"
     order: 3
@@ -62,8 +56,7 @@ module.run [ "$location", "panels", "scratch", "stream", ($location, panels, scr
     icon: "icon-fire"
     template: """
       <div class="plnk-stream">
-        <plunker-channel ng-repeat="(id, buffer) in buffers"></plunker-channel>
-        <plunker-description ng-model="scratch.description"></plunker-description>
+        <plunker-channel ng-repeat="buffer in scratch.buffers.queue | orderBy:'filename'"></plunker-channel>
         <div ng-hide="stream.streaming">
           <h1>Streaming</h1>
           <p>
@@ -97,17 +90,18 @@ module.run [ "$location", "panels", "scratch", "stream", ($location, panels, scr
     getLocalState: ->
       state =
         description: scratch.plunk.description
+        tags: scratch.plunk.tags
         files: []
       
-      for filename, file of scratch.getValidFiles()
-        #TODO: Hack using AngularJS internals
+      for buffer in scratch.buffers.queue
         state.files.push
-          content: file.content
-          filename: file.filename
+          content: buffer.content
+          filename: buffer.filename
     
       state
       
     join: (id = uid()) ->
+      console.log "Stream::join", arguments...
       self = @
       
       scratch.loading = true
@@ -125,36 +119,44 @@ module.run [ "$location", "panels", "scratch", "stream", ($location, panels, scr
             if err then console.error "error", "Error setting initial state"
             else self.start(id, doc, true)
             self.scope.$apply -> scratch.loading = false
-        else
+        else $timeout ->
           self.start(id, doc)
-          self.scope.$apply -> scratch.loading = false
+          scratch.loading = false
     
     start: (id, @doc, keep = false) ->
+      console.log "Stream::start", arguments...
       self = @
       
       unless keep
         state = @doc.get()
-        json =
-          description: state.description or ""
-          files: {}
         
-        for id, file of state.files
-          json.files[file.filename] = angular.copy(file)
-          
-        console.log "Resetting to", json
+        console.log "State is", state
+
+        # We don't want to reset the *whole* scratch here as that would result
+        # in changing the active plunk to a blank one. We will just adjust the
+        # plunk's description and tags and reset the buffers.
+        scratch.plunk.description = state.description
+        scratch.plunk.tags = state.tags
         
-        scratch.reset(json)
+        scratch.buffers.reset(state.files)
+        scratch.buffers.activate(index) if index = scratch.buffers.findBy("filename", "index.html")
         
-      console.log "Started", @doc.get()
-      
       self.scope.$apply ->
         stream.streaming = true
         stream.doc = self.doc
-        stream.buffers = buffers
         stream.keep = keep
         
-        self.scope.buffers = buffers
-        
+        # Assign the scratch to the local scope which will trigger creation of
+        # custom directives for each channel
+        self.scope.scratch = scratch
+      
+      @doc.at("files").on "insert", (pos, data) ->
+        console.log "sharejs::insert", arguments...
+        $timeout -> scratch.buffers.add(data)
+      
+      @doc.at("files").on "delete", (pos, data) ->
+        console.log "sharejs::delete", arguments...
+        $timeout -> scratch.buffers.remove(buffer) if buffer = scratch.buffers.findBy("filename", data.filename)
         
       @doc.on "change", (events) ->
         console.log "sharejs::change", arguments...
@@ -180,11 +182,9 @@ module.run [ "$location", "panels", "scratch", "stream", ($location, panels, scr
       self.scope = $scope
       
       $scope.stream = stream
-      $scope.buffers = {}
       
       $scope.startStream = (id) ->
-        alert "Coming soon"
-        #self.join(id)
+        self.join(id)
         
       
     deactivate: ($scope, el, attrs) ->
@@ -198,6 +198,7 @@ Range = require("ace/range").Range
 
 # Convert an ace delta into an op understood by share.js
 applyToShareJS = (editorDoc, delta, doc) ->
+  console.log "applyToShareJS", arguments...
   # Get the start position of the range, in no. of characters
   getStartOffsetPosition = (range) ->
     # This is quite inefficient - getLines makes a copy of the entire
@@ -237,12 +238,11 @@ applyToShareJS = (editorDoc, delta, doc) ->
 # Attach an ace editor to the document. The editor's contents are replaced
 # with the document's contents unless keepEditorContents is true. (In which case the document's
 # contents are nuked and replaced with the editor's).
-window.sharejs.extendDoc 'attach_ace', (editorDoc, keepEditorContents) ->
-  console.log "attach_ace, this", @
-  console.log "attach_ace, args..", arguments...
-  #throw new Error 'Only text documents can be attached to ace' unless @provides['text']
+window.sharejs.extendDoc 'attach_ace', (session, keepEditorContents) ->
+  console.log "attach_ace, this", session
 
   doc = this
+  editorDoc = session.getDocument()
   editorDoc.setNewLineMode 'unix'
 
   check = ->
@@ -257,11 +257,13 @@ window.sharejs.extendDoc 'attach_ace', (editorDoc, keepEditorContents) ->
           # Should probably also replace the editor text with the doc snapshot.
       , 0
 
-  if keepEditorContents
-    doc.del 0, doc.getText().length
-    doc.insert 0, editorDoc.getValue()
-  else
-    editorDoc.setValue doc.getText()
+  # Not needed because we ALWAYS either create a new channel or keep the old one
+  #if keepEditorContents
+  #  doc.del 0, doc.getText().length
+  #  doc.insert 0, editorDoc.getValue()
+  #else
+    # Already done by custom code
+    # editorDoc.setValue doc.getText()
 
   check()
 
@@ -271,21 +273,13 @@ window.sharejs.extendDoc 'attach_ace', (editorDoc, keepEditorContents) ->
   
   # Listen for edits in ace
   editorListener = (change) ->
+    console.log "editorListener", suppress, arguments...
     return if suppress
     applyToShareJS editorDoc, change.data, doc
 
     check()
 
-  editorDoc.on 'change', editorListener
-
-  # Listen for remote ops on the sharejs document
-  docListener = (op) ->
-    suppress = true
-    applyToDoc editorDoc, op
-    suppress = false
-
-    check()
-
+  session.on 'change', editorListener
 
   # Horribly inefficient.
   offsetToPos = (offset) ->
@@ -315,8 +309,7 @@ window.sharejs.extendDoc 'attach_ace', (editorDoc, keepEditorContents) ->
     check()
 
   doc.detach_ace = ->
-    doc.removeListener 'remoteop', docListener
-    editorDoc.removeListener 'change', editorListener
+    session.removeListener 'change', editorListener
     delete doc.detach_ace
 
   return

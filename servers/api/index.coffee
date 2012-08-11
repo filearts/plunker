@@ -225,7 +225,7 @@ app.post "/plunks", (req, res, next) ->
           if err.code is 11000 then savePlunk()
           else next(err)
         else
-          unless req.user
+          unless req.user and req.session and req.session.keychain
             req.session.keychain.push _id: plunk._id, token: plunk.token
             req.session.save()
             
@@ -337,7 +337,7 @@ app.post "/plunks/:id/forks", (req, res, next) ->
               parent.forks.push(plunk._id)
               parent.save()
               
-              unless req.user
+              if not req.user and req.session and req.session.keychain
                 req.session.keychain.push _id: plunk._id, token: plunk.token
                 req.session.save()
                 

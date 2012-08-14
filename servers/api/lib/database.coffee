@@ -1,5 +1,4 @@
 mongoose = require("mongoose")
-pagination = require("mongoose-troop-pagination")
 nconf = require("nconf")
 mime = require("mime")
 url = require("url")

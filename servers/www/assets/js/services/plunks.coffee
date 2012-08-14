@@ -15,19 +15,20 @@ module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) 
     @base_url: "#{url.api}/plunks"
     @query: (source, success = angular.noop, error = angular.noop) ->
       plunks = []
+      params = sessid: $.cookie("plnk_session")
       
       unless angular.isObject(source)
         source = 
           url: source
           
       source.url ||= "#{url.api}/plunks"
-      source.url += "?p=#{source.page}&pp=#{source.size}" if source.page and source.size
+      source.page and params.page = source.page
+      source.size and params.size = source.size
       
       request = $http
         method: "GET"
+        params: params
         url: source.url
-        headers:
-          Authorization: "token " + $.cookie("plnk_session")
       
       request.then (response) ->
         if link = response.headers("link")
@@ -62,7 +63,30 @@ module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) 
       angular.extend(@, attributes)
       
     reset: (attributes = {}) -> angular.copy(attributes, @)
+    
+    getForkOf: ->
+      if @fork_of
+        unless @fork_of instanceof Plunk
+          @fork_of = new Plunk(@fork_of)
+          @fork_of.fetch() unless @fork_of.url
+        @fork_of
+    
+    getForks: ->
+      if @forks
+        for fork, idx in @forks
+          if angular.isString(fork)
+            @forks[idx] = new Plunk(id: fork)
+            @forks[idx].fetch()
+          unless fork instanceof Plunk
+            @forks[idx] = new Plunk(fork)
+            @forks[idx].fetch() unless fork.url
+
+        @forks
       
+    getEditUrl: -> "/edit/#{@id}" if @id
+    getHtmlUrl: -> "/#{@id}" if @id
+    getCommentsUrl: -> @getHtmlUrl() + "/comments"
+    
     isOwner: -> !@id or !!@token
     
     fetch: (success = angular.noop, error = angular.noop) ->
@@ -70,9 +94,8 @@ module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) 
       
       request = $http
         method: "GET"
+        params: sessid: $.cookie("plnk_session")
         url: "#{url.api}/plunks/#{plunk.id}"
-        headers:
-          Authorization: "token " + $.cookie("plnk_session")
       
       request.then (response) ->
         angular.copy(response.data, plunk)
@@ -93,9 +116,8 @@ module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) 
 
       request = $http
         method: "DELETE"
+        params: sessid: $.cookie("plnk_session")
         url: path
-        headers:
-          Authorization: "token " + $.cookie("plnk_session")
           
       request.then (response) ->
         angular.copy({}, self)
@@ -131,10 +153,9 @@ module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) 
           
       request = $http
         method: "POST"
+        params: sessid: $.cookie("plnk_session")
         url: path
         data: data
-        headers:
-          Authorization: "token " + $.cookie("plnk_session")
           
       request.then (response) ->
         angular.copy(response.data, self)

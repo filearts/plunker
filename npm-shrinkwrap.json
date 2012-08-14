@@ -1,12 +1,9 @@
 {
   "name": "plunker",
-  "version": "0.3.5-18",
+  "version": "0.3.10-3",
   "dependencies": {
     "coffee-script": {
       "version": "1.3.3"
-    },
-    "lru-cache": {
-      "version": "1.1.0"
     },
     "express": {
       "version": "2.5.11",
@@ -23,7 +20,12 @@
       }
     },
     "gzippo": {
-      "version": "0.1.7"
+      "version": "0.1.7",
+      "dependencies": {
+        "mime": {
+          "version": "1.2.7"
+        }
+      }
     },
     "jade": {
       "version": "0.25.0",
@@ -40,7 +42,7 @@
       "version": "1.3.0"
     },
     "mime": {
-      "version": "1.2.6"
+      "version": "1.2.7"
     },
     "underscore": {
       "version": "1.3.3"
@@ -156,7 +158,7 @@
       "version": "0.4.0",
       "dependencies": {
         "oauth": {
-          "version": "0.9.7"
+          "version": "0.9.8"
         }
       }
     },
@@ -192,6 +194,9 @@
         "qs": {
           "version": "0.5.0"
         },
+        "mime": {
+          "version": "1.2.7"
+        },
         "formidable": {
           "version": "1.0.11"
         }
@@ -201,7 +206,7 @@
       "version": "0.1.22"
     },
     "mongoose": {
-      "version": "2.7.1",
+      "version": "2.7.4",
       "dependencies": {
         "hooks": {
           "version": "0.2.1"
@@ -215,6 +220,9 @@
           }
         }
       }
+    },
+    "lru-cache": {
+      "version": "1.1.1"
     }
   }
 }

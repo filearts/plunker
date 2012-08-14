@@ -11,8 +11,8 @@ uid = (len = 16, prefix = "", keyspace = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijkl
 
 synchro = new class Synchro
   constructor: (@scope) ->
-    @localEvents = []
-    @remoteEvents = []
+    @localEvents = 0
+    @remoteEvents = 0
   
   handleRemoteEvent: (cb) ->
     return false if @localEvents > @remoteEvents
@@ -100,7 +100,6 @@ module.directive "plunkerChannel", [ "stream", (stream) ->
 module.factory "stream", [ () ->
   id: uid(16)
   streaming: false
-  buffers: {}
   doc: null
 ]
 
@@ -112,9 +111,13 @@ module.run [ "$location", "$timeout", "$q", "panels", "scratch", "stream", ($loc
     title: "Show/hide the streaming panel"
     icon: "icon-fire"
     template: """
-      <div class="plnk-stream">
-        <plunker-channel ng-repeat="buffer in scratch.buffers.queue"></plunker-channel>
-        <div ng-hide="stream.streaming">
+      <div class="plnk-stream" ng-switch="stream.streaming">
+        <div ng-switch-when="streaming">
+          <plunker-channel ng-repeat="buffer in scratch.buffers.queue"></plunker-channel>
+          <input class="mediumtext" disabled ng-model="stream.id" size="32" />
+          <button class="btn btn-danger" ng-click="stopStream()">Disconnect</button>
+        </div>
+        <div ng-switch-default>
           <h1>Streaming</h1>
           <p>
             Streaming enables real-time collaboraboration on Plunker. When you
@@ -149,14 +152,6 @@ module.run [ "$location", "$timeout", "$q", "panels", "scratch", "stream", ($loc
         description: scratch.plunk.description
         tags: scratch.plunk.tags
         files: {}
-      ###
-      for buffer in scratch.buffers.queue
-        buffer.channel ||= uid(10)
-        state.files[buffer.channel] =
-          channel_id: channel
-          filename: buffer.filename
-          content: buffer.content
-      ###
       state
       
     join: (id = uid()) ->
@@ -169,7 +164,7 @@ module.run [ "$location", "$timeout", "$q", "panels", "scratch", "stream", ($loc
         stream.id = id
         stream.doc = doc
         stream.keep = doc.created is true
-        stream.streaming = true
+        stream.streaming = "streaming"
 
         if stream.keep
           # Reset the channel to the current local state
@@ -185,6 +180,18 @@ module.run [ "$location", "$timeout", "$q", "panels", "scratch", "stream", ($loc
             deferred.resolve(stream)
       
       deferred.promise
+    
+    stop: ->
+      self = @
+      
+      if self.doc
+        self.scope.scratch = null
+
+        stream.doc.close()
+        stream.streaming = false
+        stream.doc = null
+        stream.id = uid()
+      
     
     start: (stream) ->
       self = @
@@ -223,7 +230,9 @@ module.run [ "$location", "$timeout", "$q", "panels", "scratch", "stream", ($loc
         , (error) ->
           alert(error)
           scratch.loading = false
-        
+      
+      $scope.stopStream = ->
+        self.stop()
       
     deactivate: ($scope, el, attrs) ->
           

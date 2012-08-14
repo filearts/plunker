@@ -65,30 +65,16 @@ authom.on "error", (req, res, data) ->
   res.render "auth/error", auth: data
 
 
-
-app.get "/", (req, res) ->
-  res.render "landing"
-
-app.get "/browse", (req, res) ->
-  res.render "browse"
+app.get "/partials/:partial", (req, res, next) ->
+  res.render "partials/#{req.params.partial}"
 
 app.get "/edit/*", (req, res, next) ->
   res.render "editor"
 
 app.get "/edit", (req, res, next) -> res.redirect("/edit/", 302)
 
-app.get "/:id/:anything?", (req, res, next) ->
-  request.get nconf.get("url:api") + "/plunks/#{req.params.id}?sessid=#{req.cookies.plnk_session or ''}", (err, response, body) ->
-    return next(err) if err
-    return next(new Error("Not found")) if response.statusCode >= 400
-    
-    try
-      body = JSON.parse(body)
-    catch e
-      return next(new Error("Invalid plunk"))
-    
-    res.local "plunk", body
-    res.render "preview"
+app.get "/*", (req, res) ->
+  res.render "landing"
 
 
 

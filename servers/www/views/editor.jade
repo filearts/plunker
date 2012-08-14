@@ -65,12 +65,13 @@ html(ng-app="plunker.editor")
               button.file-add(ng-click="scratch.promptFileAdd()")
                 i.icon-plus
                 | New...
-            ul.nav.nav-list(ng-repeat="buffer in scratch.buffers.queue | orderBy:'filename'")
-              li.file(ng-class="{active:buffer==scratch.buffers.active()}")
+            ul.nav.nav-list
+              li.file(ng-class="{active:buffer==scratch.buffers.active()}",ng-repeat="buffer in scratch.buffers.queue | orderBy:'filename'")
                 a(href="javascript:void(0)", ng-click="scratch.buffers.activate(buffer)", ng-dblclick="scratch.promptFileRename(buffer.filename)") {{buffer.filename}}
                 ul.file-ops
                   li.delete
                     button.btn.btn-mini(ng-click="scratch.promptFileRemove(buffer.filename)"): i.icon-remove
+                
           details.information(open)
             summary.header Information
             textarea.description(ng-model="scratch.plunk.description")

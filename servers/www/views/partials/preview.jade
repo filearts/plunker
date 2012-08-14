@@ -1,0 +1,18 @@
+section#preview
+  div.row
+    div.span8.preview
+      iframe.plnk-preview(ng-src="{{plunk.raw_url}}", frameborder="0", width="100%", height="600", marginheight="0", marginwidth="0")
+    div.span4
+      h1(ng-bind="plunk.description")
+      div.user(ng-show="plunk.user")
+        p
+          img.gravatar(ng-src="http://www.gravatar.com/avatar/{{plunk.user.gravatar_id}}?s=18&d=mm")
+          span.login {{plunk.user.login}}
+      div.fork-of(ng-show="plunk.getForkOf()")
+        h2 Fork of:
+        ul.thumbnails.cards
+          <card model="plunk.fork_of"></card>
+      div.forks(ng-show="plunk.getForks()")
+        h2 Forks:
+        ul.thumbnails.cards
+          <card model="plunk" ng-repeat="plunk in plunk.getForks()"></card>

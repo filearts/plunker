@@ -22,8 +22,8 @@ module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) 
           url: source
           
       source.url ||= "#{url.api}/plunks"
-      source.page and params.page = source.page
-      source.size and params.size = source.size
+      source.page and params.p = source.page
+      source.size and params.pp = source.size
       
       request = $http
         method: "GET"

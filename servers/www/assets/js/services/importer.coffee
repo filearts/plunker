@@ -2,7 +2,7 @@ plunkerRegex = ///
   ^
     \s*                   # Leading whitespace
     (?:plunk:)?           # Optional plunk:prefix
-    ([a-zA-Z0-9]+)        # Plunk ID
+    ([-\._a-zA-Z0-9]+)     # Plunk ID
     \s*                   # Trailing whitespace
   $
 ///i

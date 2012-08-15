@@ -28,7 +28,7 @@ html(ng-app="plunker.landing")
           var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
         })();
 
-  body(ng-controller="HomeController")
+  body
     nav.navbar.navbar-fixed-top
       div.navbar-inner
         div.container
@@ -44,10 +44,26 @@ html(ng-app="plunker.landing")
 
           div.nav-collapse
             ul#navbar.nav
+              li(ng-class="{active:section=='home'}")
+                a(href="/")
+                  i.icon-home
+                  | Home
+              li(ng-class="{active:section=='editor'}")
+                a(href="/edit/", target="_self")
+                  i.icon-edit
+                  | Editor
+              li(ng-class="{active:section=='browse'}")
+                a(href="/")
+                  i.icon-th
+                  | Browse
+              li(ng-class="{active:section=='discuss'}")
+                a(href="/discuss")
+                  i.icon-comments-alt
+                  | Discuss
 
     div#container.container
       div(ng-view)
-      hr
       footer
+        hr
         p Built by <a href="https://github.com/ggoodman">Geoff Goodman</a> (<a href="http://twitter.com/g_goodman">@g_goodman</a>)
         p &copy; Filearts (2012) (<a href="http://twitter.com/filearts">@filearts</a>)

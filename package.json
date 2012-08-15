@@ -13,7 +13,7 @@
   "engines": {
     "node": "0.6.x"
   },
-  "version": "0.3.11",
+  "version": "0.3.12-1",
   "private": true,
   "dependencies": {
     "coffee-script": "1.3.x",
@@ -25,7 +25,7 @@
     "underscore": "1.3.x",
     "backbone": "0.9.x",
     "connect-assets": "2.2.x",
-    "share": "https://github.com/josephg/ShareJS/tarball/master",
+    "share": "0.5.x",
     "express-subdomains": "0.0.x",
     "authom": "0.4.x",
     "nconf": "0.5.x",
@@ -37,18 +37,6 @@
     "lru-cache": "1.1.x"
   },
   "bundledDependencies": [
-    "mongoose",
-    "mongoose-troop-pagination",
-    "share",
     "json-schema"
-  ],
-  "env": {
-    "host": "plnkr.co",
-    "oauth:github:id": "7e377e5657c4d5c332db",
-    "oauth:github:secret": "fa5bdbc8d945e8431a45b15e2bb4cc4e94b1cb73",
-    "mongodb:hostname": "ds031597.mongolab.com",
-    "mongodb:port": 31597,
-    "mongodb:pathname": "plnkr_co",
-    "mongodb:auth": "plnkr_co:plnkr_co"
-  }
+  ]
 }

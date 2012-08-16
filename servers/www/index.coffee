@@ -71,8 +71,18 @@ app.get "/partials/:partial", (req, res, next) ->
 
 app.get "/edit/*", (req, res, next) ->
   res.render "editor"
+  
+app.all "/edit/", (req, res, next) ->
+  res.header("Access-Control-Allow-Origin", req.headers.origin or "*")
+  res.header("Access-Control-Allow-Methods", "OPTIONS,GET,PUT,POST,DELETE")
+  res.header("Access-Control-Allow-Headers", "Authorization, User-Agent, Referer, X-Requested-With, Proxy-Authorization, Proxy-Connection, Accept-Language, Accept-Encoding, Accept-Charset, Connection, Content-Length, Host, Origin, Pragma, Accept-Charset, Cache-Control, Accept, Content-Type")
+  res.header("Access-Control-Expose-Headers", "Link")
+  res.header("Access-Control-Max-Age", "60")
 
-app.post "/edit/", (req, res, next) ->
+  if "OPTIONS" == req.method then res.send(200)
+  else next()
+
+app.post "/edit/", (req, res, next) ->    
   res.local "bootstrap", req.body or {}
   res.render "editor"
 

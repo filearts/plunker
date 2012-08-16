@@ -9,8 +9,11 @@ module.directive "plunkerToolbar", ["scratch", (scratch) ->
   scope: {}
   template: """
     <div id="toolbar" class="btn-toolbar">
-      <div class="btn-group">
-        <button ng-click="scratch.save()" title="{{saveTitle}}" class="btn btn-primary"><i ng-class="saveIcon"></i> {{saveText}}</button>
+      <div class="btn-group" ng-show="scratch.isOwned()">
+        <button ng-click="scratch.save()" title="{{saveTitle}}" class="btn btn-primary"><i ng-class="saveIcon"></i> Save</button>
+      </div>
+      <div class="btn-group" ng-show="scratch.isSaved()">
+        <button ng-click="scratch.fork()" title="Save your changes as a fork of this Plunk" class="btn"><i class="icon-random"></i> Fork</button>
       </div>
       <div ng-show="scratch.isOwned() && scratch.isSaved()" class="btn-group">
         <button ng-click="scratch.promptDestroy()" title="Delete the current plunk" class="btn btn-danger"><i class="icon-trash"></i></button>
@@ -40,8 +43,8 @@ module.directive "plunkerToolbar", ["scratch", (scratch) ->
     $scope.scratch = scratch
 
     # Watch the ownership of the active plunk and change the save text accordingly
-    $scope.$watch "scratch.isOwned()", (isOwner) ->
-      if isOwner
+    $scope.$watch "scratch.isSaved()", (isSaved) ->
+      if isSaved
         $scope.saveText = "Save"
         $scope.saveTitle = "Save your work as a new Plunk"
         $scope.saveIcon = "icon-save"

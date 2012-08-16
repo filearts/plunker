@@ -121,12 +121,7 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", ($
       
       deferred.promise
 
-      
-    save: -> @_doAsync (deferred) ->
-      self = @
-      
-      @plunk.description ||= "Untitled"
-      
+    _getSaveJSON: ->
       json =
         description: @plunk.description
         #tags: @plunk.tags
@@ -159,6 +154,16 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", ($
             filename: buffer.filename
             content: buffer.content
       
+      json
+      
+      
+    save: -> @_doAsync (deferred) ->
+      self = @
+      
+      @plunk.description ||= "Untitled"
+      
+      json = @_getSaveJSON()
+      
       count = 0
       count++ for filename, file of json.files
       
@@ -178,7 +183,34 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", ($
       else
         console.warn "Save cancelled: No changes to save"
         deferred.reject("Save cancelled: No changes to save")
-    
+
+    fork: -> @_doAsync (deferred) ->
+      self = @
+      
+      @plunk.description ||= "Untitled"
+      
+      json = @_getSaveJSON()
+      
+      count = 0
+      count++ for filename, file of json.files
+      
+      if count or json.description or json.tags
+        old_id = @plunk.id
+        
+        @plunk.fork json, (plunk) ->
+          angular.copy(plunk, self.savedState)
+          buffer.old_filename = buffer.filename for buffer in self.buffers.queue
+          
+          $location.path("/#{plunk.id}")
+          $location.replace() unless old_id and old_id != plunk.id
+          
+          deferred.resolve(arguments...)
+        , ->
+          deferred.reject(arguments...)
+      else
+        console.warn "Fork cancelled: No changes to save"
+        deferred.reject("Fork cancelled: No changes to save")
+        
     destroy: -> @_doAsync (deferred) ->
       if @isSaved() and @isOwned()
         @plunk.destroy ->

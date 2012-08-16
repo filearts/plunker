@@ -2,10 +2,11 @@ section#marketing
   div.marketing
     h1 Plunker lets you edit, fork and preview web snippets online
     p.marketing-byline
-      | Your ideas ideas can now live in the cloud.
-      | Why not&nbsp;
-      a(href="/edit/", target="_self") Share them
-      | ?
+      | Your ideas are now first-class citizens of the cloud. Set them free.
+    p.marketing-byline
+      a.btn.btn-large.btn-primary(href="/edit/", target="_self")
+        i.icon-edit
+        |  Launch the editor
 
 section#importer-section(ng-show="false")
   div#importer.well(ng-controller="ImporterController")

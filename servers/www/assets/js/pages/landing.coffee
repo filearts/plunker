@@ -9,7 +9,7 @@
 module = angular.module("plunker.landing", ["plunker.userpanel", "plunker.plunks", "plunker.card"])
 
 module.controller "LandingController", ["$rootScope", ($rootScope) ->
-  $
+
 ]
 
 module.config ["$routeProvider", "$locationProvider", ($routeProvider, $locationProvider) ->

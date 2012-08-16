@@ -15,7 +15,7 @@
 module = angular.module("plunker.editor", ["plunker.scratch", "plunker.url", "plunker.userpanel", "plunker.layout", "plunker.ace", "plunker.statusbar", "plunker.multipanel", "plunker.toolbar"])
 
 module.config ["$routeProvider", "$locationProvider", ($routeProvider, $locationProvider) ->
-  $locationProvider.html5Mode(true).hashPrefix("!")
+  $locationProvider.html5Mode(true)
 ]
 
 module.controller "editor", ["$scope", "$location", "scratch", "url", ($scope, $location, scratch, url) ->

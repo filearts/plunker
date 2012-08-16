@@ -125,6 +125,46 @@ module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) 
       , error
       
       self
+  
+    fork: (a0, a1, a2) ->
+      self = @
+      
+      switch arguments.length
+        when 3
+          attributes = a0
+          success = a1
+          error = a2
+        when 2
+          success = a0
+          error = a1
+        when 1
+          attributes = a0
+        
+      success ||= angular.noop
+      error ||= angular.noop
+      
+      if self.id
+        path = "#{url.api}/plunks/#{self.id}/forks"
+        
+        data = attributes or 
+          description: self.description
+          files: self.files
+            
+        request = $http
+          method: "POST"
+          params: sessid: $.cookie("plnk_session")
+          url: path
+          data: data
+            
+        request.then (response) ->
+          angular.copy(response.data, self)
+          
+          success(self, response.headers)
+        , error
+      else
+        error("Fork error: Plunk does not exist")
+      
+      self
     
     save: (a0, a1, a2) ->
       self = @
@@ -145,7 +185,6 @@ module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) 
       
       path = "#{url.api}/plunks"
       path += "/#{self.id}" if self.id
-      path += "/forks" unless self.isOwner()
       
       data = attributes or 
         description: self.description

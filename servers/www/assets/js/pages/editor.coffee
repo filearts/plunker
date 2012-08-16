@@ -38,6 +38,7 @@ module.controller "editor", ["$scope", "$location", "scratch", "url", ($scope, $
       unless scratch.plunk.id is source then scratch.loadFrom(source).then(repaintSidebar)
   
   $scope.scratch = scratch
+  $scope.scratch.reset(_plunker.bootstrap) if _plunker.bootstrap
   
   repaintSidebar()
 

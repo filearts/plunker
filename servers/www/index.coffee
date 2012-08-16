@@ -34,6 +34,7 @@ app.configure ->
   app.use require("./middleware/expose").middleware
     "url": nconf.get("url")
     "package": require("../../package")
+    "bootstrap": null
   app.use require("./middleware/session").middleware()    
   # Start the sharejs server before variable routes
   sharejs.server.attach app,
@@ -71,7 +72,11 @@ app.get "/partials/:partial", (req, res, next) ->
 app.get "/edit/*", (req, res, next) ->
   res.render "editor"
 
-app.get "/edit", (req, res, next) -> res.redirect("/edit/", 302)
+app.post "/edit/", (req, res, next) ->
+  res.local "bootstrap", req.body or {}
+  res.render "editor"
+
+app.all "/edit", (req, res, next) -> res.redirect("/edit/", 302)
 
 app.get "/*", (req, res) ->
   res.render "landing"

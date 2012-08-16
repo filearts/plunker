@@ -19,7 +19,8 @@ html(ng-app="plunker.editor")
       script
         var _plunker = {
           "url": !{JSON.stringify(url).replace(/<\//g,"<\\/")},
-          "session": !{JSON.stringify(session).replace(/<\//g,"<\\/")}
+          "session": !{JSON.stringify(session).replace(/<\//g,"<\\/")},
+          "bootstrap": !{JSON.stringify(bootstrap).replace(/<\//g,"<\\/")}
         };
       != js("pages/editor")
       script

@@ -46,6 +46,40 @@
   }
 }
 
-#panel-explore {
+#panel-explore, #panel-about, #panel-viewers {
   padding: 8px;
+}
+
+#panel-viewers {
+  .user {
+    width: 40px;
+    text-align: center;
+    
+    .username {
+      height: 14px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      font-size: 8px;
+      display: block;
+    }
+  }
+  #chat-messages {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  
+  .message {
+    margin: 0;
+    padding: 0;
+    padding-bottom: 6px;
+    border-top: 1px solid #f5f5f5;
+    list-style: none;
+    
+    .body {
+      margin: 0;
+      padding: 6px 0 3px;
+    }
+  }
 }

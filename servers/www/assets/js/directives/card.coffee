@@ -101,9 +101,18 @@ module.directive "card", ["$timeout", ($timeout) ->
         editorsRef.on "value", (snapshot) -> $timeout ->
           $scope.editors = count_keys(val) if val = snapshot.val()
         editorsRef.on "child_added", (snapshot) -> $timeout ->
-          $scope.viewers ||= 0
+          $scope.editors ||= 0
           $scope.editors += 1
         editorsRef.on "child_removed", (snapshot) -> $timeout ->
-          $scope.viewers ||= 1
+          $scope.editors ||= 1
           $scope.editors -= 1
+
+        editorsRef = plunkRef.child("messages")
+        
+        editorsRef.on "value", (snapshot) -> $timeout ->
+          $scope.comments = val.length if val = snapshot.val()
+        editorsRef.on "child_added", (snapshot) -> $timeout ->
+          $scope.comments ||= 0
+          $scope.comments += 1
+
 ]

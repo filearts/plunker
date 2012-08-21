@@ -19,8 +19,7 @@ module.run [ "$location", "panels", "scratch", ($location, panels, scratch) ->
     icon: "icon-info-sign"
     template: """
       <div id="panel-about">
-        <h1>{{plunk.id}}</h1>
-        <p>{{plunk.description}}</p>
+        <h1>{{plunk.description}}</h1>
         <p ng-show="plunk.user">
           <a href="/users/{{plunk.user.login}}">
             <img class="gravatar" ng-src="http://www.gravatar.com/avatar/{{plunk.user.gravatar_id}}?s=18&d=mm" />

@@ -48,6 +48,27 @@ module.controller "PreviewController", [ "$scope", "$routeParams", "$location", 
   $scope.$parent.section = "browse"
   
 ]
+module.controller "UserDetailController", [ "$scope", "$routeParams", "$location", "$timeout", "Plunk", ($scope, $routeParams, $location, $timeout, Plunk) ->
+  $scope.state = "loading"
+  $scope.plunk = new Plunk(id: $routeParams.plunk)
+  $scope.resizePreview = ->
+    $footer = $("#container footer")
+    targetHeight = $(window).height() - 50 - 38 - $footer.outerHeight() - 2
+    minHeight = $("#plunk-info").outerHeight()
+    
+    $("iframe.plnk-preview").height(Math.max(minHeight, targetHeight))
+
+  $(window).resize($scope.resizePreview);
+
+  $scope.plunk.fetch ->
+    $scope.state = "ready"
+    $timeout -> $scope.resizePreview()
+  , (err) ->
+    $location.path("/")
+    
+  $scope.$parent.section = "browse"
+  
+]
 module.controller "DiscussController", [ "$scope", ($scope) ->
   $iframe = $("#forum_embed")
   $footer = $("#container footer")

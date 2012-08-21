@@ -2,7 +2,10 @@
 
 #= require ../services/scratch
 
-module = angular.module("plunker.toolbar", [])
+#= require ../directives/share
+
+
+module = angular.module("plunker.toolbar", ["plunker.share"])
 
 module.directive "plunkerToolbar", ["scratch", (scratch) ->
   restrict: "E"
@@ -13,7 +16,7 @@ module.directive "plunkerToolbar", ["scratch", (scratch) ->
         <button ng-click="scratch.save()" title="{{saveTitle}}" class="btn btn-primary"><i ng-class="saveIcon"></i> Save</button>
       </div>
       <div class="btn-group" ng-show="scratch.isSaved()">
-        <button ng-click="scratch.fork()" title="Save your changes as a fork of this Plunk" class="btn"><i class="icon-random"></i> Fork</button>
+        <button ng-click="scratch.fork()" title="Save your changes as a fork of this Plunk" class="btn"><i class="icon-git-fork"></i> Fork</button>
       </div>
       <div ng-show="scratch.isOwned() && scratch.isSaved()" class="btn-group">
         <button ng-click="scratch.promptDestroy()" title="Delete the current plunk" class="btn btn-danger"><i class="icon-trash"></i></button>
@@ -36,6 +39,13 @@ module.directive "plunkerToolbar", ["scratch", (scratch) ->
             <div ng-click="builder.launch()" title="Launch the Plunk builder (coming soon...)"><i class="icon-beaker"></i>Launch builder...</div>
           </li>
         </ul>
+      </div>
+      <div ng-show="scratch.isSaved()" class="btn-group">
+        <a href="javascript:void(0)" class="btn dropdown-toggle" data-toggle="dropdown">
+          <i class="icon-share" /> Share
+          <span class="caret"></span>
+        </a>
+        <plunker-share-panel plunk="scratch.plunk" class="dropdown-menu"></plunker-share-panel>
       </div>
     </div>
   """

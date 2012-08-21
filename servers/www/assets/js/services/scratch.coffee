@@ -217,6 +217,7 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", ($
           @savedState = null
           
           deferred.resolve(arguments...)
+          $location.path("/")
         , ->
           deferred.reject(arguments...)
 

@@ -3,6 +3,8 @@ html(ng-app="plunker.editor")
   head
     meta(charset="utf-8")
     meta(name="viewport",content="width=device-width, initial-scale=1.0")
+    meta(name="description",content="I've just made a shiny new Plunk. Check it out:")
+    link(rel="publisher",href="https://plus.google.com/117182083134481297227")
     base(href="/edit/")
     block title
       title Plunker
@@ -24,6 +26,20 @@ html(ng-app="plunker.editor")
         };
       != js("pages/editor")
       script
+        /* Twitter */
+        !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");
+
+        /* G+ */
+        (function() {
+          var po = document.createElement('script');
+          po.type = 'text/javascript';
+          po.async = true;
+          po.src = 'https://apis.google.com/js/plusone.js';
+          var s = document.getElementsByTagName('script')[0];
+          s.parentNode.insertBefore(po, s);
+        })();
+
+        /* Analytics */
         var _gaq = _gaq || [];
         _gaq.push(['_setAccount', 'UA-28928507-1']);
         _gaq.push(['_trackPageview']);
@@ -34,8 +50,8 @@ html(ng-app="plunker.editor")
           var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
         })();
 
-  body(ng-controller="editor")
-    nav.navbar.navbar-fixed-top
+  body(ng-controller="editor",itemscope,itemtype="http://schema.org/WebPage")
+    nav.navbar.navbar-fixed-top.navbar-inverse
       div.navbar-inner
         a.brand(href="{{url.www}}") Plunker
           span.version v#{package.version}
@@ -75,7 +91,7 @@ html(ng-app="plunker.editor")
                 
           details.information(open)
             summary.header Information
-            textarea.description(ng-model="scratch.plunk.description")
+            textarea.description(ng-model="scratch.plunk.description",itemprop="name")
             // input.tags(ng-model="scratch.plunk.tags")
             div.user(ng-show="scratch.plunk.user")
               img.gravatar(ng-src="http://www.gravatar.com/avatar/{{scratch.plunk.user.gravatar_id}}?s=18&d=mm")

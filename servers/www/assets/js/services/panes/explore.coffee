@@ -18,7 +18,7 @@ module.run [ "$location", "panels", "Plunk", ($location, panels, Plunk) ->
     title: "Find and discover other plunks"
     icon: "icon-th"
     template: """
-      <div id="panel-explore">
+      <div id="panel-explore" class="cards">
         <div class="page-header">
           <ul class="pagination pull-right">
             <li ng-class="{disabled: !plunks.pager.prev}"><a ng-href="javascript:void(0)" ng-click="pageTo(plunks.pager.prev)">«</a></li>

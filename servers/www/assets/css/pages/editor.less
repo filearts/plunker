@@ -8,15 +8,24 @@
 @import "../components/statusbar";
 @import "../components/toolbar";
 @import "../components/multipanel";
-@import "../components/streamer";
+//@import "../components/streamer";
 @import "../components/gallery";
 @import "../components/share";
 
 @import "../vendor/jquery-layout";
 @import "../vendor/prettify";
 
+body {
+  min-width: 410px;
+}
+
 #container {
   padding-top: 50px;
+}
+
+.navbar-fixed-top {
+  height: 40px;
+  overflow: none;
 }
 
 @media (max-width: 979px) {
@@ -24,10 +33,19 @@
     padding-top: 0;
   }
   .navbar-fixed-top .navbar-inner {
-    padding: 0;
     position: relative;
     z-index: 5;
   }
+}
+
+@media (max-width: 720px) {
+  .navbar-fixed-top .shrink {
+    display: none;
+  }
+}
+
+.brand {
+  height: 40px;
 }
 
 #editor {

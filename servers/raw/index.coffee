@@ -11,6 +11,7 @@ app.configure ->
   app.set "view options", layout: false
 
 
+apiUrl = nconf.get("url:api")
 
 app.get "/:id/:filename?", (req, res, next) ->
   req_url = url.parse(req.url)
@@ -18,16 +19,16 @@ app.get "/:id/:filename?", (req, res, next) ->
     req_url.pathname += "/"
     return res.redirect(url.format(req_url), 301)
   
-  request.get nconf.get("url:api") + "/plunks/#{req.params.id}", (err, response, body) ->
-    return next(err) if err
-    return next(new Error("Not found")) if response.statusCode >= 400
+  request.get "#{apiUrl}/plunks/#{req.params.id}", (err, response, body) ->
+    return res.send(500) if err
+    return res.send(response.statusCode) if response.statusCode >= 400
     
     try
       plunk = JSON.parse(body)
     catch e
-      return next(new Error("Invalid plunk"))
+      return res.send(500)
     
-    unless plunk then res.send("No such plunk", 404) # TODO: Better error page
+    unless plunk then res.send(404) # TODO: Better error page
     else
       # TODO: Determine if a special plunk 'landing' page should be served and serve it
       filename = req.params.filename or "index.html"

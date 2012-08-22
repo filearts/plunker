@@ -44,4 +44,6 @@ module.directive "plunkerSharePanel", ["$timeout", "url", ($timeout, url) ->
     $scope.url = url
     $scope.createEmbedSnippet = ->
       "Coming soon..."
+      
+    $(el).click (e) -> e.stopPropagation()
 ]

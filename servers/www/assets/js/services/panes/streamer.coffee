@@ -111,7 +111,7 @@ module.run [ "$location", "$timeout", "$q", "panels", "scratch", "stream", ($loc
     title: "Show/hide the streaming panel"
     icon: "icon-fire"
     template: """
-      <div class="plnk-stream" ng-switch="stream.streaming">
+      <div id="panel-streamer" class="plnk-stream" ng-switch="stream.streaming">
         <div ng-switch-when="streaming">
           <plunker-channel ng-repeat="buffer in scratch.buffers.queue"></plunker-channel>
           <input class="mediumtext" disabled ng-model="stream.id" size="32" />

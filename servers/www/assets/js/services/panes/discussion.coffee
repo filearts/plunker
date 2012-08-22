@@ -33,9 +33,9 @@ module.directive "chatMessage", ["$timeout", ($timeout) ->
           <img class="gravatar" ng-src="http://www.gravatar.com/avatar/{{message.user.gravatar_id}}?s=18&d=mm" />
           <span class="username existing">{{message.user.login}}</span>
         </a>
-        <span ng-hide="message.user" title="Anonymous">
+        <span ng-hide="message.user" title="{{message.anonName || 'Anonymous'}}">
           <img class="gravatar" ng-src="http://www.gravatar.com/avatar/0?s=18&d=mm" />
-          <span class="username">Anonymous</span>
+          <span class="username">{{message.anonName || 'Anonymous'}}</span>
         </span>
         <abbr class="timeago posted_at" title="{{message.posted_at | iso8601}}">{{message.posted_at | date:'MM/dd/yyyy @ h:mma'}}</abbr>
       </div>
@@ -74,6 +74,10 @@ module.run [ "$timeout", "$location", "panels", "session", "scratch", ($timeout,
           <textarea ui-keypress="{'ctrl-enter':'postChatMessage()'}" id="comments-message" type="text" placeholder="Enter message..." class="span4" ng-model="message"></textarea>
           <span class="help-block">Comments are markdown formatted.</span>
           <button class="btn btn-primary" ng-click="postChatMessage()">Comment</button>
+          <span ng-hide="session.user">
+            Posting as <strong>{{anonName}}</strong>.
+            <a href="javascript:void(0)" ng-click="changeAnonymousName()">Change</a>.
+          </span>
         </form>
         <ul id="chat-messages">
           <chat-message message="message" ng-repeat="message in messages | orderBy:'posted_at':true"></chat-message>
@@ -89,16 +93,18 @@ module.run [ "$timeout", "$location", "panels", "session", "scratch", ($timeout,
       usersRef = null
       presenceRef = null
 
+      $scope.session = session
       $scope.message = ""
       $scope.messages = []
       $scope.users = {}
+      $scope.anonName = "Anonymous"
       
       self.new_events = 0
       
       setOwnPresence = (presenceRef) -> $timeout ->
         presenceRef.removeOnDisconnect()
         presenceRef.set
-          login: session.user?.login or "Anonymous"
+          login: session.user?.login or $scope.anonName
           gravatar_id: session.user?.gravatar_id or 0
       
       handlePresenceValue = (snapshot) ->
@@ -144,10 +150,16 @@ module.run [ "$timeout", "$location", "panels", "session", "scratch", ($timeout,
         
         setOwnPresence(presenceRef)
           
-        chatRef.on "child_added", handleChatAdded
+        chatRef.limit(50).on "child_added", handleChatAdded
         
         presenceRef.on "value", handlePresenceValue
         usersRef.on "value", handleUsersValue
+      
+      $scope.changeAnonymousName = ->
+        if newAnonName = prompt("Please enter a new name for yourself:")
+          $scope.anonName = newAnonName
+          setOwnPresence(presenceRef) if presenceRef
+          
       
       $scope.postChatMessage = ->
         if chatRef and $scope.message
@@ -158,6 +170,7 @@ module.run [ "$timeout", "$location", "panels", "session", "scratch", ($timeout,
           if session.user then message.user =
             login: session.user.login
             gravatar_id: session.user.gravatar_id
+          else message.anonName = $scope.anonName
           
           chatRef.push(message)
           

@@ -45,7 +45,7 @@ module.run ["$http", "panels", "scratch", "url", ($http, panels, scratch, url) -
         json.files[buffer.filename] =
           content: buffer.content
       
-      request = $http.post("#{url.api}/previews", json)
+      request = $http.post(url.run, json)
       
       request.then (response) ->
         $old = self.$preview

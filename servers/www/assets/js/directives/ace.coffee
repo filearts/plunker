@@ -52,7 +52,7 @@ module.directive "plunkerSession", ["$rootScope", "$timeout", "modes", ($rootSco
     $rootScope.$broadcast "buffer:add", $scope.buffer
 ] 
 
-module.directive "plunkerAce", ["modes", (modes) ->
+module.directive "plunkerAce", ["$rootScope", "modes", ($rootScope, modes) ->
   restrict: "E"
   template: """
     <div class="editor-canvas">
@@ -63,7 +63,6 @@ module.directive "plunkerAce", ["modes", (modes) ->
   link: ($scope, el, attrs, ngModel) ->
     $scope.ace = ace.edit(el[0])
     
-    
-    $scope.$on "layout:resize", ->
+    $rootScope.$on "layout:resize", ->
       $scope.ace.resize()
 ]

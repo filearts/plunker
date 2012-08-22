@@ -53,8 +53,9 @@ html(ng-app="plunker.editor")
   body(ng-controller="editor",itemscope,itemtype="http://schema.org/WebPage")
     nav.navbar.navbar-fixed-top.navbar-inverse
       div.navbar-inner
-        a.brand(href="{{url.www}}") Plunker
-          span.version v#{package.version}
+        a.brand(href="{{url.www}}")
+          span.shrink Plunker
+            span.version v#{package.version}
 
         <userpanel></userpanel>
         <plunker-toolbar></plunker-toolbar>

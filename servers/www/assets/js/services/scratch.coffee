@@ -264,6 +264,7 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", ($
 
     isOwned: -> not @isSaved() or !!@plunk.token
     isSaved: -> !!@plunk.id
+    isImported: -> !!@plunk.source
     
     promptDestroy: ->
       @destroy() if confirm("Are you sure that you would like to destroy this plunk?")

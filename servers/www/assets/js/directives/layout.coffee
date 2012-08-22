@@ -8,7 +8,7 @@
 
 module = angular.module("plunker.layout", ["plunker.panels"])
 
-module.directive "plunkerLayout", ["$location", "panels", ($location, panels) ->
+module.directive "plunkerLayout", ["$rootScope", "$location", "panels", ($rootScope, $location, panels) ->
   restrict: "A"
   link: ($scope, el, attrs) ->
         
@@ -22,9 +22,6 @@ module.directive "plunkerLayout", ["$location", "panels", ($location, panels) ->
         minSize: 100
         childOptions:
           maskContents: true
-          center: # Editor
-            minSize: 100
-            size: "50%"
           east: # Multipane
             spacing_open: 4
             spacing_closed: 0
@@ -34,6 +31,9 @@ module.directive "plunkerLayout", ["$location", "panels", ($location, panels) ->
               else $scope.$apply -> panels.active = null
             onresize: (pane, $el, state) ->
               panels.active.size = state.size
+          center: # Editor
+            minSize: "20%"
+            size: "50%"
 
       east: # Multipane buttons
         size: 41 # 40px + 1px border
@@ -49,7 +49,7 @@ module.directive "plunkerLayout", ["$location", "panels", ($location, panels) ->
       onresize: ->
         $scope.$apply ->
           $scope.layout.state = layout.state
-          $scope.$broadcast "layout:resize"
+          $rootScope.$broadcast "layout:resize"
           
     innerLayout = layout.center.child
     innerLayout.resizers.east.mousedown -> innerLayout.showMasks("east")

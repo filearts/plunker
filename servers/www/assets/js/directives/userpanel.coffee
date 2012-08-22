@@ -10,9 +10,9 @@ module.directive "userpanel", [ ->
   template: """
     <div id="userpanel" class="pull-right">
       <div class="btn-group" ng-show="session.user.id">
-        <button class="user-menu btn dropdown-toggle" data-toggle="dropdown">
+        <button class="user-menu btn dropdown-toggle" data-toggle="dropdown" title="User options">
           <img class="gravatar" src="http://www.gravatar.com/avatar/{{session.user.gravatar_id}}?s=20" />
-          <span class="text">{{session.user.login}}</span>
+          <span class="text shrink">{{session.user.login}}</span>
           <b class="caret" />
         </button>
         <ul class="dropdown-menu">
@@ -22,9 +22,9 @@ module.directive "userpanel", [ ->
         </ul>
       </div>
       <div class="btn-group" ng-hide="session.user.id">
-        <button class="user-login btn dropdown-toggle" data-toggle="dropdown">
+        <button class="user-login btn dropdown-toggle" data-toggle="dropdown" title="Sign in">
           <i class="icon-user" />
-          <span class="text">Sign in</span>
+          <span class="text shrink">Sign in</span>
           <span class="caret"></span>
         </button>
         <ul class="dropdown-menu">

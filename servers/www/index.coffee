@@ -33,7 +33,7 @@ app.configure ->
   app.use express.bodyParser()
   app.use require("./middleware/expose").middleware
     "url": nconf.get("url")
-    "package": require("../../package")
+    "package": require("./package")
     "bootstrap": null
   app.use require("./middleware/session").middleware()    
   # Start the sharejs server before variable routes

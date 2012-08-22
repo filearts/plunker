@@ -8,7 +8,7 @@
 
 module = angular.module("plunker.layout", ["plunker.panels"])
 
-module.directive "plunkerLayout", ["panels", (panels) ->
+module.directive "plunkerLayout", ["$location", "panels", ($location, panels) ->
   restrict: "A"
   link: ($scope, el, attrs) ->
         
@@ -60,16 +60,44 @@ module.directive "plunkerLayout", ["panels", (panels) ->
     
     angularClose = false
     
-    $scope.togglePanel = (panel) ->
-      if panels.active == panel
-        angularClose = true
-        layout.center.child.close("east")
-        angularClose = false
-        delete panels.active
-      else
-        panels.active = panel
-        layout.center.child.sizePane("east", panel.size or "50%")
-        layout.center.child.open("east")
-          
-    $scope.togglePanel()
+    panels.openPanel = (panel) ->
+      search = $location.search()
+      
+      panels.active = panel
+      layout.center.child.sizePane("east", panel.size or "50%")
+      layout.center.child.open("east")
+      search.p = panel.name
+        
+      $location.search(search).replace()
+      
+    panels.closePanel = (panel) ->
+      search = $location.search()
+      
+      angularClose = true
+      layout.center.child.close("east")
+      angularClose = false
+      delete panels.active
+      delete search.p
+        
+      $location.search(search).replace()
+    
+    panels.togglePanel = (panel) ->
+      if panels.active == panel then panels.closePanel(panel)
+      else panels.openPanel(panel)
+    
+    $scope.togglePanel = panels.togglePanel
+    
+    if active = $location.search().p
+      matched = false
+      for panel in panels
+        if panel.name == active and not panels.active != panel
+          panels.openPanel(panel)
+          matched = true
+          break
+      unless matched
+        search = $location.search()
+        delete search.p
+        $location.search(search).replace()
+    else
+      panels.togglePanel()
 ]

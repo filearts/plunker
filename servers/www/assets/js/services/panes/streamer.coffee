@@ -191,6 +191,11 @@ module.run [ "$location", "$timeout", "$q", "panels", "scratch", "stream", ($loc
         stream.streaming = false
         stream.doc = null
         stream.id = uid()
+          
+      search = $location.search()
+      delete search.s
+      
+      $location.search(search).replace()
       
     
     start: (stream) ->
@@ -213,6 +218,11 @@ module.run [ "$location", "$timeout", "$q", "panels", "scratch", "stream", ($loc
       files.on "delete", (pos, data) ->
         synchro.handleRemoteEvent ->
           self.scope.$apply -> scratch.buffers.remove(buffer) if buffer = scratch.buffers.findBy("channel", pos)
+          
+      search = $location.search()
+      search.s = stream.id
+      
+      $location.search(search).replace()
       
     link: ($scope, el, attrs) ->
       self = @
@@ -233,6 +243,10 @@ module.run [ "$location", "$timeout", "$q", "panels", "scratch", "stream", ($loc
       
       $scope.stopStream = ->
         self.stop()
+      
+      if id = $location.search().s then $timeout ->
+        $scope.startStream(id)
+      , 500 #TODO: HACK!
       
     deactivate: ($scope, el, attrs) ->
           

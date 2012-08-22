@@ -46,14 +46,29 @@
   }
 }
 
-#panel-explore, #panel-about, #panel-viewers {
+#panel-explore, #panel-about, #panel-discussion {
   padding: 8px;
 }
 
-#panel-viewers {
+#panel-discussion {
+  .thumbnails {
+    margin-bottom: 4px;
+  }
+  
+  form {
+    margin-bottom: 8px;
+    
+    .help-block, .help-block code {
+      font-size: 10px;
+      font-style: italic;
+      line-height: 13px;
+    }
+  }
+  
   .user {
     width: 40px;
     text-align: center;
+    margin-bottom: 4px;
     
     .username {
       height: 14px;

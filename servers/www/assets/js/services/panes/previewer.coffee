@@ -24,7 +24,7 @@ module.run ["$http", "panels", "scratch", "url", ($http, panels, scratch, url) -
   panels.push new class
     name: "preview"
     order: 0
-    title: "Show/hide the live preview pane"
+    title: "Preview your work in real-time"
     icon: "icon-eye-open"
     template: """
       <div class="plnk-previewer">

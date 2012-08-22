@@ -40,9 +40,9 @@ module.directive "card", ["$timeout", ($timeout) ->
             </a>
           </li>
           <li class="comments">
-            <a ng-href="{{model.getCommentsUrl()}}" title="Join the discussion">
+            <a ng-href="{{model.getEditUrl()}}?p=comments" target="_self" title="Join the discussion">
               <i class="icon-comments" />
-              {{model.comments}}
+              <span class="live-comments">{{comments}}</span>
             </a>
           </li>
   
@@ -56,7 +56,7 @@ module.directive "card", ["$timeout", ($timeout) ->
         </ul>
       </div>
       <div class="user">
-        <a href="/users/{{model.user.login}}" ng-show="model.user">
+        <a ng-href="/users/{{model.user.login}}" ng-show="model.user">
           <img class="gravatar" ng-src="http://www.gravatar.com/avatar/{{model.user.gravatar_id}}?s=18&d=mm" />
           {{model.user.login}}
         </a>
@@ -72,6 +72,7 @@ module.directive "card", ["$timeout", ($timeout) ->
   link: ($scope, $el, attrs) ->
     $scope.viewers = 0
     $scope.editors = 0
+    $scope.comments = 0
     
     $scope.$watch 'model', (model) ->
       if model
@@ -86,33 +87,14 @@ module.directive "card", ["$timeout", ($timeout) ->
         plunkRef = new Firebase("https://gamma.firebase.com/filearts/#{model.id}")
         
         viewersRef = plunkRef.child("viewers")
-        
-        viewersRef.on "value", (snapshot) -> $timeout ->
-          $scope.viewers = count_keys(val) if val = snapshot.val()
-        viewersRef.on "child_added", (snapshot) -> $timeout ->
-          $scope.viewers ||= 0
-          $scope.viewers += 1
-        viewersRef.on "child_removed", (snapshot) -> $timeout ->
-          $scope.viewers ||= 1
-          $scope.viewers -= 1
+        viewersRef.on "child_added", (snapshot) -> $timeout -> $scope.viewers += 1
+        viewersRef.on "child_removed", (snapshot) -> $timeout -> $scope.viewers -= 1
         
         editorsRef = plunkRef.child("editors")
-        
-        editorsRef.on "value", (snapshot) -> $timeout ->
-          $scope.editors = count_keys(val) if val = snapshot.val()
-        editorsRef.on "child_added", (snapshot) -> $timeout ->
-          $scope.editors ||= 0
-          $scope.editors += 1
-        editorsRef.on "child_removed", (snapshot) -> $timeout ->
-          $scope.editors ||= 1
-          $scope.editors -= 1
+        editorsRef.on "child_added", (snapshot) -> $timeout -> $scope.editors += 1
+        editorsRef.on "child_removed", (snapshot) -> $timeout -> $scope.editors -= 1
 
-        editorsRef = plunkRef.child("messages")
-        
-        editorsRef.on "value", (snapshot) -> $timeout ->
-          $scope.comments = val.length if val = snapshot.val()
-        editorsRef.on "child_added", (snapshot) -> $timeout ->
-          $scope.comments ||= 0
-          $scope.comments += 1
+        messagesRef = plunkRef.child("messages")
+        messagesRef.on "child_added", (snapshot) -> $timeout -> $scope.comments += 1
 
 ]

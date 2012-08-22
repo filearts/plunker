@@ -18,14 +18,14 @@ module.directive "plunkerPanel", [ "$compile", ($compile) ->
     $scope.panel.link($scope, child, attrs) if $scope.panel.link
     
     $scope.$watch "panels.active==panel", (isActive, wasActive) ->
-      return if isActive == wasActive
+      #return if isActive == wasActive
       
       if isActive then $scope.panel.activate($scope, el, attrs) if $scope.panel.activate
       else $scope.panel.deactivate($scope, el, attrs) if $scope.panel.deactivate
 
 ]
 
-module.directive "plunkerMultipanel", [ "panels", (panels) ->
+module.directive "plunkerMultipanel", [ "$location", "panels", ($location, panels) ->
   restrict: "E"
   replace: true
   scope: {}
@@ -36,5 +36,5 @@ module.directive "plunkerMultipanel", [ "panels", (panels) ->
   """
   link: ($scope, el, attrs) ->
     $scope.panels = panels
-
+    
 ]

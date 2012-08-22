@@ -15,7 +15,7 @@ module.run [ "$location", "panels", "Plunk", ($location, panels, Plunk) ->
     name: "explore"
     order: 2
     size: 304
-    title: "Show/hide the explore pane"
+    title: "Find and discover other plunks"
     icon: "icon-th"
     template: """
       <div id="panel-explore">

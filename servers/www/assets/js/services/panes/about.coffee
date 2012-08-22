@@ -13,7 +13,7 @@ module.requires.push("plunker.card", "plunker.scratch")
 module.run [ "$location", "panels", "scratch", ($location, panels, scratch) ->
   panels.push new class
     name: "about"
-    order: 1
+    order: 99
     size: 304
     title: "Information about the current plunk"
     icon: "icon-info-sign"

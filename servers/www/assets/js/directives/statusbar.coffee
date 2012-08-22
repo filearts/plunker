@@ -8,7 +8,7 @@ module.directive "plunkerStatusbar", ["scratch", (scratch) ->
   restrict: "E"
   template: """
     <div class="editor-status">
-      <div class="navbar navbar-fixed-bottom">
+      <div class="navbar navbar-fixed-bottom navbar-inverse">
         <div class="navbar-inner">
           <ul class="nav">
             <li class="dropdown"><a href="javascript:void(0)" data-toggle="dropdown" class="dropdown-toggle">{{scratch.buffers.active().filename}}<b class="caret"></b></a>

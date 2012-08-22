@@ -41,7 +41,7 @@ module.directive "plunkerToolbar", ["scratch", (scratch) ->
         </ul>
       </div>
       <div ng-show="scratch.isSaved()" class="btn-group">
-        <a href="javascript:void(0)" class="btn dropdown-toggle" data-toggle="dropdown">
+        <a href="javascript:void(0)" class="btn btn-warning dropdown-toggle" data-toggle="dropdown">
           <i class="icon-share" /> Share
           <span class="caret"></span>
         </a>

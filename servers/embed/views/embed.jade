@@ -1,0 +1,65 @@
+!!! 5
+html(ng-app="plunker.embed")
+  head
+    meta(charset="utf-8")
+    meta(name="viewport",content="width=device-width, initial-scale=1.0")
+    title Plunker - Embedded
+    != css("pages/embed")
+    // if lt IE 9
+      script(src="http://html5shim.googlecode.com/svn/trunk/html5.js")
+    script
+      var _plunker = {
+        "url": !{JSON.stringify(url).replace(/<\//g,"<\\/")}
+      };
+    != js("pages/embed")
+    script
+      /* Analytics */
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-28928507-1']);
+      _gaq.push(['_setDomainName', 'plnkr.co']);
+      _gaq.push(['_trackPageview']);
+    
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+  body(ng-controller="embed")
+    nav.navbar.navbar-fixed-top
+      div.navbar-inner
+        a.brand(href="{{url.www}}", target="_blank", title="Launch Plunker in a new window.")
+        
+        ul.nav.pull-right
+          li(ng-show="plunk.files['README.md']", ng-class="{active:tab=='readme'}", title="Show the plunk's README.")
+            a(href="javascript:void(0)", ng-click="tab='readme'")
+              i.icon-info-sign
+          li.divider-vertical
+          li(ng-class="{active:tab=='run'}", title="Run or re-run this plunk.")
+            a(href="javascript:void(0)", ng-click="refreshPreview()")
+              i.icon-play
+          li.divider-vertical
+          li
+            a(ng-href="{{url.www}}/edit/{{plunk.id}}", target="_blank", title="Launch the editor for this plunk in a new window.")
+              i.icon-edit
+        ul.nav
+          li.divider-vertical
+          li.dropdown(ng-class="{active:tab=='code'}", title="View the source code for this plunk.")
+            a.dropdown-toggle(href="javascript:void(0)", data-toggle="dropdown")
+              i.icon-file
+              span(ng-bind="currentFile.filename")
+              b.caret
+            ul.dropdown-menu
+              li(ng-repeat="(filename,file) in plunk.files", ng-class="{active:file==currentFile}")
+                a(href="#", ng-click="activateFile(file)") {{file.filename}}
+
+    div#embed(ng-class="{loading:loading}", ng-switch, on="tab")
+      div.overlay
+        div.message(ng-bind="loading") Initializing...
+      div#code(ng-switch-when="code")
+        pre.prettyprint.linenums(ng-bind="currentFile.content")
+      div#readme.container-fluid(ng-switch-when="readme")
+        div.row-fluid
+          div.span12(ng-bind-html="plunk.files['README.md'].content | markdown", onload="prettyPrint()")
+      div#run(ng-switch-when="run")
+        iframe(frameborder="0",width="100%",height="100%",scrolling="auto")

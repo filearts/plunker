@@ -1,0 +1,25 @@
+{
+  "name": "plunker-embed",
+  "subdomain": "plunker-embed",
+  "domains": [
+    "embed.plnkr.co"
+  ],
+  "scripts": {
+    "start": "server.js"
+  },
+  "engines": {
+    "node": "0.6.x"
+  },
+  "version": "0.3.15-17",
+  "private": true,
+  "dependencies": {
+    "coffee-script": "1.3.x",
+    "express": "2.5.x",
+    "gzippo": "0.1.x",
+    "jade": "0.25.x",
+    "less": "1.3.x",
+    "connect-assets": "2.2.x",
+    "nconf": "0.5.x",
+    "request": "2.9.x"
+  }
+}

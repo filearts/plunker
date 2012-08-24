@@ -1,0 +1,68 @@
+@import "../../bootstrap/less/bootstrap";
+
+@import "../components/navbar";
+
+@import "../vendor/prettify";
+
+#embed {
+  position: absolute;
+  top: 30px; left: 0; right: 0; bottom: 0;
+  overflow: auto;
+  
+  .overlay {
+    z-index: 9999;
+    background-color: rgba(0,0,0,0.5);
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: none;
+    
+    .message {
+    	height: 40px;
+      
+      text-align: center;
+      font-family: Rockwell, Georgia, "Times New Roman", Times, serif;
+      font-size: 30px;
+      font-weight: bold;
+      color: #222;
+      text-shadow: rgba(0,0,0,0.5) -1px 0, rgba(0,0,0,0.3) 0 -1px, rgba(255,255,255,0.5) 0 1px, rgba(0,0,0,0.3) -1px -2px;
+    
+    	position: absolute;
+    	top:0;
+    	bottom: 0;
+    	left: 0;
+    	right: 0;
+    	
+    	margin: auto;
+    }
+  }
+  
+  iframe {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  
+  pre.prettyprint {
+    border: 1px solid #CCC;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    border-radius: 0;
+    margin: 0;
+  }
+}
+
+#embed.loading .overlay {
+  display: block;
+}
+
+#run {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  overflow: hidden;
+  right: 0;
+  left: 0;
+}
+#readme {
+  margin: 8px;
+}

@@ -35,6 +35,7 @@ module.run ["$http", "panels", "scratch", "url", ($http, panels, scratch, url) -
             </div>
           </div>
         </div>
+        <iframe class="plnk-runner" frameborder="0" width="100%" height="100%" scrolling="auto"></iframe>
       </div>
     """
     refreshPreview: ->
@@ -45,26 +46,23 @@ module.run ["$http", "panels", "scratch", "url", ($http, panels, scratch, url) -
         json.files[buffer.filename] =
           content: buffer.content
       
+      self.$preview.fadeOut("")
+      
       request = $http.post(url.run, json)
       
       request.then (response) ->
-        $old = self.$preview
-        self.$preview = $("<iframe>", src: response.data.run_url, class: "plnk-runner", frameborder: 0, width: "100%", height: "100%", scrolling: "auto").appendTo(self.el)
-        self.$preview.ready ->
-          if $old then $old.fadeOut -> $old.remove()
-          self.$preview.fadeIn()
-          
+        self.$preview[0].contentWindow.location.replace(response.data.run_url)
+        self.$preview.fadeIn(10).ready ->
           self.badge = null
-    , 1000
           
     link: ($scope, el, attrs) ->
       self = @
       @el = el
-      @$preview = null
+      @$preview = $(".plnk-runner", el)
       @enabled = false
       @awaiting = false
       
-      refresh = angular.bind(@, debounce(@refreshPreview, 1000))
+      refresh = angular.bind(@, debounce(@refreshPreview, 750))
       
       $scope.scratch = scratch
       $scope.refreshPreview = refresh

@@ -1,3 +1,5 @@
+#= require ../services/plunks
+
 plunkerRegex = ///
   ^
     \s*                   # Leading whitespace

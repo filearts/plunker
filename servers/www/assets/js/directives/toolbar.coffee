@@ -26,7 +26,7 @@ module.directive "plunkerToolbar", ["scratch", (scratch) ->
         <button data-toggle="dropdown" class="btn btn-success dropdown-toggle"><span class="caret"></span></button>
         <ul class="dropdown-menu">
           <li><a href="/edit/gist:1986619">jQuery<a href="/edit/gist:1992850" class="coffee" title="In coffee-script"><img src="/img/coffeescript-logo-small_med.png"></a></a></li>
-          <li><a href="/edit/gist:1986619">jQuery UI</a></li>
+          <li><a href="/edit/gist:2006604">jQuery UI</a></li>
           <li class="divider"></li>
           <li><a href="/edit/gist:2246015">AngularJS<a href="/edit/gist:3189582" class="coffee" title="In coffee-script"><img src="/img/coffeescript-logo-small_med.png"></a></a></li>
           <li class="divider"></li>

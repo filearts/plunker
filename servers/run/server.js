@@ -25,12 +25,13 @@ if (!nconf.get("host")) {
     nconf.set("url:raw", "http://" + host + "/raw");
     nconf.set("url:run", "http://" + host + "/run");
     nconf.set("url:api", "http://" + host + "/api");
+    nconf.set("url:embed", "http://" + host + "/embed");
   } else {
     nconf.set("url:www", "http://" + host);
     nconf.set("url:raw", "http://raw." + host);
     nconf.set("url:run", "http://run." + host);
     nconf.set("url:api", "http://api." + host);
-  }
+    nconf.set("url:embed", "http://embed." + host);  }
   
   // Create and start the parent server
   require("./index").listen(nconf.get("PORT"));

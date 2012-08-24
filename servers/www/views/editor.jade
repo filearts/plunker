@@ -42,6 +42,7 @@ html(ng-app="plunker.editor")
         /* Analytics */
         var _gaq = _gaq || [];
         _gaq.push(['_setAccount', 'UA-28928507-1']);
+        _gaq.push(['_setDomainName', 'plnkr.co']);
         _gaq.push(['_trackPageview']);
       
         (function() {
@@ -80,7 +81,7 @@ html(ng-app="plunker.editor")
         div.plnk-sidebar
           details.file-list(open)
             summary.header Files
-              button.file-add(ng-click="scratch.promptFileAdd()")
+              a.file-add(href="javascript:void(0)", ng-click="scratch.promptFileAdd()")
                 i.icon-plus
                 | New...
             ul.nav.nav-list

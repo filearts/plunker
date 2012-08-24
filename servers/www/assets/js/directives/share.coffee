@@ -23,11 +23,11 @@ module.directive "plunkerSharePanel", ["$timeout", "url", ($timeout, url) ->
           <span class="add-on">
             <i class="icon-eye-open" />
           </span>
-          <input id="share-preview" class="span4" type="text" value="{{url.www}}{{plunk.getHtmlUrl()}}" />
+          <input id="share-preview" class="span4" type="text" value="{{url.embed}}/{{plunk.id}}" />
         </div>
         <label for="share-embed">Embed:</label>
         <div>
-          <textarea disabled id="share-embed" class="span4">{{createEmbedSnippet(plunk)}}</textarea>
+          <textarea id="share-embed" class="span4">{{createEmbedSnippet(plunk)}}</textarea>
         </div>
         <hr />
         <div class="share-button">
@@ -42,8 +42,8 @@ module.directive "plunkerSharePanel", ["$timeout", "url", ($timeout, url) ->
     plunk: "="
   link: ($scope, el, attrs) ->
     $scope.url = url
-    $scope.createEmbedSnippet = ->
-      "Coming soon..."
+    $scope.createEmbedSnippet = (plunk) ->
+      """<iframe style="width: 100%; height: 300px" src="#{url.embed}/#{plunk.id}" frameborder="0" allowfullscreen="allowfullscreen"></iframe>"""
       
     $(el).click (e) -> e.stopPropagation()
 ]

@@ -35,10 +35,11 @@ if (!nconf.get("host")) {
   // Create and start the parent server
   express.createServer()
     .use(express.logger())
-    .use(require("express-subdomains").use("raw").use("api").use("run").middleware)
+    .use(require("express-subdomains").use("raw").use("api").use("run").use("embed").middleware)
     .use("/api", require("./servers/api"))
     .use("/raw", require("./servers/raw"))
     .use("/run", require("./servers/run"))
+    .use("/embed", require("./servers/embed"))
     .use(require("./servers/www"))
     .listen(nconf.get("PORT"));
   

@@ -33,9 +33,10 @@ module.controller "embed", ["$scope", "$location", "$http", "$timeout", "importe
     $scope.selectFile(file)
     $scope.tab = "code"
     
-    $timeout ->
-      $('.navbar .dropdown.open .dropdown-toggle').dropdown('toggle')
-      prettyPrint()
+    $timeout -> $('.navbar .dropdown.open .dropdown-toggle').dropdown('toggle')
+    
+  $scope.$watch "currentFile", (tab) ->
+    $timeout -> prettyPrint() 
   
   $scope.refreshPreview = ->
     $scope.tab = "run"

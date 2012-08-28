@@ -80,9 +80,14 @@
     }
   }
   
-  textarea, input {
-    width: 75%;
-    margin-left: 15px;
+  form, textarea, input, label {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    width: 100%;
+  }
+  form {
+    padding: 0 15px;
   }
   
   .user {

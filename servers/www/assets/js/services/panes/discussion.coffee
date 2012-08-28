@@ -1,6 +1,3 @@
-#= require ../../vendor/jquery
-#= require ../../vendor/angular
-#= require ../../vendor/angular-sanitize
 #= require ../../vendor/angular-ui
 #= require ../../vendor/showdown
 #= require ../../vendor/prettify

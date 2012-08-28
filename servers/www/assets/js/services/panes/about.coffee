@@ -1,6 +1,3 @@
-#= require ../../vendor/jquery
-#= require ../../vendor/angular
-
 #= require ../../directives/card
 
 #= require ../../services/panels

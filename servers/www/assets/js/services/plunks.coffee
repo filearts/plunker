@@ -1,4 +1,3 @@
-#= require ../vendor/angular
 #= require ../vendor/jquery.cookie
 
 #= require ../services/url
@@ -160,7 +159,13 @@ module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) 
           data: data
             
         request.then (response) ->
+          #TODO: Hack around AngularJS 1.0.1 bug
+          tags = self.tags
+          
           angular.copy(response.data, self)
+          
+          if angular.equals(tags, self.tags)
+            self.tags = tags # Reset tags to the old reference to avoid ngList bug
           
           success(self, response.headers)
         , error
@@ -200,7 +205,13 @@ module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) 
         data: data
           
       request.then (response) ->
+        #TODO: Hack around AngularJS 1.0.1 bug
+        tags = self.tags
+        
         angular.copy(response.data, self)
+        
+        if angular.equals(tags, self.tags)
+          self.tags = tags # Reset tags to the old reference to avoid ngList bug
         
         success(self, response.headers)
       , error

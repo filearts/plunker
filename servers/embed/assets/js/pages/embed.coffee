@@ -1,8 +1,6 @@
 #= require ../vendor/showdown
 #= require ../vendor/prettify
 
-#= require ../../bootstrap/js/bootstrap-all
-
 #= require ../services/importer
 #= require ../services/url
 

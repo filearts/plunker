@@ -1,5 +1,3 @@
-#= require ../vendor/angular
-
 #= require ../services/plunks
 #= require ../services/importer
 #= require ../services/session

@@ -1,8 +1,5 @@
-#= require ../vendor/jquery
 #= require ../vendor/jquery.timeago
 #= require ../vendor/jquery.lazyload
-
-#= require ../vendor/angular
 
 #= require ../services/plunks
 
@@ -17,15 +14,26 @@ module.directive "card", ["$timeout", ($timeout) ->
   scope:
     model: "=model"
   template: """
-    <li class="span3 plunk">
-      <div class="thumbnail">
+    <li class="span3">
+      <div class="card thumbnail">
         <div class="pull-right owned" ng-show="model.token">
           <i class="icon-unlock" title="You created this Plunk"></i>
         </div>
-        <h5 class="description" title="{{model.description}}">{{model.description}}</h5>
-        <a ng-href="{{model.getHtmlUrl()}}">
-          <img class="lazyload" ng-src="http://placehold.it/205x154&text=Loading..." data-original="http://immediatenet.com/t/l3?Size=1024x768&URL={{model.raw_url}}?_={{model.updated_at}}" />
-        </a>
+        <h5 class="description" title="{{model.description}}">
+          <a ng-href="{{model.getEditUrl()}}">{{model.description}}</a>
+        </h5>
+        <div class="preview">
+          <a class="preview" ng-click="showPreview()" ng-href="{{model.getHtmlUrl()}}">
+            <img class="preview lazyload" ng-src="http://placehold.it/205x154&text=Loading..." data-original="http://immediatenet.com/t/l3?Size=1024x768&URL={{model.raw_url}}?_={{model.updated_at}}" />
+          </a>
+          <div class="hover">
+            <ul class="tags">
+              <li ng-repeat="tag in model.tags">
+                <a ng-href="/tags/{{tag}}">{{tag}}</a>
+              </li>
+            </ul>
+          </div>
+        </div>
         <ul class="meta">
           <li class="edit">
             <a ng-href="{{model.getEditUrl()}}" target="_self" title="Edit this plunk">
@@ -45,7 +53,6 @@ module.directive "card", ["$timeout", ($timeout) ->
               <span class="live-comments">{{comments}}</span>
             </a>
           </li>
-  
         </ul>
         <ul class="extras">
           <li ng-show="model.source">

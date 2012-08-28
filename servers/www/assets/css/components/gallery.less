@@ -1,5 +1,22 @@
-.page-header ul.pagination {
-  margin: 0;
+@import "./tags";
+
+#gallery {
+  .span3 {
+    width: 270px;
+  }
+}
+
+.page-header {
+  margin: 18px 0 10px;
+  border-bottom: 1px solid #ccc;
+  
+  .nav {
+    margin-bottom: 0;
+  }
+  
+  ul.pagination {
+    margin: 0;
+  }
 }
 
 .cards {
@@ -24,6 +41,16 @@
           color: #08C;
         }
       }
+    }
+    
+    .hover {
+      display: none;
+    }
+    
+    .preview {
+      display: block;
+      width: 238px;
+      height: 179px;
     }
     
     .meta {
@@ -63,7 +90,7 @@
     text-overflow: ellipsis;
     margin: 0 10px;
   }
-  
+    
   .thumbnail .created_at {
     text-transform: none;
   }
@@ -73,6 +100,17 @@
     -webkit-box-shadow: 0 1px 4px rgba(0, 105, 214, 0.25);
     -moz-box-shadow: 0 1px 4px rgba(0, 105, 214, 0.25);
     box-shadow: 0 1px 4px rgba(0, 105, 214, 0.25);
+    
+    .preview {
+      position: relative;
+    
+      .hover {
+        display: block;
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+      }
+    }
   }
   .user {
     margin: 5px 15px;

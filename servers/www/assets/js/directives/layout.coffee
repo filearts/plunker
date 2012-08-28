@@ -1,7 +1,5 @@
-#= require ../vendor/jquery
 #= require ../vendor/jquery.ui.custom
 #= require ../vendor/jquery.layout
-#= require ../vendor/angular
 
 #= require_tree ../services/panes
 #= require ../services/panels

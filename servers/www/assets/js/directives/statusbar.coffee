@@ -1,5 +1,3 @@
-#= require ../vendor/angular
-
 #= require ../services/scratch
 
 module = angular.module("plunker.statusbar", [])

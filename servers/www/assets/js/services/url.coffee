@@ -1,4 +1,3 @@
-
 module = angular.module("plunker.url", [])
 
 module.service "url", [ ->

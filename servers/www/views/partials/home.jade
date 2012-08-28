@@ -1,32 +1,17 @@
-section#marketing
-  div.marketing
-    h1 Plunker lets you edit, fork and preview web snippets online
-    p.marketing-byline
-      | Your ideas are now first-class citizens of the cloud. Set them free.
-    p.marketing-byline
-      a.btn.btn-large.btn-primary(href="/edit/", target="_self")
-        i.icon-edit
-        |  Launch the editor
-
-section#importer-section(ng-show="false")
-  div#importer.well(ng-controller="ImporterController")
-    form.import-form
-      input.import-source(type="text",placeholder="Gist ID or URL",ng-model="value")
-      input.import-submit.btn.btn-large.btn-primary(type="submit", value="Import")
-      p.help-text.
-        Enter a gist id or url in the box above and hit Import. Plunker will
-        attempt to create a plunk from the source given. You will be
-        taken to the preview if the import succeeds.
-
-
 section#browse(ng-controller="GalleryController")
   div.page-header
     ul.pagination.pull-right
-      li(ng-class="{disabled: !plunks.pager.prev}")
+      li(ng-show="plunks.pager.prev")
         a(ng-href="javascript:void(0)", ng-click="pageTo(plunks.pager.prev)") «
-      li(ng-class="{disabled: !plunks.pager.next}")
+      li(ng-show="plunks.pager.next")
         a(ng-href="javascript:void(0)", ng-click="pageTo(plunks.pager.next)") »
-    h1 Recent plunks
+    ul.nav.nav-pills
+      li
+        a(href="/plunks/popular") Trending
+      li
+        a(href="/plunks/popular") Popular
+      li.active
+        a(href="/plunks/recent") Recent
       
   div.row
     div.span12

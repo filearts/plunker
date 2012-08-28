@@ -1,4 +1,3 @@
-#= require ../vendor/angular
 #= require ../vendor/jquery.cookie
 
 #= require ../vendor/postmessage

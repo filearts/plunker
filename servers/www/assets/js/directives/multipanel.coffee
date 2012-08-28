@@ -1,5 +1,3 @@
-#= require ../vendor/angular
-
 #= require ../services/panels
 #= require_tree ../services/panes
 

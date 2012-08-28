@@ -1,5 +1,3 @@
-#= require ../vendor/angular
-
 #= require ../services/modes
 
 EditSession = require("ace/edit_session").EditSession

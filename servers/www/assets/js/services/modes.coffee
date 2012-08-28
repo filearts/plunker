@@ -1,5 +1,3 @@
-#= require ../vendor/angular
-
 modes =
   c_cpp:
     title: "C/C++"

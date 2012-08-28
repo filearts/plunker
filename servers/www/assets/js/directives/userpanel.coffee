@@ -1,5 +1,3 @@
-#= require ../../bootstrap/js/bootstrap-all
-
 #= require ../services/session
 
 module = angular.module("plunker.userpanel", ["plunker.session"])

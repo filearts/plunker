@@ -1,5 +1,3 @@
-#= require ../vendor/angular
-
 #= require ../services/scratch
 
 #= require ../directives/share

@@ -1,6 +1,3 @@
-#= require ../vendor/jquery
-#= require ../vendor/angular
-
 #= require ../services/scratch
 #= require ../services/url
 

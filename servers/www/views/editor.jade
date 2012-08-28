@@ -13,6 +13,10 @@ html(ng-app="plunker.editor")
     // if lt IE 9
       script(src="http://html5shim.googlecode.com/svn/trunk/html5.js")
     block scripts
+      script(src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js")
+      script(src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.0/js/bootstrap.min.js")
+      script(src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.1/angular.min.js")
+      script(src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.1/angular-sanitize.min.js")
       script(src="http://static.firebase.com/v0/firebase.js")
       script(src="/js/vendor/ace/ace.js")
       script(src="/channel/bcsocket.js")
@@ -52,7 +56,7 @@ html(ng-app="plunker.editor")
         })();
 
   body(ng-controller="editor",itemscope,itemtype="http://schema.org/WebPage")
-    nav.navbar.navbar-fixed-top.navbar-inverse
+    nav.navbar.navbar-fixed-top
       div.navbar-inner
         a.brand(href="{{url.www}}")
           span.shrink Plunker
@@ -93,10 +97,11 @@ html(ng-app="plunker.editor")
                 
           details.information(open)
             summary.header Information
-            label(for="plnk-description") Description:
-            textarea#plnk-description.description(ng-model="scratch.plunk.description",itemprop="name")
-            label(for="plnk-tags") Tags:
-            input#plnk-tags.tags(ng-model="scratch.plunk.tags", ng-list)
+            form
+              label(for="plnk-description") Description:
+              textarea#plnk-description.description(ng-model="scratch.plunk.description",itemprop="name")
+              label(for="plnk-tags") Tags:
+              input#plnk-tags.tags(ng-model="scratch.plunk.tags", ng-list)
 
             hr
             div.user(ng-show="scratch.plunk.user")

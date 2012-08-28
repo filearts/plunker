@@ -16,6 +16,9 @@ html(ng-app="plunker.landing")
           "url": !{JSON.stringify(url).replace(/<\//g,"<\\/")},
           "session": !{JSON.stringify(session).replace(/<\//g,"<\\/")}
         };
+      script(src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js")
+      script(src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.0/js/bootstrap.min.js")
+      script(src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.1/angular.min.js")
       != js("pages/landing")
       script
         var _gaq = _gaq || [];
@@ -30,7 +33,7 @@ html(ng-app="plunker.landing")
         })();
 
   body
-    nav.navbar.navbar-fixed-top.navbar-inverse
+    nav.navbar.navbar-fixed-top
       div.navbar-inner
         div.container
           a.btn.btn-navbar(data-toggle="collapse",data-target=".nav-collapse")

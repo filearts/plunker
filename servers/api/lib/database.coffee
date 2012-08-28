@@ -7,6 +7,10 @@ mongoose.connect "mongodb:" + url.format(nconf.get("mongodb"))
 
 connectTimeout = setTimeout(errorConnecting, 1000 * 30)
 
+apiUrl = nconf.get('url:api')
+wwwUrl = nconf.get('url:www')
+rawUrl = nconf.get('url:raw')
+
 errorConnecting = ->
   console.error "Error connecting to mongodb"
   process.exit(1)
@@ -63,8 +67,8 @@ SessionSchema = new Schema
   auth: {}
   keychain: [TokenSchema]
 
-SessionSchema.virtual("url").get -> nconf.get("url:api") + "/sessions/#{@_id}"
-SessionSchema.virtual("user_url").get -> nconf.get("url:api") + "/sessions/#{@_id}/user"
+SessionSchema.virtual("url").get -> apiUrl + "/sessions/#{@_id}"
+SessionSchema.virtual("user_url").get -> apiUrl + "/sessions/#{@_id}/user"
 SessionSchema.virtual("age").get -> Date.now() - @last_access
 
 SessionSchema.plugin(lastModified)
@@ -100,10 +104,12 @@ PlunkSchema = new Schema
   comments: { type: Number, 'default': 0 }
   fork_of: { type: String, ref: "Plunk", index: true }
   forks: [{ type: String, ref: "Plunk", index: true }]
+  tags: [{ type: String, index: true}]
+  voters: [{ type: Schema.ObjectId, ref: "User"}]
 
-PlunkSchema.virtual("url").get -> nconf.get("url:api") + "/plunks/#{@_id}"
-PlunkSchema.virtual("raw_url").get -> nconf.get("url:raw") + "/#{@_id}/"
-PlunkSchema.virtual("comments_url").get -> nconf.get("url:www") + "/#{@_id}/comments"
+PlunkSchema.virtual("url").get -> apiUrl + "/plunks/#{@_id}"
+PlunkSchema.virtual("raw_url").get -> rawUrl + "/#{@_id}/"
+PlunkSchema.virtual("comments_url").get -> wwwUrl + "/#{@_id}/comments"
 
 #PlunkSchema.plugin(pagination)
 

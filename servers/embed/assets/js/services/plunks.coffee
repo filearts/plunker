@@ -1,5 +1,3 @@
-#= require ../vendor/angular
-#= require ../vendor/jquery
 #= require ../vendor/jquery.cookie
 
 #= require ../services/url

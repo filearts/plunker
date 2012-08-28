@@ -27,7 +27,7 @@ module.run [ "$location", "panels", "scratch", ($location, panels, scratch) ->
           </a>
         </p>
         <div ng-show="plunk.fork_of">
-          <h3>Forks</h3>
+          <h3>Fork of</h3>
           <ul class="thumbnails cards"><card model="plunk.getForkOf()"></card></ul>
         </div>
         <div ng-show="plunk.forks">

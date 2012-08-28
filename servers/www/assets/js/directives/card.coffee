@@ -65,7 +65,7 @@ module.directive "card", ["$timeout", ($timeout) ->
           <img class="gravatar" ng-src="http://www.gravatar.com/avatar/0?s=18&d=mm" />
           Anonymous
         </span>
-        <abbr class="timeago created_at" title="{{model.updated_at}}">{{model.updated_at | toHumanReadable}}</abbr>
+        <abbr class="timeago created_at" title="{{model.updated_at}}">{{model.updated_at}}</abbr>
       </div>
     </li>
   """
@@ -74,11 +74,11 @@ module.directive "card", ["$timeout", ($timeout) ->
     $scope.editors = 0
     $scope.comments = 0
     
+    $scope.$watch "model.updated_at", (updated_at) -> $(".timeago", $el).timeago() if updated_at
+    $scope.$watch "model.raw_url", (raw_url) -> $(".lazyload", $el).lazyload() if raw_url
+    
     $scope.$watch 'model', (model) ->
       if model
-        $(".timeago", $el).timeago() if model.updated_at
-        $(".lazyload", $el).lazyload() if model.raw_url
-        
         count_keys = (obj) ->
           count = 0
           count++ for key of obj

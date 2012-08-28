@@ -7,14 +7,20 @@
       "type": "string",
       "default": ""
     },
-    "index": {
-      "type": "string"
+    "tags": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-zA-Z0-9_][-a-zA-Z0-9_ :]*$": {
+          "type": "boolean"
+        }
+      }
     },
     "files": {
       "type": "object",
       "additionalProperties": false,
       "patternProperties": {
-        "^[a-zA-z0-9_-]+(\\.[a-zA-Z0-9]+)?$": {
+        "^[-a-zA-Z0-9_]+(\\.[a-zA-Z0-9]+)?$": {
           "type": [
             {
               "type": "null"

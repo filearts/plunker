@@ -99,7 +99,12 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", ($
 
       # Save a copy of the loaded json if the plunk belongs to this session
       # There is no need for a saved state if the active user is not the owner
-      if @isSaved() and @isOwned() then angular.copy(json, @savedState)
+      saved = @isSaved()
+      owned = @isOwned()
+
+      if saved and owned
+        @savedState ||= {}
+        angular.copy(json, @savedState)
       else delete @savedState
       
       @buffers.reset(file for filename, file of json.files)
@@ -107,7 +112,7 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", ($
       
       @
       
-    _doAsync: (fn) ->
+    _doAsync: (fn) =>
       self = @
       self.loading = true
 
@@ -117,21 +122,32 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", ($
       , ->
         self.loading = false
         
-      fn.call(self, deferred)
+      fn.call(@, deferred)
       
       deferred.promise
 
     _getSaveJSON: ->
       json =
         description: @plunk.description
-        #tags: @plunk.tags
         files: {}
       
       # There is a saved state, today is not our lucky day; all kinds of ugly
       # needed
       if @savedState
         delete json.description if angular.equals(@plunk.description, @savedState.description)
-        delete json.tags if angular.equals(@plunk.tags, @savedState.tags)
+        
+        # Just in case the old schema was still used
+        @savedState.tags ||= []
+        
+        json.tags = {}
+        
+        # Add *new* tags
+        for tagname in @plunk.tags
+          json.tags[tagname] = true unless @savedState.tags.indexOf(tagname) >= 0
+        
+        # Remove *old* tags no longer present
+        for tagname in @savedState.tags
+          json.tags[tagname] = null unless @plunk.tags.indexOf(tagname) >= 0
         
         # Look for files that no longer exist and mark them for deletion
         for filename, file of @savedState.files
@@ -147,12 +163,28 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", ($
           else
             # New file
             json.files[key] = content: buffer.content
+            
+        tags = false
+        for tagname, add of json.tags
+          tags = true
+          break
+        
+        delete json.tags unless tags
+        
+        files = false
+        for filename, file of json.files
+          files = true
+          break
+        
+        delete json.files unless files
         
       else
         for buffer in @buffers.queue
           json.files[buffer.filename] =
             filename: buffer.filename
             content: buffer.content
+        
+        json.tags = @plunk.tags
       
       json
       

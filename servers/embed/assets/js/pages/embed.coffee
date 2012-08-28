@@ -1,6 +1,3 @@
-#= require ../vendor/jquery
-#= require ../vendor/angular
-#= require ../vendor/angular-sanitize
 #= require ../vendor/showdown
 #= require ../vendor/prettify
 
@@ -24,7 +21,7 @@ module.filter "markdown", [ () ->
 
 module.controller "embed", ["$scope", "$location", "$http", "$timeout", "importer", "url", "Plunk", ($scope, $location, $http, $timeout, importer, url, Plunk) ->
   $scope.url = url
-  $scope.plunk = new Plunk
+  $scope.plunk = new Plunk(_plunker.plunk or {})
   $scope.loading = "Initializing..."
   $scope.tab = $location.search().t or "run"
   
@@ -57,25 +54,32 @@ module.controller "embed", ["$scope", "$location", "$http", "$timeout", "importe
           $scope.loading = ""
         , (err) ->
           $scope.loading = err.toString()
+          
+  $scope.attachPlunk = (plunk) ->
+    for filename, file of plunk.files
+      first = file
+      break
+        
+    $scope.selectFile plunk.files[$location.search().f or "index.html"] or first
+    
+    document.title = "Plunker - #{plunk.description}"
+    
+    if $scope.tab == "run" then $scope.refreshPreview() 
+    else $scope.loading = ""
+    
   
   $scope.$watch ( -> $location.path().slice(1) ), (id) ->
-    $scope.loading = "Loading..."
-    
-    $scope.plunk.reset()
-    $scope.plunk.id = id
-    
-    $scope.plunk.fetch (plunk) ->
-      for filename, file of plunk.files
-        first = file
-        break
+    if id isnt $scope.plunk.id
+      $scope.loading = "Loading..."
       
-      $scope.selectFile plunk.files[$location.search().f or "index.html"] or first
+      $scope.plunk.reset()
+      $scope.plunk.id = id
       
-      document.title = "Plunker - #{plunk.description}"
+      $scope.plunk.fetch (plunk) ->
+        $scope.attachPlunk(plunk)
+      , (err) ->
+        $scope.loading = err.toString()
+    else
+      $scope.attachPlunk($scope.plunk)
       
-      if $scope.tab == "run" then $scope.refreshPreview() 
-      else $scope.loading = ""
-      
-    , (err) ->
-      $scope.loading = err.toString()
 ]

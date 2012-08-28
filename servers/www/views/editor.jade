@@ -93,8 +93,12 @@ html(ng-app="plunker.editor")
                 
           details.information(open)
             summary.header Information
-            textarea.description(ng-model="scratch.plunk.description",itemprop="name")
-            // input.tags(ng-model="scratch.plunk.tags")
+            label(for="plnk-description") Description:
+            textarea#plnk-description.description(ng-model="scratch.plunk.description",itemprop="name")
+            label(for="plnk-tags") Tags:
+            input#plnk-tags.tags(ng-model="scratch.plunk.tags", ng-list)
+
+            hr
             div.user(ng-show="scratch.plunk.user")
               img.gravatar(ng-src="http://www.gravatar.com/avatar/{{scratch.plunk.user.gravatar_id}}?s=18&d=mm")
               span.login {{scratch.plunk.user.login}}

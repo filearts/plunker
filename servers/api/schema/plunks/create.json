@@ -6,12 +6,13 @@
       "type": "string",
       "default": ""
     },
-    "index": {
-      "type": "string"
-    },
-    "expires": {
-      "type": "string",
-      "format": "date-time"
+    "tags": {
+      "type": "array",
+      "additionalItems": false,
+      "uniqueItems": true,
+      "items": {
+        "type": "string"
+      }
     },
     "source": {
       "type": [

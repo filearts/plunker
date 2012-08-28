@@ -9,7 +9,7 @@ module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) 
   class window.Plunk
     @defaults:
       description: "Untitled"
-      #tags: []
+      tags: []
       files:
         "index.html": {filename: "index.html", content: ""}
     @base_url: "#{url.api}/plunks"
@@ -66,9 +66,12 @@ module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) 
     
     getForkOf: ->
       if @fork_of
-        unless @fork_of instanceof Plunk
+        if angular.isString(@fork_of)
+          @fork_of = new Plunk(id: @fork_of)
+        else unless @fork_of instanceof Plunk
           @fork_of = new Plunk(@fork_of)
-          @fork_of.fetch() unless @fork_of.url
+        
+        @fork_of.fetch() unless @fork_of.url
         @fork_of
     
     getForks: ->
@@ -82,7 +85,7 @@ module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) 
             @forks[idx].fetch() unless fork.url
 
         @forks
-      
+          
     getEditUrl: -> "/edit/#{@id}" if @id
     getHtmlUrl: -> "/#{@id}" if @id
     getCommentsUrl: -> @getHtmlUrl() + "/comments"

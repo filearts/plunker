@@ -9,6 +9,7 @@ request = require("request")
 
 module.exports = app = express.createServer()
 
+apiUrl = nconf.get("url:api")
 
 
 ###s

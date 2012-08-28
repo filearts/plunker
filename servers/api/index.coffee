@@ -9,6 +9,7 @@ validator = require("json-schema")
 mime = require("mime")
 
 apiErrors = require("./errors")
+apiUrl = nconf.get('url:api')
 
 module.exports = app = express.createServer()
 
@@ -174,17 +175,17 @@ app.get "/plunks", (req, res, next) ->
   page = parseInt(req.param("p", "1"), 10)
   limit = parseInt(req.param("pp", "8"))
   
-  Plunk.find({}).sort("updated_at", -1).populate("user").paginate page, limit, (err, plunks, count, pages, current) ->
+  Plunk.find({}).sort("updated_at": -1).populate("user").paginate page, limit, (err, plunks, count, pages, current) ->
     if err then next(err)
     else
       link = []
       
       if current < pages
-        link.push "<#{nconf.get('url:api')}/plunks?p=#{page+1}&pp=#{limit}>; rel=\"next\""
-        link.push "<#{nconf.get('url:api')}/plunks?p=#{pages}&pp=#{limit}>; rel=\"last\""
+        link.push "<#{apiUrl}/plunks?p=#{page+1}&pp=#{limit}>; rel=\"next\""
+        link.push "<#{apiUrl}/plunks?p=#{pages}&pp=#{limit}>; rel=\"last\""
       if current > 1
-        link.push "<#{nconf.get('url:api')}/plunks?p=#{page-1}&pp=#{limit}>; rel=\"prev\""
-        link.push "<#{nconf.get('url:api')}/plunks?p=#1&pp=#{limit}>; rel=\"first\""
+        link.push "<#{apiUrl}/plunks?p=#{page-1}&pp=#{limit}>; rel=\"prev\""
+        link.push "<#{apiUrl}/plunks?p=#1&pp=#{limit}>; rel=\"first\""
         
       res.header("Link", link.join(", ")) if link.length
       res.json(preparePlunks(req.session, plunks))
@@ -240,7 +241,7 @@ app.post "/plunks", (req, res, next) ->
 
 # Read plunk
 app.get "/plunks/:id", (req, res, next) ->
-  Plunk.findById(req.params.id).populate("user").populate("forks").populate("fork_of").exec (err, plunk) ->
+  Plunk.findById(req.params.id).populate("user").exec (err, plunk) ->
     if err or not plunk then next(new apiErrors.NotFound)
     else res.json(preparePlunk(req.session, plunk.toJSON()))
     
@@ -287,6 +288,17 @@ app.post "/plunks/:id", (req, res, next) ->
               filename: filename
               content: file.content
               mime: mime.lookup(filename, "text/plain")
+              
+        if json.tags
+          plunk.tags ||= []
+          
+          for tagname, add of json.tags
+            if add
+              plunk.tags.push(tagname)
+            else
+              plunk.tags.splice(idx, 1) if (idx = plunk.tags.indexOf(tagname)) >= 0
+          
+          console.log "Tags", plunk.tags
         
         plunk.updated_at = new Date
         plunk.description = json.description if json.description

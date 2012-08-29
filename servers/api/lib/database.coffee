@@ -81,7 +81,7 @@ mongoose.model "Session", SessionSchema
 
 
 mongoose.model "User", UserSchema = new Schema
-  login: String
+  login: { type: String, index: true }
   gravatar_id: String
   service_id: { type: String, index: { unique: true } }
   profile: {}

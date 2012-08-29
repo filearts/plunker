@@ -43,8 +43,16 @@ module.factory "importer", [ "$q", "$http", "Plunk", ($q, $http, Plunk) ->
         if response.data.meta.status >= 400 then deferred.reject("Gist not found")
         else
           gist = response.data.data
+          json = {}
+          
+          if manifest = gist.files["plunker.json"]
+            try
+              angular.extend json, angular.fromJson(manifest.content)
+            catch e
+              console.error "Unable to parse manifest file:", e
+
   
-          json =
+          angular.extend json,
             source:
               type: "gist"
               url: gist.html_url
@@ -52,10 +60,6 @@ module.factory "importer", [ "$q", "$http", "Plunk", ($q, $http, Plunk) ->
             files: {}
           
           json.description = json.source.description = gist.description if gist.description
-
-          #if manifest = gist.files["plunker.json"]
-          #  try
-          #    angular.copy(angular.fromJson(manifest.content), json)                
 
           for filename, file of gist.files
             unless filename == "plunker.json"

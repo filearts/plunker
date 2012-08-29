@@ -15,6 +15,10 @@ module.directive "userpanel", [ ->
         </button>
         <ul class="dropdown-menu">
           <li>
+            <a href="/users/{{session.user.login}}">My Profile</a>
+          </li>
+          <li class="divider"></li>
+          <li>
             <a class="logout" href="javascript:void(0)" ng-click="session.logout()">Logout</a>
           </li>
         </ul>

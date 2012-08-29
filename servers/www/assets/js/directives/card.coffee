@@ -8,19 +8,19 @@ module = angular.module("plunker.card", ["plunker.plunks"])
 module.filter "toHumanReadable", ->
   (value) -> value.toString() if value
 
-module.directive "card", ["$timeout", ($timeout) ->
+module.directive "card", ["$timeout", "session", ($timeout, session) ->
   restrict: "E"
   replace: true
   scope:
     model: "=model"
   template: """
-    <li class="span3">
+    <li class="span3 card">
       <div class="card thumbnail">
-        <div class="pull-right owned" ng-show="model.token">
-          <i class="icon-unlock" title="You created this Plunk"></i>
-        </div>
         <h5 class="description" title="{{model.description}}">
-          <a ng-href="{{model.getEditUrl()}}">{{model.description}}</a>
+          <i ng-show="model.token" class="icon-unlock" title="You created this Plunk"></i>
+          <a ng-href="{{model.getEditUrl()}}">
+            {{model.description}}
+          </a>
         </h5>
         <div class="preview">
           <a class="preview" ng-click="showPreview()" ng-href="{{model.getHtmlUrl()}}">
@@ -36,21 +36,25 @@ module.directive "card", ["$timeout", ($timeout) ->
         </div>
         <ul class="meta">
           <li class="edit">
-            <a ng-href="{{model.getEditUrl()}}" target="_self" title="Edit this plunk">
+            <a ng-href="{{model.getEditUrl()}}" title="Edit this plunk">
               <i class="icon-edit" />
               <span class="live-editors">{{editors}}</span>
             </a>
           </li>
-          <li class="viewers">
-            <a ng-href="{{model.getHtmlUrl()}}" title="People currently viewing this plunk">
-              <i class="icon-eye-open" />
-              <span class="live-viewers">{{viewers}}</span>
-            </a>
-          </li>
           <li class="comments">
-            <a ng-href="{{model.getEditUrl()}}?p=comments" target="_self" title="Join the discussion">
+            <a ng-href="{{model.getEditUrl()}}?p=comments" title="Join the discussion">
               <i class="icon-comments" />
               <span class="live-comments">{{comments}}</span>
+            </a>
+          </li>
+          <li class="votes" ng-switch on="!!session.user">
+            <span ng-switch-when="false">
+              <i class="icon-thumbs-up" />
+              <span class="thumbs-up">{{model.thumbs || 0 | number}}</span>
+            </span>
+            <a ng-switch-when="true" ng-href="{{model.getHtmlUrl()}}" ng-click="thumbsUp(model)" title="Number of thumbs-up">
+              <i class="icon-thumbs-up" />
+              <span class="thumbs-up">{{model.thumbs || 0 | number}}</span>
             </a>
           </li>
         </ul>
@@ -80,6 +84,11 @@ module.directive "card", ["$timeout", ($timeout) ->
     $scope.viewers = 0
     $scope.editors = 0
     $scope.comments = 0
+    
+    $scope.session = session
+    
+    $scope.thumbsUp = (plunk) ->
+      
     
     $scope.$watch "model.updated_at", (updated_at) -> $(".timeago", $el).timeago() if updated_at
     $scope.$watch "model.raw_url", (raw_url) -> $(".lazyload", $el).lazyload() if raw_url

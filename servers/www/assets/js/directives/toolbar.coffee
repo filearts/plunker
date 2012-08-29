@@ -5,7 +5,7 @@
 
 module = angular.module("plunker.toolbar", ["plunker.share"])
 
-module.directive "plunkerToolbar", ["scratch", (scratch) ->
+module.directive "plunkerToolbar", ["$location", "scratch", ($location, scratch) ->
   restrict: "E"
   scope: {}
   replace: true
@@ -26,13 +26,13 @@ module.directive "plunkerToolbar", ["scratch", (scratch) ->
           <li><a href="/edit/gist:1986619">jQuery<a href="/edit/gist:1992850" class="coffee" title="In coffee-script"><img src="/img/coffeescript-logo-small_med.png"></a></a></li>
           <li><a href="/edit/gist:2006604">jQuery UI</a></li>
           <li class="divider"></li>
-          <li><a href="/edit/gist:2246015">AngularJS<a href="/edit/gist:3189582" class="coffee" title="In coffee-script"><img src="/img/coffeescript-logo-small_med.png"></a></a></li>
+          <li><a href="/edit/gist:3510140">AngularJS<a href="/edit/gist:3189582" class="coffee" title="In coffee-script"><img src="/img/coffeescript-logo-small_med.png"></a></a></li>
           <li class="divider"></li>
           <li><a href="/edit/gist:2016721">Bootstrap<a href="/edit/gist:2016721" class="coffee" title="In coffee-script"><img src="/img/coffeescript-logo-small_med.png"></a></a></li>
           <li class="divider"></li>
           <li><a href="/edit/gist:2050713">Backbone.js<a href="/edit/gist:2050746" class="coffee" title="In coffee-script"><img src="/img/coffeescript-logo-small_med.png"></a></a></li>
           <li class="divider"></li>
-          <li><a href="/edit/gist:1990582">YUI</a></li>
+          <li><a href="/edit/gist:3510115">YUI</a></li>
           <li class="divider"></li>
           <li>
             <a href="javascript:void(0)" ng-click="promptImportGist()" title="Import code from a gist or another plunk">Import gist...</a>
@@ -43,12 +43,14 @@ module.directive "plunkerToolbar", ["scratch", (scratch) ->
           </li>
         </ul>
       </div>
-      <div ng-show="scratch.isSaved()" class="btn-group">
-        <a href="javascript:void(0)" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" title="Share your work with your friends.">
-          <i class="icon-share" /><span class="shrink"> Share</span>
-          <span class="caret"></span>
-        </a>
-        <plunker-share-panel plunk="scratch.plunk" class="dropdown-menu"></plunker-share-panel>
+      <div ng-switch on="scratch.isSaved()" class="btn-group">
+        <div  ng-switch-when="true">
+          <a href="javascript:void(0)" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" title="Share your work with your friends.">
+            <i class="icon-share" /><span class="shrink"> Share</span>
+            <span class="caret"></span>
+          </a>
+          <plunker-share-panel plunk="scratch.plunk" class="dropdown-menu"></plunker-share-panel>
+        </div>
       </div>
     </div>
   """

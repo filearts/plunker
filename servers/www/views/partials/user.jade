@@ -1,0 +1,31 @@
+section#browse
+  div.page-header
+    ul.pagination.pull-right
+      li(ng-show="plunks.pager.prev")
+        a(ng-href="javascript:void(0)", ng-click="pageTo(plunks.pager.prev)") «
+      li(ng-show="plunks.pager.next")
+        a(ng-href="javascript:void(0)", ng-click="pageTo(plunks.pager.next)") »
+
+    h1 User: 
+      small(ng-bind="username")
+     
+  div.row(ng-controller="UserPlunksController")
+    div.span6
+      ul#gallery.thumbnails.cards
+        <card model="plunk" ng-repeat="plunk in plunks"></card>
+      ul.pager
+        li.previous(ng-show="plunks.pager.prev")
+          a(ng-href="", ng-click="pageTo(plunks.pager.prev)") &larr; Newer
+        li.next(ng-show="plunks.pager.next")
+          a(ng-href="javascript:void(0)", ng-click="pageTo(plunks.pager.next)") Older  &rarr;
+    div.span6
+      div.row
+        div.thumbnail.span2
+          img.gravatar-big(ng-src="http://www.gravatar.com/avatar/{{user.gravatar_id}}?s=200&d=mm")
+        div.span4
+          dl.dl-horizontal
+            dt Plunks
+            dd {{plunks.length}}
+
+
+      

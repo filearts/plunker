@@ -1,0 +1,16 @@
+{
+  "host": "localhost", // (Required) The hostname at which Plunk will be run
+  "nosubdomains": true, // Run Plunker off of a single domain (instead of {api,run,embed,raw}.host)
+  "oauth": {
+    "github": { // To enable logging in via github
+      "id": "111111111111111",
+      "secret": "11111111111111111111111111111111"
+    }
+  },
+  "mongodb": {
+    "hostname": "localhost",
+    "port": 27017,
+    "pathname": "plunker",
+    "auth": "plunker:plunker"
+  }
+}

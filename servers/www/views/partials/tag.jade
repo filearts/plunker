@@ -1,0 +1,20 @@
+section#browse
+  div.page-header
+    ul.pagination.pull-right
+      li(ng-show="plunks.pager.prev")
+        a(ng-href="javascript:void(0)", ng-click="pageTo(plunks.pager.prev)") «
+      li(ng-show="plunks.pager.next")
+        a(ng-href="javascript:void(0)", ng-click="pageTo(plunks.pager.next)") »
+
+    h1 Browsing tag: 
+      small(ng-bind="tagname")
+      
+  div.row
+    div.span12
+      ul#gallery.thumbnails.cards
+        <card model="plunk" ng-repeat="plunk in plunks"></card>
+      ul.pager
+        li.previous(ng-show="plunks.pager.prev")
+          a(ng-href="", ng-click="pageTo(plunks.pager.prev)") &larr; Newer
+        li.next(ng-show="plunks.pager.next")
+          a(ng-href="javascript:void(0)", ng-click="pageTo(plunks.pager.next)") Older  &rarr;

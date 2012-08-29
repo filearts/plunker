@@ -201,7 +201,7 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", ($
         old_id = @plunk.id
         
         @plunk.save json, (plunk) ->
-          angular.copy(plunk, self.savedState)
+          angular.copy(plunk, self.savedState ||= {})
           buffer.old_filename = buffer.filename for buffer in self.buffers.queue
           
           $location.path("/#{plunk.id}")
@@ -228,7 +228,7 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", ($
         old_id = @plunk.id
         
         @plunk.fork json, (plunk) ->
-          angular.copy(plunk, self.savedState)
+          angular.copy(plunk, self.savedState ||= {})
           buffer.old_filename = buffer.filename for buffer in self.buffers.queue
           
           $location.path("/#{plunk.id}")

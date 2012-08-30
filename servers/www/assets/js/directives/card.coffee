@@ -17,7 +17,6 @@ module.directive "card", ["$timeout", "session", ($timeout, session) ->
     <li class="span3 card">
       <div class="card thumbnail">
         <h5 class="description" title="{{model.description}}">
-          <i ng-show="model.token" class="icon-unlock" title="You created this Plunk"></i>
           <a ng-href="{{model.getEditUrl()}}">
             {{model.description}}
           </a>
@@ -47,21 +46,35 @@ module.directive "card", ["$timeout", "session", ($timeout, session) ->
               <span class="live-comments">{{comments}}</span>
             </a>
           </li>
-          <li class="votes" ng-switch on="!!session.user">
-            <span ng-switch-when="false">
-              <i class="icon-thumbs-up" />
-              <span class="thumbs-up">{{model.thumbs || 0 | number}}</span>
-            </span>
-            <a ng-switch-when="true" ng-href="{{model.getHtmlUrl()}}" ng-click="thumbsUp(model)" title="Number of thumbs-up">
+          <li class="votes" ng-switch ng-class="{thumbed: model.thumbed}" on="model.thumbed">
+            <a ng-show="session.user" ng-switch-when="true" ng-click="model.removeThumbsUp()" ng-href="javascript:void(0)" title="Remove your thumbs-up from this plunk.">
               <i class="icon-thumbs-up" />
               <span class="thumbs-up">{{model.thumbs || 0 | number}}</span>
             </a>
+            <a ng-show="session.user" ng-switch-when="false" ng-click="model.addThumbsUp()" ng-href="javascript:void(0)" title="Give a thumbs-up to this plunk.">
+              <i class="icon-thumbs-up" />
+              <span class="thumbs-up">{{model.thumbs || 0 | number}}</span>
+            </a>
+            <span ng-hide="session.user" title="{{model.thumbs || 0 | number}} users have given a thumbs-up to this plunk.">
+              <i class="icon-thumbs-up" />
+              <span class="thumbs-up">{{model.thumbs || 0 | number}}</span>
+            </span>
           </li>
         </ul>
         <ul class="extras">
+          <li ng-show="model.token">
+            <a ng-href="{{model.getEditUrl()}}" title="You created this Plunk. Click here to edit it.">
+              <i class="icon-unlock"></i>
+            </a>
+          </li>
           <li ng-show="model.source">
             <a ng-href="{{model.source.url}}" title="This plunk was imported. Click here to go to its source" target="_blank">
               <i class="icon-link" />
+            </a>
+          </li>
+          <li ng-show="model.thumbed && session.user">
+            <a ng-href="/users/{{session.user.login}}/thumbed" title="You have given a thumbs-up to this plunk. Click here to see all your thumbed plunks.">
+              <i class="icon-heart" />
             </a>
           </li>
         </ul>
@@ -87,7 +100,7 @@ module.directive "card", ["$timeout", "session", ($timeout, session) ->
     
     $scope.session = session
     
-    $scope.thumbsUp = (plunk) ->
+    $scope.addThumbsUp = (plunk) ->
       
     
     $scope.$watch "model.updated_at", (updated_at) -> $(".timeago", $el).timeago() if updated_at

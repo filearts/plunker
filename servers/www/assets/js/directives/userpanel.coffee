@@ -17,6 +17,9 @@ module.directive "userpanel", [ ->
           <li>
             <a href="/users/{{session.user.login}}">My Profile</a>
           </li>
+          <li>
+            <a href="/users/{{session.user.login}}/thumbed">My thumbed plunks</a>
+          </li>
           <li class="divider"></li>
           <li>
             <a class="logout" href="javascript:void(0)" ng-click="session.logout()">Logout</a>

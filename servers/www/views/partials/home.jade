@@ -6,12 +6,8 @@ section#browse(ng-controller="GalleryController")
       li(ng-show="plunks.pager.next")
         a(ng-href="javascript:void(0)", ng-click="pageTo(plunks.pager.next)") »
     ul.nav.nav-pills
-      li
-        a(href="/plunks/popular") Trending
-      li
-        a(href="/plunks/popular") Popular
-      li.active
-        a(href="/plunks/recent") Recent
+      li(ng-repeat="filter in filters", ng-class="{active: ranking==filter}")
+        a(ng-href="{{filter.path}}", ng-click="applyRanking(filter)") {{filter.title}}
       
   div.row
     div.span12

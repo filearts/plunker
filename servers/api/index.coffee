@@ -25,6 +25,18 @@ Session = database.model("Session")
 User = database.model("User")
 Plunk = database.model("Plunk")
 
+
+
+PRUNE_FREQUENCY = 1000 * 60 * 60 * 6 # Prune the sessions every 6 hours
+SCORE_INCREMENT = 1000 * 60 * 60 * 6 # Each vote bumps the plunk forward 6 hours
+
+pruneSessions = ->
+  console.log "Pruning sessions"
+  Session.prune()
+
+setInterval pruneSessions, PRUNE_FREQUENCY
+pruneSessions()
+
 app.configure ->
   app.use require("./middleware/cors").middleware()
   app.use require("./middleware/cache").middleware()
@@ -89,10 +101,9 @@ app.get "/sessions/:id", (req, res, next) ->
 app.del "/sessions/:id/user", (req, res, next) ->
   Session.findById req.params.id, (err, session) ->
     if err then next(err)
-    else unless session and session.user then next(new apiErrors.NotFound)
+    else unless session then next(new apiErrors.NotFound)
     else
       session.user = null
-      
       session.save (err) ->
         if err then next(err)
         else res.json(session)
@@ -155,9 +166,10 @@ ownsPlunk = (session, json) ->
 
   owner
   
-preparePlunk = (session, json) ->
-  delete json.token unless ownsPlunk(session, json)
+preparePlunk = (session, plunk, populate = {}) ->
+  json = _.extend plunk.toJSON(), populate
   
+  delete json.token unless ownsPlunk(session, json)
   delete json.voters
   
   json.files = do ->
@@ -167,30 +179,56 @@ preparePlunk = (session, json) ->
       files[file.filename] = file
     files
   
+  json.thumbed = session?.user? and plunk.voters.indexOf(""+session.user._id) >= 0
+  
   json
 
-preparePlunks = (session, plunks) -> _.map plunks, (plunk) -> preparePlunk(session, plunk.toJSON())
+preparePlunks = (session, plunks) -> _.map plunks, (plunk) -> preparePlunk(session, plunk)
 
 
-# List plunks
-app.get "/plunks", (req, res, next) ->
+fetchPlunks = (options, req, res, next) ->
   page = parseInt(req.param("p", "1"), 10)
   limit = parseInt(req.param("pp", "8"))
   
-  Plunk.find({}).sort("updated_at": -1).populate("user").paginate page, limit, (err, plunks, count, pages, current) ->
+  options.baseUrl ||= "#{apiUrl}/plunks"
+  
+  query = Plunk.find(options.query or {})
+  query.sort(options.sort or {updated_at: -1})
+  
+  query.populate("user").paginate page, limit, (err, plunks, count, pages, current) ->
     if err then next(err)
     else
       link = []
       
       if current < pages
-        link.push "<#{apiUrl}/plunks?p=#{page+1}&pp=#{limit}>; rel=\"next\""
-        link.push "<#{apiUrl}/plunks?p=#{pages}&pp=#{limit}>; rel=\"last\""
+        link.push "<#{options.baseUrl}?p=#{page+1}&pp=#{limit}>; rel=\"next\""
+        link.push "<#{options.baseUrl}?p=#{pages}&pp=#{limit}>; rel=\"last\""
       if current > 1
-        link.push "<#{apiUrl}/plunks?p=#{page-1}&pp=#{limit}>; rel=\"prev\""
-        link.push "<#{apiUrl}/plunks?p=#1&pp=#{limit}>; rel=\"first\""
+        link.push "<#{options.baseUrl}?p=#{page-1}&pp=#{limit}>; rel=\"prev\""
+        link.push "<#{options.baseUrl}?p=#1&pp=#{limit}>; rel=\"first\""
         
       res.header("Link", link.join(", ")) if link.length
       res.json(preparePlunks(req.session, plunks))
+
+# List plunks
+app.get "/plunks", (req, res, next) ->
+  fetchPlunks({}, req, res, next)
+  
+# List plunks
+app.get "/plunks/trending", (req, res, next) ->
+  options =
+    baseUrl: "#{apiUrl}/plunks/trending"
+    sort: "-score -updated_at"
+    
+  fetchPlunks(options, req, res, next)
+  
+# List plunks
+app.get "/plunks/popular", (req, res, next) ->
+  options =
+    baseUrl: "#{apiUrl}/plunks/popular"
+    sort: "-thumbs -updated_at"
+    
+  fetchPlunks(options, req, res, next)
   
 # Create plunk
 app.post "/plunks", (req, res, next) ->
@@ -218,7 +256,6 @@ app.post "/plunks", (req, res, next) ->
 
     plunk = new Plunk(json)
     plunk.user = req.user if req.user
-
     
     # TODO: This is inefficient as the number space fills up; consider: http://www.faqs.org/patents/app/20090063601
     # Keep generating new ids until not taken
@@ -233,13 +270,12 @@ app.post "/plunks", (req, res, next) ->
           unless req.user and req.session and req.session.keychain
             req.session.keychain.push _id: plunk._id, token: plunk.token
             req.session.save()
-            
-          # Annoying Mongoose limitation... user is cast to the objectID
-          # do it in json land instead
-          json = plunk.toJSON()
-          json.user = req.user.toJSON() if req.user
-            
-          res.json(preparePlunk(req.session, json), 201)
+          
+          populate = {}
+          populate.user = req.user.toJSON() if req.user
+          
+          # User is not populated so we shove it in **UGLY**
+          res.json(preparePlunk(req.session, plunk, populate), 201)
           
     savePlunk()
 
@@ -247,12 +283,12 @@ app.post "/plunks", (req, res, next) ->
 app.get "/plunks/:id", (req, res, next) ->
   Plunk.findById(req.params.id).populate("user").exec (err, plunk) ->
     if err or not plunk then next(new apiErrors.NotFound)
-    else res.json(preparePlunk(req.session, plunk.toJSON()))
+    else res.json(preparePlunk(req.session, plunk))
     
 # Update plunk
 app.post "/plunks/:id", (req, res, next) ->
   Plunk.findById(req.params.id).populate("user").exec (err, plunk) ->
-    if err or not plunk or not ownsPlunk(req.session, plunk.toJSON()) then next(new apiErrors.NotFound)
+    if err or not plunk or not ownsPlunk(req.session, plunk) then next(new apiErrors.NotFound)
     else
       json = req.body
       schema = require("./schema/plunks/update")
@@ -291,7 +327,6 @@ app.post "/plunks/:id", (req, res, next) ->
             plunk.files.push
               filename: filename
               content: file.content
-              mime: mime.lookup(filename, "text/plain")
               
         if json.tags
           plunk.tags ||= []
@@ -307,8 +342,40 @@ app.post "/plunks/:id", (req, res, next) ->
         plunk.description = json.description if json.description
         plunk.save (err) ->
           if err then next(new apiErrors.InternalServerError(err))
-          else res.json(preparePlunk(req.session, plunk.toJSON()))
-    
+          else res.json(preparePlunk(req.session, plunk))
+          
+# Give a thumbs-up to a plunk
+app.post "/plunks/:id/thumb", (req, res, next) ->
+  unless req.user then return next(new apiErrors.NotFound)
+  
+  Plunk.findOne(_id: req.params.id).where("voters").ne(req.user).exec (err, plunk) ->
+    if err or not plunk then next(new apiErrors.NotFound)
+    else
+      plunk.score ||= plunk.created_at.valueOf()
+      plunk.thumbs ||= 0
+      
+      plunk.voters.addToSet(req.user)
+      plunk.score += SCORE_INCREMENT
+      plunk.thumbs++
+      
+      plunk.save (err) ->
+        if err then next(new apiErrors.InternalServerError(err))
+        else res.json({ thumbs: plunk.get("thumbs"), score: plunk.score}, 201)
+
+# Give a thumbs-up to a plunk
+app.del "/plunks/:id/thumb", (req, res, next) ->
+  unless req.user then return next(new apiErrors.NotFound)
+  
+  Plunk.findOne(_id: req.params.id).where("voters").equals(req.user).exec (err, plunk) ->
+    if err or not plunk then next(new apiErrors.NotFound)
+    else
+      plunk.voters.remove(req.user)
+      plunk.score -= SCORE_INCREMENT
+      plunk.thumbs--
+      plunk.save (err) ->
+        if err then next(new apiErrors.InternalServerError(err))
+        else res.json({ thumbs: plunk.get("thumbs"), score: plunk.score}, 200)
+        
 # Fork an existing plunk
 app.post "/plunks/:id/forks", (req, res, next) ->
   Plunk.findById(req.params.id).populate("user").exec (err, parent) ->
@@ -338,7 +405,7 @@ app.post "/plunks/:id/forks", (req, res, next) ->
     
         plunk = new Plunk(json)
         plunk.user = req.user if req.user
-        plunk.fork_of = parent._id
+        plunk.fork_of = parent
                 
         # TODO: This is inefficient as the number space fills up; consider: http://www.faqs.org/patents/app/20090063601
         # Keep generating new ids until not taken
@@ -357,77 +424,55 @@ app.post "/plunks/:id/forks", (req, res, next) ->
               if not req.user and req.session and req.session.keychain
                 req.session.keychain.push _id: plunk._id, token: plunk.token
                 req.session.save()
+              
+              populate = {}
+              populate.user = req.user.toJSON() if req.user
                 
-              # Annoying Mongoose limitation... user is cast to the objectID
-              # do it in json land instead
-              json = plunk.toJSON()
-              json.user = req.user.toJSON() if req.user
-              json.fork_of = parent.toJSON()
-                
-              res.json(preparePlunk(req.session, json), 201)
+              res.json(preparePlunk(req.session, plunk, populate), 201)
               
         savePlunk()
     
 # Delete plunk
 app.del "/plunks/:id", (req, res, next) ->
   Plunk.findById(req.params.id).populate("user").exec (err, plunk) ->
-    if err or not plunk or not ownsPlunk(req.session, plunk.toJSON()) then next(new apiErrors.NotFound)
+    if err or not plunk or not ownsPlunk(req.session, plunk) then next(new apiErrors.NotFound)
     else plunk.remove ->
       res.send(204)
       
-app.get "/users/:username", (req, res, next) ->
+fetchUser = (req, res, next) ->
   User.findOne({login: req.params.username}).exec (err, user) ->
     if err or not user then next(new apiErrors.NotFound)
     else
-      res.json(user)
+      req.found_user = user
+      next()
+
+# Fetch a user
+app.get "/users/:username", fetchUser, (req, res, next) ->
+  res.json(req.found_user)
 
 # List a user's plunks
-app.get "/users/:username/plunks", (req, res, next) ->
-  User.findOne({login: req.params.username}).exec (err, user) ->
-    if err or not user then next(new apiErrors.NotFound)
-    else
-      page = parseInt(req.param("p", "1"), 10)
-      limit = parseInt(req.param("pp", "8"))
-      
-      Plunk.find({user: user._id}).sort("updated_at": -1).paginate page, limit, (err, plunks, count, pages, current) ->
-        if err then next(err)
-        else
-          link = []
-          base = "#{apiUrl}/users/#{req.params.username}/plunks"
-          
-          if current < pages
-            link.push "<#{base}?p=#{page+1}&pp=#{limit}>; rel=\"next\""
-            link.push "<#{base}?p=#{pages}&pp=#{limit}>; rel=\"last\""
-          if current > 1
-            link.push "<#{base}?p=#{page-1}&pp=#{limit}>; rel=\"prev\""
-            link.push "<#{base}?p=#1&pp=#{limit}>; rel=\"first\""
-          
-          # Instead of populate()'ing user, just add the one fetched already
-          plunk.user = new User(user) for plunk in plunks
-            
-          res.header("Link", link.join(", ")) if link.length
-          res.json(preparePlunks(req.session, plunks))
+app.get "/users/:username/plunks", fetchUser, (req, res, next) ->
+  options =
+    query: {user: req.found_user._id}
+    baseUrl: "#{apiUrl}/users/#{req.params.username}/plunks"
+
+  fetchPlunks(options, req, res, next)
+
+# List plunks a user gave a thumbs-up
+app.get "/users/:username/thumbed", fetchUser, (req, res, next) ->
+  options =
+    query: {voters: req.found_user._id}
+    baseUrl: "#{apiUrl}/users/#{req.params.username}/thumbed"
+
+  fetchPlunks(options, req, res, next)
 
 # List plunks having a specific tag
 app.get "/tags/:tagname/plunks", (req, res, next) ->
-  page = parseInt(req.param("p", "1"), 10)
-  limit = parseInt(req.param("pp", "8"))
-  
-  Plunk.find({tags: req.params.tagname}).sort("updated_at": -1).populate("user").paginate page, limit, (err, plunks, count, pages, current) ->
-    if err then next(err)
-    else
-      link = []
-      base = "#{apiUrl}/tags/#{req.params.tagname}/plunks"
-      
-      if current < pages
-        link.push "<#{base}?p=#{page+1}&pp=#{limit}>; rel=\"next\""
-        link.push "<#{base}?p=#{pages}&pp=#{limit}>; rel=\"last\""
-      if current > 1
-        link.push "<#{base}?p=#{page-1}&pp=#{limit}>; rel=\"prev\""
-        link.push "<#{base}?p=#1&pp=#{limit}>; rel=\"first\""
-        
-      res.header("Link", link.join(", ")) if link.length
-      res.json(preparePlunks(req.session, plunks))
+  options =
+    query: {tags: req.params.tagname}
+    baseUrl: "#{apiUrl}/tags/#{req.params.tagname}/plunks"
+    
+  fetchPlunks(options, req, res, next)
   
 
 

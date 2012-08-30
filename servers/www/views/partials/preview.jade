@@ -13,6 +13,14 @@ section#preview
           span.login {{plunk.user.login}}
       p
         a.btn.btn-large.btn-primary(ng-href="{{plunk.getEditUrl()}}",target="_self") Launch in Editor
+      p(ng-switch,on="plunk.thumbed",ng-show="session.user")
+        button.btn.btn-large.btn-success(ng-switch-when="false", ng-click="plunk.addThumbsUp()")
+          i.icon-thumbs-up Thumbs-up
+        div(ng-switch-when="true")
+          i.icon-heart
+          |  You've given a thumbs-up to this plunk
+          button.btn.btn-danger(ng-click="plunk.removeThumbsUp()", title="Remove yoru thumbs-up")
+            i.icon-thumbs-down Remove
       div.fork-of(ng-show="plunk.getForkOf()")
         h2 Fork of:
         ul.thumbnails.cards

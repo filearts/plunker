@@ -8,11 +8,8 @@ nconf = require("nconf")
 authom = require("authom")
 request = require("request")
 sharejs = require("share")
-LRU = require("lru-cache")
 
 module.exports = app = express.createServer()
-
-sessions = new LRU(1024)
 
 ###
 # Configure oauth
@@ -37,7 +34,7 @@ app.configure ->
     "url": nconf.get("url")
     "package": require("./package")
     "bootstrap": null
-  app.use require("./middleware/session").middleware(cache: sessions)    
+  app.use require("./middleware/session").middleware()    
   # Start the sharejs server before variable routes
   sharejs.server.attach app,
     db:

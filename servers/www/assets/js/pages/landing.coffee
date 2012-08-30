@@ -15,9 +15,13 @@ module.config ["$routeProvider", "$locationProvider", ($routeProvider, $location
   
   $locationProvider.html5Mode(true)
   $routeProvider.when "/", templateUrl: "/partials/home", controller: "HomeController"
+  $routeProvider.when "/plunks/:ranking", templateUrl: "/partials/home", controller: "HomeController"
   $routeProvider.when "/discuss", templateUrl: "/partials/discuss", controller: "DiscussController"
   $routeProvider.when "/users/:username", templateUrl: "/partials/user", controller: "UserController"
+  $routeProvider.when "/users/:username/:ranking", templateUrl: "/partials/user", controller: "UserController"
   $routeProvider.when "/tags/:tagname", templateUrl: "/partials/tag", controller: "TagController"
+  $routeProvider.when "/tags", templateUrl: "/partials/tags", controller: "TagsController"
+  $routeProvider.when "/users", templateUrl: "/partials/users", controller: "UsersController"  
   $routeProvider.when "/:plunk/:filename", templateUrl: "/partials/preview", controller: "PreviewController"
   $routeProvider.when "/:plunk", templateUrl: "/partials/preview", controller: "PreviewController"
   $routeProvider.otherwise redirectTo: "/"
@@ -28,18 +32,64 @@ module.run ["whitelist", (whitelist) ->
   whitelist.push /^\/edit\//
 ]
 
-module.controller "HomeController", [ "$scope", ($scope) ->
-  $scope.$parent.section = "home"
-
+module.controller "HomeController", [ "$scope", "$routeParams", "$location", ($scope, $routeParams, $location) ->
+  $scope.$parent.section = "plunks"
+  
+  $scope.filters = []
+  
+  $scope.filters.push
+    name: "trending"
+    title: "Trending"
+    path: "/plunks/trending"
+  
+  $scope.filters.push
+    name: "popular"
+    title: "Popular"
+    path: "/plunks/popular"
+  
+  $scope.filters.push
+    name: "recent"
+    title: "Recent"
+    path: "/plunks/recent"
+    
+  ranking = $routeParams.ranking or "trending"
+  
+  for filter in $scope.filters
+    if filter.name == ranking
+      $scope.ranking = filter
+      break
+  
+  unless $scope.ranking then $location.path("/")
 ]
 
 module.controller "UserController", [ "$scope", "$resource", "$routeParams", "url", ($scope, $resource, $routeParams, url) ->
-  $scope.$parent.section = "browse"
+  $scope.$parent.section = "users"
 
   User = $resource("#{url.api}/users/:username", username: "@login")
   
   $scope.username = $routeParams.username
   $scope.user = User.get(username: $routeParams.username)
+
+  $scope.filters = []
+  
+  $scope.filters.push
+    name: "recent"
+    title: "Recent"
+    path: "/users/#{$scope.username}"
+  
+  $scope.filters.push
+    name: "thumbed"
+    title: "Thumbed"
+    path: "/users/#{$scope.username}/thumbed"
+    
+  ranking = $routeParams.ranking or "recent"
+  
+  for filter in $scope.filters
+    if filter.name == ranking
+      $scope.ranking = filter
+      break
+  
+  unless $scope.ranking then $location.path("/")
 ]
 
 
@@ -48,11 +98,17 @@ module.controller "UserPlunksController", [ "$scope", "$routeParams", "$location
     page = parseInt(search.p, 10) or 1
     size = parseInt(search.pp, 10) or 8
     
+    ranking = $scope.ranking.name or $routeParams.ranking or "recent"
+    
+    suffixes =
+      recent: "/plunks"
+      thumbed: "/thumbed"
+    
     $scope.plunks = Plunk.query
-      url: "#{url.api}/users/#{$routeParams.username}/plunks"
+      url: "#{url.api}/users/#{$routeParams.username}#{suffixes[ranking]}"
       page: page
       size: size
-  
+      
   $scope.pageTo = (url) ->
     matches = url.match(/\?p=(\d+)&pp=(\d+)/i)
     
@@ -63,7 +119,7 @@ module.controller "UserPlunksController", [ "$scope", "$routeParams", "$location
     $location.search(search)
 ]
 module.controller "TagController", [ "$scope", "$routeParams", "$location","Plunk", "url", ($scope, $routeParams, $location, Plunk, url) ->
-  $scope.$parent.section = "browse"
+  $scope.$parent.section = "tags"
   
   $scope.tagname = $routeParams.tagname
   
@@ -104,7 +160,7 @@ module.controller "PreviewController", [ "$scope", "$routeParams", "$location", 
   , (err) ->
     $location.path("/")
     
-  $scope.$parent.section = "browse"
+  $scope.$parent.section = "plunks"
   
 ]
 module.controller "UserDetailController", [ "$scope", "$routeParams", "$location", "$timeout", "Plunk", ($scope, $routeParams, $location, $timeout, Plunk) ->
@@ -125,7 +181,7 @@ module.controller "UserDetailController", [ "$scope", "$routeParams", "$location
   , (err) ->
     $location.path("/")
     
-  $scope.$parent.section = "browse"
+  $scope.$parent.section = "users"
   
 ]
 module.controller "DiscussController", [ "$scope", ($scope) ->
@@ -146,12 +202,20 @@ module.controller "DiscussController", [ "$scope", ($scope) ->
 
 ]
 
-module.controller "GalleryController", ["$scope", "$location", "Plunk", ($scope, $location, Plunk) ->
+module.controller "GalleryController", ["$scope", "$location", "$routeParams", "Plunk", "url", ($scope, $location, $routeParams, Plunk, url) ->
   $scope.$watch (-> $location.search()), (search) ->
     page = parseInt(search.p, 10) or 1
     size = parseInt(search.pp, 10) or 8
     
+    ranking = $scope.ranking.name or $routeParams.ranking or "recent"
+    
+    suffixes =
+      popular: "/popular"
+      trending: "/trending"
+      recent: ""
+    
     $scope.plunks = Plunk.query
+      url: "#{url.api}/plunks#{suffixes[ranking]}"
       page: page
       size: size
   
@@ -164,11 +228,12 @@ module.controller "GalleryController", ["$scope", "$location", "Plunk", ($scope,
     
     $location.search(search)
 ]
+module.controller "TagsController", [ "$scope", ($scope) ->
+  $scope.$parent.section = "tags"
+  
+]
 
-module.controller "ImporterController", ["$scope", "Plunk", ($scope, Plunk) ->
-  class ImporterController
-    @$inject = ["$scope", "Plunk"]
-    
-    constructor: ->
-      $scope.value = "HELLOOO"
+module.controller "UsersController", [ "$scope", ($scope) ->
+  $scope.$parent.section = "users"
+  
 ]

@@ -99,12 +99,27 @@ html(ng-app="plunker.editor")
             summary.header Information
             form
               label(for="plnk-description") Description:
-              textarea#plnk-description.description(ng-model="scratch.plunk.description",itemprop="name")
+              textarea#plnk-description.description(ng-model="scratch.plunk.description",itemprop="name",placeholder="Describe your plunk")
               label(for="plnk-tags") Tags:
-              input#plnk-tags.tags(ng-model="scratch.plunk.tags", ng-list)
-
-            hr
-            div.user(ng-show="scratch.plunk.user")
-              img.gravatar(ng-src="http://www.gravatar.com/avatar/{{scratch.plunk.user.gravatar_id}}?s=18&d=mm")
-              span.login {{scratch.plunk.user.login}}
+              input#plnk-tags.tags(ng-model="scratch.plunk.tags", select-list, ui-select2, style="width:100%")
+              span.help-block Comma-separated list
+            
+            div(ng-show="session.user && scratch.isSaved()")
+              hr
+              div.thumb(ng-switch,on="scratch.plunk.thumbed",ng-class="{thumbed:scratch.plunk.thumbed}")
+                div(ng-switch-when="false")
+                  button.btn.btn(ng-click="scratch.plunk.addThumbsUp()",title="Give a thumbs-up to this plunk.")
+                    i.icon-thumbs-up
+                    |  Thumbs-up
+                div(ng-switch-when="true")
+                  i.icon-heart
+                  |  Thumbed-up 
+                  button.btn.btn-danger.btn-mini(ng-click="scratch.plunk.removeThumbsUp()",title="Remove your thumbs-up from this plunk.")
+                    i.icon-thumbs-down
+            
+            div(ng-show="scratch.plunk.user")
+              hr
+              div.user(ng-show="scratch.plunk.user")
+                img.gravatar(ng-src="http://www.gravatar.com/avatar/{{scratch.plunk.user.gravatar_id}}?s=18&d=mm")
+                span.login {{scratch.plunk.user.login}}
         

@@ -22,7 +22,7 @@ module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) 
           
       source.url ||= "#{url.api}/plunks"
       source.page and params.p = source.page
-      source.size and params.pp = source.size
+      source.size and params.pp = source.sizeji
       
       request = $http
         method: "GET"
@@ -90,6 +90,44 @@ module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) 
     getCommentsUrl: -> @getHtmlUrl() + "/comments"
     
     isOwner: -> !@id or !!@token
+    
+    addThumbsUp: (success = angular.noop, error = angular.noop) ->
+      plunk = @
+      
+      request = $http
+        method: "POST"
+        params: sessid: $.cookie("plnk_session")
+        url: "#{url.api}/plunks/#{plunk.id}/thumb"
+      
+      request.then (response) ->
+        plunk.thumbs = response.data.thumbs
+        plunk.score = response.data.score
+        
+        plunk.thumbed = true
+        
+        success(plunk, response.headers)
+      , error
+    
+      @      
+    
+    removeThumbsUp: (success = angular.noop, error = angular.noop) ->
+      plunk = @
+      
+      request = $http
+        method: "DELETE"
+        params: sessid: $.cookie("plnk_session")
+        url: "#{url.api}/plunks/#{plunk.id}/thumb"
+      
+      request.then (response) ->
+        plunk.thumbs = response.data.thumbs
+        plunk.score = response.data.score
+        
+        plunk.thumbed = false
+        
+        success(plunk, response.headers)
+      , error
+    
+      @ 
     
     fetch: (success = angular.noop, error = angular.noop) ->
       plunk = @

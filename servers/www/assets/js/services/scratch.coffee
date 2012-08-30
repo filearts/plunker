@@ -185,8 +185,7 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", ($
         json.tags = @plunk.tags
       
       json
-      
-      
+    
     save: -> @_doAsync (deferred) ->
       self = @
       

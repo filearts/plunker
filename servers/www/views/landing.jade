@@ -49,22 +49,30 @@ html(ng-app="plunker.landing")
 
           div.nav-collapse
             ul#navbar.nav
-              li(ng-class="{active:section=='home'}")
-                a(href="/")
+              li(ng-class="{active:section=='plunks'}")
+                a(href="/plunks/trending")
                   i.icon-home
-                  | Home
-              li(ng-class="{active:section=='editor'}")
+                  | Plunks
+              li
                 a(href="/edit/", target="_self")
                   i.icon-edit
                   | Editor
-              li(ng-class="{active:section=='browse'}")
-                a(href="/")
+              li(ng-class="{active:section=='users'}")
+                a(href="/users")
                   i.icon-th
-                  | Browse
+                  | Users
+              li(ng-class="{active:section=='tags'}")
+                a(href="/tags")
+                  i.icon-th
+                  | Tags
               li(ng-class="{active:section=='discuss'}")
                 a(href="/discuss")
                   i.icon-comments-alt
                   | Discuss
+              li
+                a(href="https://github.com/filearts/plunker")
+                  i.icon-github
+                  | Project
 
     div#container.container
       div(ng-view)

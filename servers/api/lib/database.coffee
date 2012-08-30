@@ -2,6 +2,7 @@ mongoose = require("mongoose")
 nconf = require("nconf")
 mime = require("mime")
 url = require("url")
+mime = require("mime")
 
 mongoose.connect "mongodb:" + url.format(nconf.get("mongodb"))
 
@@ -90,11 +91,18 @@ mongoose.model "User", UserSchema = new Schema
 PlunkFileSchema = new Schema
   filename: String
   content: String
-  mime: String
+  
+PlunkFileSchema.virtual("mime").get -> mime.lookup(@filename, "text/plain")
+  
+PlunkVoteSchema = new Schema
+  user: { type: Schema.ObjectId, ref: "User" }
+  created_at: { type: Date, 'default': Date.now }
 
 PlunkSchema = new Schema
   _id: { type: String, index: true }
   description: String
+  score: { type: Number, 'default': Date.now }
+  thumbs: { type: Number, 'default': 0 }
   created_at: { type: Date, 'default': Date.now }
   updated_at: { type: Date, 'default': Date.now }
   token: { type: String, 'default': genid.bind(null, 16) }
@@ -105,15 +113,14 @@ PlunkSchema = new Schema
   fork_of: { type: String, ref: "Plunk", index: true }
   forks: [{ type: String, ref: "Plunk", index: true }]
   tags: [{ type: String, index: true}]
-  voters: [{ type: Schema.ObjectId, ref: "User"}]
+  voters: [{ type: Schema.ObjectId, ref: "Users", index: true }]
+  
+PlunkSchema.index(score: -1, updated_at: -1)
+PlunkSchema.index(thumbs: -1, updated_at: -1)
 
 PlunkSchema.virtual("url").get -> apiUrl + "/plunks/#{@_id}"
 PlunkSchema.virtual("raw_url").get -> rawUrl + "/#{@_id}/"
 PlunkSchema.virtual("comments_url").get -> wwwUrl + "/#{@_id}/comments"
-
-#PlunkSchema.plugin(pagination)
-
-#PlunkSchema.plugin(lastModified)
 
 mongoose.model "Plunk", PlunkSchema
 

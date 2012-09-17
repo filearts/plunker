@@ -172,7 +172,7 @@ preparePlunk = (session, plunk, populate = {}) ->
   delete json.token unless ownsPlunk(session, json)
   delete json.voters
   
-  json.files = do ->
+  if json.files then json.files = do ->
     files = {}
     for file in json.files
       file.raw_url = "#{json.raw_url}#{file.filename}"
@@ -194,6 +194,7 @@ fetchPlunks = (options, req, res, next) ->
   
   query = Plunk.find(options.query or {})
   query.sort(options.sort or {updated_at: -1})
+  query.select("-files")
   
   query.populate("user").paginate page, limit, (err, plunks, count, pages, current) ->
     if err then next(err)
@@ -255,7 +256,7 @@ app.post "/plunks", (req, res, next) ->
     json.tags = _.uniq(json.tags) if json.tags
 
     plunk = new Plunk(json)
-    plunk.user = req.user if req.user
+    plunk.user = req.user._id if req.user
     
     # TODO: This is inefficient as the number space fills up; consider: http://www.faqs.org/patents/app/20090063601
     # Keep generating new ids until not taken
@@ -354,7 +355,7 @@ app.post "/plunks/:id/thumb", (req, res, next) ->
       plunk.score ||= plunk.created_at.valueOf()
       plunk.thumbs ||= 0
       
-      plunk.voters.addToSet(req.user)
+      plunk.voters.addToSet(req.user._id)
       plunk.score += SCORE_INCREMENT
       plunk.thumbs++
       
@@ -362,7 +363,7 @@ app.post "/plunks/:id/thumb", (req, res, next) ->
         if err then next(new apiErrors.InternalServerError(err))
         else res.json({ thumbs: plunk.get("thumbs"), score: plunk.score}, 201)
 
-# Give a thumbs-up to a plunk
+# Remove a thumbs-up to a plunk
 app.del "/plunks/:id/thumb", (req, res, next) ->
   unless req.user then return next(new apiErrors.NotFound)
   
@@ -404,8 +405,8 @@ app.post "/plunks/:id/forks", (req, res, next) ->
         json.tags = _.uniq(json.tags) if json.tags
     
         plunk = new Plunk(json)
-        plunk.user = req.user if req.user
-        plunk.fork_of = parent
+        plunk.user = req.user._id if req.user
+        plunk.fork_of = parent._id
                 
         # TODO: This is inefficient as the number space fills up; consider: http://www.faqs.org/patents/app/20090063601
         # Keep generating new ids until not taken

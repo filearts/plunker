@@ -57,9 +57,11 @@ module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) 
 
 
     constructor: (attributes = {}) ->
-      @description = ""
-      @files = {}
-      angular.extend(@, attributes)
+      @reset(attributes)
+      
+      @description ||= "Untitled"
+      @files ||= {}
+
       
     reset: (attributes = {}) -> angular.copy(attributes, @)
     
@@ -131,6 +133,8 @@ module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) 
     
     fetch: (success = angular.noop, error = angular.noop) ->
       plunk = @
+      
+      return @ unless plunk.id
       
       request = $http
         method: "GET"

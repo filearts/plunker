@@ -123,75 +123,79 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", ($
       fn.call(@, deferred)
       
       deferred.promise
+    
+    _getDeltaJSON: (savedState) ->
+      json =
+        description: @plunk.description or ""
+        files: {}
+      
+      delete json.description if angular.equals(@plunk.description, savedState.description)
+      
+      # Just in case the old schema was still used
+      @savedState.tags ||= []
+      
+      json.tags = {}
+      
+      # Add *new* tags
+      for tagname in @plunk.tags
+        json.tags[tagname] = true unless savedState.tags.indexOf(tagname) >= 0
+      
+      # Remove *old* tags no longer present
+      for tagname in savedState.tags
+        json.tags[tagname] = null unless @plunk.tags.indexOf(tagname) >= 0
+      
+      # Look for files that no longer exist and mark them for deletion
+      for filename, file of savedState.files
+        json.files[filename] = null unless @buffers.findBy("filename", filename)
+    
+      # Look at existing files and add deltas
+      for buffer in @buffers.queue
+        key = buffer.old_filename or buffer.filename
+        
+        if old = savedState.files[key]
+          # Existing file; check delta
+          json.files[key] = delta if delta = buffer.getDelta(old)
+        else
+          # New file
+          json.files[key] = content: buffer.content
+          
+      tags = false
+      for tagname, add of json.tags
+        tags = true
+        break
+      
+      delete json.tags unless tags
+      
+      files = false
+      for filename, file of json.files
+        files = true
+        break
+      
+      delete json.files unless files
+      
+      json
+        
 
     _getSaveJSON: ->
       json =
         description: @plunk.description
         files: {}
+      for buffer in @buffers.queue
+        json.files[buffer.filename] =
+          filename: buffer.filename
+          content: buffer.content
       
-      # There is a saved state, today is not our lucky day; all kinds of ugly
-      # needed
-      if @savedState
-        delete json.description if angular.equals(@plunk.description, @savedState.description)
-        
-        # Just in case the old schema was still used
-        @savedState.tags ||= []
-        
-        json.tags = {}
-        
-        # Add *new* tags
-        for tagname in @plunk.tags
-          json.tags[tagname] = true unless @savedState.tags.indexOf(tagname) >= 0
-        
-        # Remove *old* tags no longer present
-        for tagname in @savedState.tags
-          json.tags[tagname] = null unless @plunk.tags.indexOf(tagname) >= 0
-        
-        # Look for files that no longer exist and mark them for deletion
-        for filename, file of @savedState.files
-          json.files[filename] = null unless @buffers.findBy("filename", filename)
-      
-        # Look at existing files and add deltas
-        for buffer in @buffers.queue
-          key = buffer.old_filename or buffer.filename
-          
-          if old = @savedState.files[key]
-            # Existing file; check delta
-            json.files[key] = delta if delta = buffer.getDelta(old)
-          else
-            # New file
-            json.files[key] = content: buffer.content
-            
-        tags = false
-        for tagname, add of json.tags
-          tags = true
-          break
-        
-        delete json.tags unless tags
-        
-        files = false
-        for filename, file of json.files
-          files = true
-          break
-        
-        delete json.files unless files
-        
-      else
-        for buffer in @buffers.queue
-          json.files[buffer.filename] =
-            filename: buffer.filename
-            content: buffer.content
-        
-        json.tags = @plunk.tags
+      json.tags = @plunk.tags
       
       json
+
     
     save: -> @_doAsync (deferred) ->
       self = @
       
       @plunk.description ||= "Untitled"
       
-      json = @_getSaveJSON()
+      json = if @savedState then @_getDeltaJSON(@savedState) else @_getSaveJSON()
       
       count = 0
       count++ for filename, file of json.files

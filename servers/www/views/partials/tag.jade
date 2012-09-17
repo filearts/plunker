@@ -1,10 +1,11 @@
 section#browse
   div.page-header
-    ul.pagination.pull-right
-      li(ng-show="plunks.pager.prev")
-        a(ng-href="javascript:void(0)", ng-click="pageTo(plunks.pager.prev)") «
-      li(ng-show="plunks.pager.next")
-        a(ng-href="javascript:void(0)", ng-click="pageTo(plunks.pager.next)") »
+    div.pagination.pull-right
+      ul
+        li(ng-show="plunks.pager.prev")
+          a(ng-href="javascript:void(0)", ng-click="pageTo(plunks.pager.prev)") «
+        li(ng-show="plunks.pager.next")
+          a(ng-href="javascript:void(0)", ng-click="pageTo(plunks.pager.next)") »
 
     h1 Browsing tag: 
       small(ng-bind="tagname")

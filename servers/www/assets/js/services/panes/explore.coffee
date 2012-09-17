@@ -17,10 +17,12 @@ module.run [ "$location", "panels", "Plunk", ($location, panels, Plunk) ->
     template: """
       <div id="panel-explore" class="cards">
         <div class="page-header">
-          <ul class="pagination pull-right">
-            <li ng-class="{disabled: !plunks.pager.prev}"><a ng-href="javascript:void(0)" ng-click="pageTo(plunks.pager.prev)">«</a></li>
-            <li ng-class="{disabled: !plunks.pager.next}"><a ng-href="javascript:void(0)" ng-click="pageTo(plunks.pager.next)">»</a></li>
-          </ul>
+          <div class="pagination pull-right">
+            <ul>
+              <li ng-class="{disabled: !plunks.pager.prev}"><a ng-href="javascript:void(0)" ng-click="pageTo(plunks.pager.prev)">«</a></li>
+              <li ng-class="{disabled: !plunks.pager.next}"><a ng-href="javascript:void(0)" ng-click="pageTo(plunks.pager.next)">»</a></li>
+            </ul>
+          </div>
           <button class="btn btn-large btn-success" ng-click="refresh()">
             <i class="icon-refresh" />
             Refresh

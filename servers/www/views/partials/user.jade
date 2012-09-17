@@ -2,11 +2,12 @@ section#user
   div.row(ng-controller="UserPlunksController")
     div.span6.gallery
       div.page-header
-        ul.pagination.pull-right
-          li(ng-show="plunks.pager.prev")
-            a(ng-href="javascript:void(0)", ng-click="pageTo(plunks.pager.prev)") «
-          li(ng-show="plunks.pager.next")
-            a(ng-href="javascript:void(0)", ng-click="pageTo(plunks.pager.next)") »
+        div.pagination.pull-right
+          ul
+            li(ng-show="plunks.pager.prev")
+              a(ng-href="javascript:void(0)", ng-click="pageTo(plunks.pager.prev)") «
+            li(ng-show="plunks.pager.next")
+              a(ng-href="javascript:void(0)", ng-click="pageTo(plunks.pager.next)") »
         ul.nav.nav-pills
           li(ng-repeat="filter in filters", ng-class="{active: ranking==filter}")
             a(ng-href="{{filter.path}}", ng-click="applyRanking(filter)") {{filter.title}}

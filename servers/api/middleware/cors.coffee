@@ -1,15 +1,15 @@
 nconf = require("nconf")
-wwwUrl = nconf.get('url:www')
 
 module.exports.middleware = (config = {}) ->
   
+  valid = [nconf.get('url:www'), nconf.get('url:embed')]
   
   (req, res, next) ->
     # Just send the headers all the time. That way we won't miss the right request ;-)
     # Other CORS middleware just wouldn't work for me
     # TODO: Minimize these headers to only those needed at the right time
 
-    res.header("Access-Control-Allow-Origin", wwwUrl)
+    res.header("Access-Control-Allow-Origin", if req.headers.origin in valid then req.headers.origin else "*")
     res.header("Access-Control-Allow-Methods", "OPTIONS,GET,PUT,POST,DELETE")
     res.header("Access-Control-Allow-Headers", "Authorization, User-Agent, Referer, X-Requested-With, Proxy-Authorization, Proxy-Connection, Accept-Language, Accept-Encoding, Accept-Charset, Connection, Content-Length, Host, Origin, Pragma, Accept-Charset, Cache-Control, Accept, Content-Type")
     res.header("Access-Control-Expose-Headers", "Link")

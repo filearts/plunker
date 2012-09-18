@@ -56,7 +56,7 @@ module.run ["$http", "panels", "scratch", "url", ($http, panels, scratch, url) -
       self = @
       @el = el
       @$preview = $(".plnk-runner", el)
-      @enabled = false
+      @active = false
       @awaiting = false
       
       refresh = angular.bind(@, debounce(@refreshPreview, 750))
@@ -65,7 +65,7 @@ module.run ["$http", "panels", "scratch", "url", ($http, panels, scratch, url) -
       $scope.refreshPreview = refresh
       
       handleChange = ->
-        if self.enabled
+        if self.active
           self.awaiting = false
           refresh()
         else
@@ -81,11 +81,11 @@ module.run ["$http", "panels", "scratch", "url", ($http, panels, scratch, url) -
       $scope.$on "buffer:remove", handleChange
       
     deactivate: ($scope, el, attrs) ->
-      @enabled = false
+      @active = false
       
     activate: ($scope, el, attrs) ->
       
-      @enabled = true
+      @active = true
       if @awaiting
         @refreshPreview()
         @awaiting = false

@@ -58,6 +58,8 @@ module.controller "editor", ["$scope", "$location", "scratch", "url", ($scope, $
   $scope.scratch = scratch
   $scope.scratch.reset(_plunker.bootstrap) if _plunker.bootstrap
   
+  $scope.isPaneEnabled = (pane) -> !pane.hidden
+  
   repaintSidebar()
 
 ]

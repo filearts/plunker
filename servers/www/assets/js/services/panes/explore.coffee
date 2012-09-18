@@ -8,6 +8,8 @@ module = angular.module("plunker.panels")
 module.requires.push("plunker.card")
 
 module.run [ "$location", "panels", "Plunk", ($location, panels, Plunk) ->
+  activated = false
+  
   panels.push new class
     name: "explore"
     order: 2
@@ -40,34 +42,36 @@ module.run [ "$location", "panels", "Plunk", ($location, panels, Plunk) ->
     """
           
     link: ($scope, el, attrs) ->
-      self = @
-      
-      $scope.refresh = (search = {}) ->
-        page = parseInt(search.p, 10) or 1
-        size = parseInt(search.pp, 10) or 8
-        
-        $scope.plunks = Plunk.query
-          page: page
-          size: size
-          
-      $scope.$watch (-> $location.search()), $scope.refresh
-      
-      $scope.pageTo = (url) ->
-        matches = url.match(/\?p=(\d+)&pp=(\d+)/i)
-        
-        search = $location.search()
-        search.p = matches[1] or 1
-        search.pp = matches[2] or 8
-        
-        $location.search(search)
-        $scope.refresh(search)
             
       
     deactivate: ($scope, el, attrs) ->
-      
-      @enabled = false
+      @active = false
       
     activate: ($scope, el, attrs) ->
+      unless activated
+        self = @
+        
+        $scope.refresh = (search = {}) ->
+          page = parseInt(search.p, 10) or 1
+          size = parseInt(search.pp, 10) or 8
+          
+          $scope.plunks = Plunk.query
+            page: page
+            size: size
+            
+        $scope.$watch (-> $location.search()), $scope.refresh
+        
+        $scope.pageTo = (url) ->
+          matches = url.match(/\?p=(\d+)&pp=(\d+)/i)
+          
+          search = $location.search()
+          search.p = matches[1] or 1
+          search.pp = matches[2] or 8
+          
+          $location.search(search)
+          $scope.refresh(search)
+
+      activated = true
       
-      @enabled = true
+      @active = true
 ]

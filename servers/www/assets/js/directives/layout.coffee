@@ -85,6 +85,16 @@ module.directive "plunkerLayout", ["$rootScope", "$location", "panels", ($rootSc
     
     $scope.togglePanel = panels.togglePanel
     
+    $scope.$watch "panels.active.hidden", (hidden) ->
+      if hidden
+        panels.reopen = panels.active
+        panels.closePanel(panels.active)
+    
+    $scope.$watch "panels.reopen.hidden", (hidden) ->
+      unless hidden
+        panels.openPanel(panels.reopen) if panels.reopen
+        delete panels.reopen
+
     if active = $location.search().p
       matched = false
       for panel in panels

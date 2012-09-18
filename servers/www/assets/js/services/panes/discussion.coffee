@@ -117,7 +117,7 @@ module.run [ "$timeout", "$location", "panels", "session", "scratch", ($timeout,
       handleChatAdded = (snapshot) -> $timeout ->
         $scope.messages.push(snapshot.val())
         
-        unless self.enabled
+        unless self.active
           self.new_events += 1
           
           self.badge =
@@ -184,13 +184,13 @@ module.run [ "$timeout", "$location", "panels", "session", "scratch", ($timeout,
       
     deactivate: ($scope, el, attrs) ->
       
-      @enabled = false
+      @active = false
       @new_events = 0
       
     activate: ($scope, el, attrs) ->
       
       @badge_class_prefix = "badge-important"
-      @enabled = true
+      @active = true
       @new_events = 0
       @badge = null
 ]

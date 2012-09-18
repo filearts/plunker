@@ -15,8 +15,8 @@ html(ng-app="plunker.editor")
     block scripts
       script(src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js")
       script(src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.0/js/bootstrap.min.js")
-      script(src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.1/angular.min.js")
-      script(src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.1/angular-sanitize.min.js")
+      script(src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.2/angular.min.js")
+      script(src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.2/angular-sanitize.min.js")
       script(src="http://static.firebase.com/v0/firebase.js")
       script(src="/js/vendor/ace/ace.js")
       script(src="/channel/bcsocket.js")
@@ -77,7 +77,7 @@ html(ng-app="plunker.editor")
 
       div#multipane-buttons.ui-layout-east
         ul.nav.nav-list
-          li.pane-toggle(ng-repeat="panel in panels | orderBy:'order'", ng-class="{active: panels.active==panel}", title="{{panel.title}}")
+          li.pane-toggle(ng-repeat="panel in panels | orderBy:'order' | filter:isPaneEnabled ", ng-class="{active: panels.active==panel}", title="{{panel.title}}")
             a(href="javascript:void(0)", ng-click="togglePanel(panel)")
               i(ng-class="panel.icon")
               span.badge(ng-class="panel.badge.class", ng-show="panel.badge", title="{{panel.badge.title}}") {{panel.badge.value}}

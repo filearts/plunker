@@ -30,7 +30,10 @@ module.directive "plunkerToolbar", ["$location", "scratch", ($location, scratch)
             <a tabindex="-1" href="#">AngularJS</a>
             <ul class="dropdown-menu">
               <li><a href="/edit/gist:3510140">1.0.1<a href="/edit/gist:3189582" class="coffee" title="In coffee-script"><img src="/img/coffeescript-logo-small_med.png"></a></a></li>
+              <li class="divider"></li>
               <li><a href="/edit/gist:3662656">1.0.2<a href="/edit/gist:3662659" class="coffee" title="In coffee-script"><img src="/img/coffeescript-logo-small_med.png"></a></a></li>
+              <li><a href="/edit/gist:3743008">1.0.2 + Jasmine</a></li>
+              <li class="divider"></li>
               <li><a href="/edit/gist:3662702">1.1.0 (unstable)<a href="/edit/gist:3662696" class="coffee" title="In coffee-script"><img src="/img/coffeescript-logo-small_med.png"></a></a></li>
             </ul>
           </li>

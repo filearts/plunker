@@ -1,6 +1,7 @@
 #= require ../../select2/select2
 
 #= require ../vendor/angular-ui
+#= require ../vendor/overthrow
 
 #= require ../services/scratch
 #= require ../services/url
@@ -50,13 +51,14 @@ module.controller "editor", ["$scope", "$location", "scratch", "url", ($scope, $
   
   # Watch for changes in the path and load the appropriate plunk into the scratch
   $scope.$watch (-> $location.path()), (path) ->
-    if path is "/" then scratch.reset()
+    if path is "/" then scratch.reset(_plunker.bootstrap)
     else
       source = path.slice(1)
       unless scratch.plunk.id is source then scratch.loadFrom(source).then(repaintSidebar)
+    
+    delete _plunker.bootstrap
   
   $scope.scratch = scratch
-  $scope.scratch.reset(_plunker.bootstrap) if _plunker.bootstrap
   
   $scope.isPaneEnabled = (pane) -> !pane.hidden
   

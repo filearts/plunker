@@ -6,7 +6,7 @@
 
 module = angular.module("plunker.layout", ["plunker.panels"])
 
-module.directive "plunkerLayout", ["$rootScope", "$location", "panels", ($rootScope, $location, panels) ->
+module.directive "plunkerLayout", ["$rootScope", "$location", "$timeout", "panels", ($rootScope, $location, $timeout, panels) ->
   restrict: "A"
   link: ($scope, el, attrs) ->
         
@@ -45,9 +45,10 @@ module.directive "plunkerLayout", ["$rootScope", "$location", "panels", ($rootSc
         minSize: 160
         maxSize: 320
       onresize: ->
-        $scope.$apply ->
+        $timeout ->
           $scope.layout.state = layout.state
           $rootScope.$broadcast "layout:resize"
+        , 100
           
     innerLayout = layout.center.child
     innerLayout.resizers.east.mousedown -> innerLayout.showMasks("east")

@@ -1,5 +1,7 @@
 #= require ../services/url
 
+#= require ../socialbuttons
+
 
 module = angular.module("plunker.share", [])
 
@@ -42,5 +44,5 @@ module.directive "plunkerSharePanel", ["$timeout", "url", ($timeout, url) ->
     $scope.createEmbedSnippet = (plunk) ->
       """<iframe style="width: 100%; height: 300px" src="#{url.embed}/#{plunk.id}" frameborder="0" allowfullscreen="allowfullscreen"></iframe>"""
       
-    $(el).click (e) -> e.stopPropagation()
+    $(el).on "click", (e) -> e.stopPropagation()
 ]

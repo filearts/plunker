@@ -28,6 +28,24 @@ module.directive "plunkerSession", ["$rootScope", "$timeout", "modes", ($rootSco
     read = -> ngModel.$setViewValue(session.getValue())
     session.on 'change', -> $scope.$apply(read)
     
+    session.on "changeAnnotation", -> $scope.$apply ->
+      errors = []
+      for linenum, notes of session.getAnnotations()
+        for note in notes
+          if note.lint then errors.push
+            message: note.text
+            evidence: note.lint.evidence
+            col: note.column
+            line: note.row
+            type: note.type
+          else errors.push
+            message: note.text
+            col: note.column
+            line: note.row
+            type: note.type
+      
+      buffer.annotations = errors
+    
     read()
     
     $scope.buffer.session = session
@@ -50,7 +68,7 @@ module.directive "plunkerSession", ["$rootScope", "$timeout", "modes", ($rootSco
     $rootScope.$broadcast "buffer:add", $scope.buffer
 ] 
 
-module.directive "plunkerAce", ["$rootScope", "modes", ($rootScope, modes) ->
+module.directive "plunkerAce", ["$rootScope", "modes", "scratch", ($rootScope, modes, scratch) ->
   restrict: "E"
   template: """
     <div class="editor-canvas">
@@ -60,6 +78,13 @@ module.directive "plunkerAce", ["$rootScope", "modes", ($rootScope, modes) ->
   replace: true
   link: ($scope, el, attrs, ngModel) ->
     $scope.ace = ace.edit(el[0])
+  
+    $scope.ace.commands.addCommand
+      name: "saveFile"
+      bindKey:
+        win: "Ctrl-S"
+        mac: "Command-S"
+      exec: (editor) -> scratch.save()
     
     $rootScope.$on "layout:resize", ->
       $scope.ace.resize()

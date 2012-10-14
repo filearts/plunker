@@ -23,7 +23,7 @@ module.directive "card", ["$timeout", "session", ($timeout, session) ->
         </h5>
         <div class="preview">
           <a class="preview" ng-click="showPreview()" ng-href="{{model.getHtmlUrl()}}">
-            <img class="preview lazyload" ng-src="http://placehold.it/205x154&text=Loading..." data-original="http://immediatenet.com/t/l3?Size=1024x768&URL={{model.raw_url}}?_={{model.updated_at}}" />
+            <img class="preview lazyload" ng-src="http://www.placehold.it/205x154&text=Loading..." data-original="http://immediatenet.com/t/l3?Size=1024x768&URL={{model.raw_url}}?_={{model.updated_at}}" />
           </a>
           <div class="hover">
             <ul class="tags">

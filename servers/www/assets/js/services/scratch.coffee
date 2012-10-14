@@ -1,6 +1,7 @@
 #= require ../services/plunks
 #= require ../services/importer
 #= require ../services/session
+#= require ../services/notifier
 
 
 ###
@@ -18,9 +19,9 @@ plunk. Making changes to the plunk directly will probably not have the desired
 effect.
 
 ###
-module = angular.module("plunker.scratch", ["plunker.plunks", "plunker.importer"])
+module = angular.module("plunker.scratch", ["plunker.plunks", "plunker.importer", "plunker.notifier"])
 
-module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", ($location, $q, Plunk, importer, session) ->
+module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", "notifier", ($location, $q, Plunk, importer, session, notifier) ->
   ###
   Class to handle the list of active buffers
   ###
@@ -211,11 +212,21 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", ($
           $location.replace() unless old_id and old_id != plunk.id
           
           deferred.resolve(arguments...)
+          
+          notifier.success "Save succeeded"
         , ->
           deferred.reject(arguments...)
+          
+          notifier.error
+            title: "Save failed"
+            text: arguments.join(", ")
       else
         console.warn "Save cancelled: No changes to save"
         deferred.reject("Save cancelled: No changes to save")
+          
+        notifier.warning
+          title: "Save cancelled"
+          text: "No changes made to the plunk."
 
     fork: -> @_doAsync (deferred) ->
       self = @
@@ -238,11 +249,20 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", ($
           $location.replace() unless old_id and old_id != plunk.id
           
           deferred.resolve(arguments...)
+          
+          notifier.success "Fork succeeded"
         , ->
           deferred.reject(arguments...)
+          
+          notifier.error
+            title: "Fork failed"
+            text: arguments.join(", ")
       else
-        console.warn "Fork cancelled: No changes to save"
         deferred.reject("Fork cancelled: No changes to save")
+          
+        notifier.warning
+          title: "Fork cancelled"
+          text: "No changes made to the plunk."
         
     destroy: -> @_doAsync (deferred) ->
       if @isSaved() and @isOwned()
@@ -251,8 +271,14 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", ($
           
           deferred.resolve(arguments...)
           $location.path("/")
+          
+          notifier.success "Plunk deleted"
         , ->
           deferred.reject(arguments...)
+          
+          notifier.error
+            title: "Delete failed"
+            text: "Unable to delete the plunk."
 
     loadFrom: (source) -> @_doAsync (deferred) ->
       self = @
@@ -263,10 +289,11 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", ($
       , (msg) ->
         $location.path("/").replace()
         deferred.reject("Import failed: #{msg}")
+        notifier.error("Import failed: #{msg}")
 
     addFile: (filename, content = "") ->
       if @buffers.findBy("filename", filename)
-        console.error("Attempt to add an existing file, '#{filename}'")
+        notifier.warning("File already exists: #{filename}")
         return @
       
       @buffers.add
@@ -277,7 +304,7 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", ($
 
     removeFile: (filename) ->
       unless buffer = @buffers.findBy("filename", filename)
-        console.error("Attempt to remove a non-existing file, '#{filename}'")
+        notifier.warning("Attempt to remove a non-existing file: '#{filename}'")
         return @
       
       @buffers.remove(buffer)
@@ -286,7 +313,7 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", ($
     
     renameFile: (filename, new_filename) ->
       unless buffer = @buffers.findBy("filename", filename)
-        console.error("Attempt to rename a non-existing file, '#{filename}'")
+        notifier.warning("Attempt to rename a non-existing file: '#{filename}'")
         return @
       
       buffer.filename = new_filename

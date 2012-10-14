@@ -1,5 +1,6 @@
 #= require ../vendor/showdown
 #= require ../vendor/prettify
+#= require ../vendor/overthrow
 
 #= require ../services/importer
 #= require ../services/url
@@ -31,7 +32,24 @@ module.controller "embed", ["$scope", "$location", "$http", "$timeout", "importe
     $timeout -> $('.navbar .dropdown.open .dropdown-toggle').dropdown('toggle')
     
   $scope.$watch "currentFile", (tab) ->
-    $timeout -> prettyPrint() 
+    $timeout -> prettyPrint()
+    
+  $scope.launchEditor = (e) ->
+    plunk = $scope.plunk
+    
+    hiddenInput = (name, value) ->
+      $("""<input type="hidden" />""").attr("name", name).val(value)
+    
+    $form = $("""<form action="#{url.www}/edit/" method="post" target="_blank"></form>""")
+    
+    $form.append hiddenInput "description", plunk.description or ""
+    $form.append hiddenInput "tags[]", tag for tag in plunk.tags if plunk.tags
+    $form.append hiddenInput "files[#{filename}]", file.content for filename, file of plunk.files if plunk.files
+    
+    $form.submit()
+    
+    e.preventDefault()
+    e.stopPropagation()
   
   $scope.refreshPreview = ->
     $scope.tab = "run"
@@ -67,7 +85,7 @@ module.controller "embed", ["$scope", "$location", "$http", "$timeout", "importe
     
   
   $scope.$watch ( -> $location.path().slice(1) ), (id) ->
-    if id isnt $scope.plunk.id
+    if id and id isnt $scope.plunk.id
       $scope.loading = "Loading..."
       
       $scope.plunk.reset()

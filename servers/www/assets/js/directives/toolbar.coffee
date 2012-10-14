@@ -54,8 +54,8 @@ module.directive "plunkerToolbar", ["$location", "scratch", ($location, scratch)
         </ul>
       </div>
       <div ng-switch on="scratch.isSaved()" class="btn-group">
-        <div  ng-switch-when="true">
-          <a href="javascript:void(0)" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" title="Share your work with your friends.">
+        <div ng-switch-when="true">
+          <a ng-click="lazyLoadShareButtons()" href="javascript:void(0)" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" title="Show off your work.">
             <i class="icon-share" /><span class="shrink"> Share</span>
             <span class="caret"></span>
           </a>
@@ -81,4 +81,13 @@ module.directive "plunkerToolbar", ["$location", "scratch", ($location, scratch)
     $scope.promptImportGist = (source) ->
       if source ||= prompt("Please enter a gist id to import")
         $location.path("gist:#{source}")
+    
+    $shareBtn = $("#share-buttons")
+    
+    lazyLoadedShareButtons = false
+    
+    $scope.lazyLoadShareButtons = ->
+      unless lazyLoadedShareButtons
+        initSocialButtons()
+        lazyLoadedShareButtons = true
 ]

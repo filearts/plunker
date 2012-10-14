@@ -9,12 +9,13 @@ html(ng-app="plunker.embed")
       script(src="http://html5shim.googlecode.com/svn/trunk/html5.js")
     script
       var _plunker = {
-        "url": !{JSON.stringify(url).replace(/<\//g,"<\\/")}
+        "url": !{JSON.stringify(url).replace(/<\//g,"<\\/")},
+        "plunk": !{JSON.stringify(plunk).replace(/<\//g,"<\\/")}
       };
-    script(src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js")
-    script(src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.0/js/bootstrap.min.js")
-    script(src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.1/angular.min.js")
-    script(src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.1/angular-sanitize.min.js")
+    script(src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js")
+    script(src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/js/bootstrap.min.js")
+    script(src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.2/angular.min.js")
+    script(src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.2/angular-sanitize.min.js")
     != js("pages/embed")
     script
       /* Analytics */
@@ -43,8 +44,10 @@ html(ng-app="plunker.embed")
             a(href="javascript:void(0)", ng-click="refreshPreview()")
               i.icon-play
           li.divider-vertical
-          li
-            a(ng-href="{{url.www}}/edit/{{plunk.id}}", target="_blank", title="Launch the editor for this plunk in a new window.")
+          li(ng-switch, on="!!plunk.id")
+            span(ng-switch-when="false", ng-click="launchEditor()", title="Launch the editor for this plunk in a new window.")
+              i.icon-edit
+            a(ng-switch-when="true", ng-href="{{url.www}}/edit/{{plunk.id}}", target="_blank", title="Launch the editor for this plunk in a new window.")
               i.icon-edit
         ul.nav
           li.divider-vertical
@@ -60,10 +63,10 @@ html(ng-app="plunker.embed")
     div#embed(ng-class="{loading:loading}", ng-switch, on="tab")
       div.overlay
         div.message(ng-bind="loading") Initializing...
-      div#code(ng-switch-when="code")
+      div#code.overthrow(ng-switch-when="code")
         pre.prettyprint.linenums(ng-bind="currentFile.content")
-      div#readme.container-fluid(ng-switch-when="readme")
+      div#readme.overthrow.container-fluid(ng-switch-when="readme")
         div.row-fluid
           div.span12(ng-bind-html="plunk.files['README.md'].content | markdown")
       div#run(ng-switch-when="run")
-        iframe(frameborder="0",width="100%",height="100%",scrolling="auto")
+        iframe.overthrow(frameborder="0",width="100%",height="100%",scrolling="auto")

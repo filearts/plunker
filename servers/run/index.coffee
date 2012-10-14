@@ -56,16 +56,17 @@ app.post "/", (req, res, next) ->
     res.json(json, 201)
 
 
-app.get "/:id/:filename?", (req, res, next) ->
+app.get "/:id/*", (req, res, next) ->
   unless plunk = previews.get(req.params.id) then res.send(404) # TODO: Better error page
   else
     req_url = url.parse(req.url)
-    unless req.params.filename or /\/$/.test(req_url.pathname)
+    
+    unless req.params[0] or /\/$/.test(req_url.pathname)
       req_url.pathname += "/"
       return res.redirect(url.format(req_url), 301)
   
     # TODO: Determine if a special plunk 'landing' page should be served and serve it
-    filename = req.params.filename or "index.html"
+    filename = req.params[0] or "index.html"
     file = plunk.files[filename]
     
     if file then res.send(file.content, {"Content-Type": if req.accepts(file.mime) then file.mime else "text/plain"})

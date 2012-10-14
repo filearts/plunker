@@ -15,7 +15,7 @@ if (!nconf.get("host")) {
   console.error("The host option is required for Plunker to start");
 } else {
   
-  //process.env.NODE_ENV = "production";
+  //process.env.NODE_ENV = "development";
 
   var host = nconf.get("host");
 

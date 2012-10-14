@@ -82,6 +82,16 @@ app.all "/edit/", (req, res, next) ->
   else next()
 
 app.post "/edit/", (req, res, next) ->    
+  res.header "X-XSS-Protection", 0
+
+  if req.body.files
+    for filename, file of req.body.files
+      if typeof file is "string"
+        req.body.files[filename] =
+          filename: filename
+          content: file
+      req.body.files[filename].filename ||= filename
+      
   res.local "bootstrap", req.body or {}
   res.render "editor"
 

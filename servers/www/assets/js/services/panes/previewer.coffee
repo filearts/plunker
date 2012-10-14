@@ -32,7 +32,7 @@ module.run ["$http", "panels", "scratch", "url", ($http, panels, scratch, url) -
             </div>
           </div>
         </div>
-        <iframe class="plnk-runner" frameborder="0" width="100%" height="100%" scrolling="auto"></iframe>
+        <iframe class="plnk-runner overthrow" frameborder="0" width="100%" height="100%" scrolling="auto"></iframe>
       </div>
     """
     refreshPreview: ->
@@ -82,6 +82,10 @@ module.run ["$http", "panels", "scratch", "url", ($http, panels, scratch, url) -
       
     deactivate: ($scope, el, attrs) ->
       @active = false
+      
+      @$preview[0].contentWindow.location.replace("about:blank")
+
+      @awaiting = true
       
     activate: ($scope, el, attrs) ->
       

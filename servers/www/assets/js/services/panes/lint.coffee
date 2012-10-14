@@ -1,8 +1,6 @@
 #= require ../../services/panels
 #= require ../../services/scratch
 
-#= require ../../vendor/jshint
-
 module = angular.module("plunker.panels")
 
 module.requires.push("plunker.card", "plunker.scratch")
@@ -22,18 +20,23 @@ module.directive "plunkerLintReport", [ ->
           .appendTo($wrap)
         $errors = $("<ul></ul>").addClass("jshint-errors").appendTo($report)
       
-        angular.forEach errors, ({line, reason, evidence, character}) ->
-          $li = $("<li></li>").addClass("alert alert-error").appendTo($errors)
-          $error = $("<p></p>").appendTo($li)
-          $line = $("<a>Line #{line}</a>")
-            .attr("href", "javascript:void(0)")
-            .attr("data-line", line)
-            .attr("data-char", character)
-            .addClass("lineno")
-            .appendTo($error)
-          $error.append(":&nbsp;")
-          $code = $("<code>#{evidence}</code>").appendTo($error)
-          $reason = $("<p>#{reason}</p>").appendTo($li)
+        angular.forEach errors, (error) ->
+          if error
+            {line, message, evidence, character} = error
+            $li = $("<li></li>").addClass("alert").appendTo($errors)
+            if error.type is "error" then $li.addClass("alert-error")
+            else $li.addClass("alert-info")
+            $error = $("<p></p>").appendTo($li)
+            $line = $("<a>Line #{line}</a>")
+              .attr("href", "javascript:void(0)")
+              .attr("data-line", line)
+              .attr("data-char", character)
+              .addClass("lineno")
+              .appendTo($error)
+            if evidence
+              $error.append(":&nbsp;")
+              $code = $("<code>#{evidence}</code>").appendTo($error)
+            $reason = $("<p>#{message}</p>").appendTo($li) if message
         
         html = $wrap.html()
         $wrap.remove()
@@ -48,16 +51,13 @@ module.run [ "$location", "panels", "scratch", ($location, panels, scratch) ->
     size: 375
     title: "Run a lint check on the active file"
     icon: "icon-check"
-    hidden: true
     template: """
       <div id="panel-lint" ng-switch on="state">
-        <div ng-switch-when="valid" class="alert alert-success">
-          <h4>All clean!</h4>
-        </div>
-        <div ng-switch-when="invalid">
-          <h4>Lint errors:</h4>
-          <plunker-lint-report errors="errors"></plunker-lint-report>
-        </div>
+        <h4>Code linting:</h4>
+        <p ng-switch-when="valid" class="alert alert-success">
+          No errors
+        </p>
+        <plunker-lint-report errors="errors" ng-switch-when="invalid"></plunker-lint-report>
       </div>
     """
           
@@ -67,31 +67,19 @@ module.run [ "$location", "panels", "scratch", ($location, panels, scratch) ->
       $scope.state = "valid"
 
       $scope.scratch = scratch
-      $scope.$watch "scratch.buffers.active()", (buffer) ->
-        self.hidden = !buffer or !buffer.filename.match(/\.js$/)
-      
-      $scope.$watch "scratch.buffers.active().content", (content) ->
-        unless self.hidden
-          $scope.state = "linting"
+      $scope.$watch "scratch.buffers.active().annotations", (errors) ->
+        if errors and errors.length
+          $scope.state = "invalid"
+          $scope.errors = errors
           
-          valid = JSHINT content,
-            browser: false
-            devel: true
-          
-          unless valid
-            $scope.state = "invalid"
-            $scope.errors = JSHINT.errors
+          self.badge =
+            class: "badge badge-important"
+            title: "Your code has some errors"
+            value: errors.length     
             
-            console.log "JSHINT.errors", JSHINT.errors
-            
-            self.badge =
-              class: "badge badge-important"
-              title: "Your code has some errors"
-              value: JSHINT.errors.length        
-              
-          else
-            $scope.state = "valid"
-            self.badge = null
+        else
+          $scope.state = "valid"
+          self.badge = null
       
     deactivate: ($scope, el, attrs) ->
       @active = false
@@ -99,6 +87,4 @@ module.run [ "$location", "panels", "scratch", ($location, panels, scratch) ->
     activate: ($scope, el, attrs) ->
       @active = true
     
-    lint: (filename, content) ->
-      
 ]

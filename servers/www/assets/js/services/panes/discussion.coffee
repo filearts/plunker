@@ -57,7 +57,7 @@ module.run [ "$timeout", "$location", "panels", "session", "scratch", ($timeout,
     title: "Live discussion"
     icon: "icon-comments"
     template: """
-      <div id="panel-discussion">
+      <div id="panel-discussion" class="overthrow">
         <ul class="thumbnails">
           <li class="user" ng-repeat="(public_id, user) in users">
             <a href="javascript:void(0)" ng-click="targetMessage(user)" class="thumbnail" title="{{user.login || 'Anonymous'}}">

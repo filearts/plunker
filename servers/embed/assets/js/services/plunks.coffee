@@ -8,7 +8,7 @@ module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) 
   class window.Plunk
     @defaults:
       description: "Untitled"
-      #tags: []
+      tags: []
       files:
         "index.html": {filename: "index.html", content: ""}
     @base_url: "#{url.api}/plunks"
@@ -22,7 +22,7 @@ module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) 
           
       source.url ||= "#{url.api}/plunks"
       source.page and params.p = source.page
-      source.size and params.pp = source.size
+      source.size and params.pp = source.sizeji
       
       request = $http
         method: "GET"
@@ -57,17 +57,22 @@ module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) 
 
 
     constructor: (attributes = {}) ->
-      @description = ""
-      @files = {}
-      angular.extend(@, attributes)
+      @reset(attributes)
+      
+      @description ||= "Untitled"
+      @files ||= {}
+
       
     reset: (attributes = {}) -> angular.copy(attributes, @)
     
     getForkOf: ->
       if @fork_of
-        unless @fork_of instanceof Plunk
+        if angular.isString(@fork_of)
+          @fork_of = new Plunk(id: @fork_of)
+        else unless @fork_of instanceof Plunk
           @fork_of = new Plunk(@fork_of)
-          @fork_of.fetch() unless @fork_of.url
+        
+        @fork_of.fetch() unless @fork_of.url
         @fork_of
     
     getForks: ->
@@ -81,15 +86,55 @@ module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) 
             @forks[idx].fetch() unless fork.url
 
         @forks
-      
+          
     getEditUrl: -> "/edit/#{@id}" if @id
     getHtmlUrl: -> "/#{@id}" if @id
     getCommentsUrl: -> @getHtmlUrl() + "/comments"
     
     isOwner: -> !@id or !!@token
     
+    addThumbsUp: (success = angular.noop, error = angular.noop) ->
+      plunk = @
+      
+      request = $http
+        method: "POST"
+        params: sessid: $.cookie("plnk_session")
+        url: "#{url.api}/plunks/#{plunk.id}/thumb"
+      
+      request.then (response) ->
+        plunk.thumbs = response.data.thumbs
+        plunk.score = response.data.score
+        
+        plunk.thumbed = true
+        
+        success(plunk, response.headers)
+      , error
+    
+      @      
+    
+    removeThumbsUp: (success = angular.noop, error = angular.noop) ->
+      plunk = @
+      
+      request = $http
+        method: "DELETE"
+        params: sessid: $.cookie("plnk_session")
+        url: "#{url.api}/plunks/#{plunk.id}/thumb"
+      
+      request.then (response) ->
+        plunk.thumbs = response.data.thumbs
+        plunk.score = response.data.score
+        
+        plunk.thumbed = false
+        
+        success(plunk, response.headers)
+      , error
+    
+      @ 
+    
     fetch: (success = angular.noop, error = angular.noop) ->
       plunk = @
+      
+      return @ unless plunk.id
       
       request = $http
         method: "GET"
@@ -156,7 +201,13 @@ module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) 
           data: data
             
         request.then (response) ->
+          #TODO: Hack around AngularJS 1.0.1 bug
+          tags = self.tags
+          
           angular.copy(response.data, self)
+          
+          if angular.equals(tags, self.tags)
+            self.tags = tags # Reset tags to the old reference to avoid ngList bug
           
           success(self, response.headers)
         , error
@@ -196,7 +247,13 @@ module.factory "Plunk", ["$http", "$rootScope", "url", ($http, $rootScope, url) 
         data: data
           
       request.then (response) ->
+        #TODO: Hack around AngularJS 1.0.1 bug
+        tags = self.tags
+        
         angular.copy(response.data, self)
+        
+        if angular.equals(tags, self.tags)
+          self.tags = tags # Reset tags to the old reference to avoid ngList bug
         
         success(self, response.headers)
       , error

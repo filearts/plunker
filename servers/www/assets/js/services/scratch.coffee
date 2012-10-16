@@ -80,9 +80,22 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", "n
       
   
   new class Scratch
+    @defaultIndex: """
+      <!DOCTYPE html>
+      <html>
+      
+        <head lang="en">
+          <meta charset="utf-8">
+          <title>Custom Plunker</title>
+        </head>
+        
+        <body></body>
+        
+      </html>
+    """
     @emptyPlunk:
       description: ""
-      files: { "index.html": {filename: "index.html", content: ""} }
+      files: { "index.html": {filename: "index.html", content: @defaultIndex} }
       
     constructor: ->
       @description = ""

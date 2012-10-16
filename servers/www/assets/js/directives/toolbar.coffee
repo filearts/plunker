@@ -56,7 +56,7 @@ module.directive "plunkerToolbar", ["$location", "scratch", ($location, scratch)
       <div ng-switch on="scratch.isSaved()" class="btn-group">
         <div ng-switch-when="true">
           <a ng-click="lazyLoadShareButtons()" href="javascript:void(0)" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" title="Show off your work.">
-            <i class="icon-share" /><span class="shrink"> Share</span>
+            <i class="icon-share" />
             <span class="caret"></span>
           </a>
           <plunker-share-panel plunk="scratch.plunk" class="dropdown-menu"></plunker-share-panel>

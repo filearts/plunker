@@ -56,7 +56,7 @@ module.run [ "panels", "builder", "scratch", (panels, builder, scratch) ->
       $scope.builder = builder
       
       $scope.launch = ->
-        scratch.reset builder.build()
+        scratch.loadJson builder.build()
         builder.reset()
         $scope.resetBar()
       

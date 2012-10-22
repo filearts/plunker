@@ -106,7 +106,14 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", "n
       
       @loading = false
     
-    reset: (json = Scratch.emptyPlunk) ->
+    reset: (json = Scratch.emptyPlunk, skipNext = false) ->
+      # This is an ugly hack because $location changes triggered by resetting the path to "/"
+      # will only trigger on the next tick. As a result a @loadJson would otherwise fail to
+      # load the desired json.
+      if @skipNext
+        @skipNext = false
+        return
+      
       @plunk.reset(angular.copy(json))
 
       # Save a copy of the loaded json if the plunk belongs to this session
@@ -121,6 +128,8 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", "n
       
       @buffers.reset(file for filename, file of json.files)
       @buffers.activate(index) if index = @buffers.findBy("filename", "index.html")
+      
+      @skipNext = skipNext
       
       @
       
@@ -300,9 +309,14 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", "n
         self.reset(json)
         deferred.resolve(@)
       , (msg) ->
-        $location.path("/").replace()
+        $location.path("/")
         deferred.reject("Import failed: #{msg}")
         notifier.error("Import failed: #{msg}")
+        
+    loadJson: (json = {}) ->
+      $location.path("/")
+      @reset(json, true)
+      @
 
     addFile: (filename, content = "") ->
       if @buffers.findBy("filename", filename)

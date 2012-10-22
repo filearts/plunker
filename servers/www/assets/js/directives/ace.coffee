@@ -26,7 +26,9 @@ module.directive "plunkerSession", ["$rootScope", "$timeout", "modes", ($rootSco
       session.setValue(ngModel.$viewValue or "")
     
     read = -> ngModel.$setViewValue(session.getValue())
-    session.on 'change', -> $scope.$apply(read)
+    session.on 'change', ->
+      if $scope.$$phase then read()
+      else $scope.$apply(read)
     
     session.on "changeAnnotation", -> $scope.$apply ->
       errors = []

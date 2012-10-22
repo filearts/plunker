@@ -3,6 +3,8 @@
 
 #= require ../../directives/builder
 
+#= require ../../vendor/underscore
+
 module = angular.module("plunker.panels")
 
 module.requires.push("plunker.scratch", "plunker.builder", "plunker.scratch")
@@ -10,7 +12,7 @@ module.requires.push("plunker.scratch", "plunker.builder", "plunker.scratch")
 module.run [ "panels", "builder", "scratch", (panels, builder, scratch) ->
   panels.push new class
     name: "builder"
-    order: 99
+    order: 1
     size: 375
     title: "Create a new plunk using the Builder"
     icon: "icon-beaker"
@@ -59,12 +61,18 @@ module.run [ "panels", "builder", "scratch", (panels, builder, scratch) ->
         $scope.resetBar()
       
       $scope.import = ->
-        scratch.reset builder.build(scratch._getSaveJSON())
+        build = builder.build(scratch._getSaveJSON())
+        
+        for filename, file of build.files
+          if buffer = scratch.buffers.findBy("filename", file.filename)
+            buffer.content = file.content
+          else
+            scratch.addFile(file.filename, file.content)
+        
+        scratch.tags = _.uniq(scratch.tags.concat(build.tags or []))
+        
         builder.reset()
         $scope.resetBar()
-        
-    
-      self = @
       
     deactivate: ($scope, el, attrs) ->
       @active = false

@@ -131,7 +131,7 @@ module.service "catalogue", [ ->
             "angularjs": "1.x"
           "transform": [
             ["html", "attr", "ng-app", "angularjs-starter"]
-            ["head", "append", """<script>document.write("<base href=\"" + document.location + "\" />");</script>"""]
+            ["head", "append", "<script>document.write(\"<base href=\" + document.location + \" />\");</script>"]
             ["head", "append", "<script src=\"app.js\"></script>"]
             ["body", "attr", "ng-controller", "MainCtrl"]
             ["body", "append", "<h1>Hello {{name}}</h1>"]
@@ -156,7 +156,7 @@ module.service "catalogue", [ ->
             "angularjs": "1.x"
             "coffee-script": "1.x"
           "transform": [
-            ["head", "append", """<script>document.write("<base href=\"" + document.location + "\" />");</script>"""]
+            ["head", "append", "<script>document.write(\"<base href=\" + document.location + \" />\");</script>"]
             ["head", "append", """<script type="text/coffeescript" src="app.coffee"></script>"""]
             ["body", "attr", "ng-controller", "MainCtrl"]
             ["body", "append", "<h1>Hello {{name}}</h1>"]
@@ -241,7 +241,6 @@ module.service "catalogue", [ ->
             ["head", "append", "<script src=\"//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.3.3/coffee-script.min.js\"></script>"]
           ]
     "date.js":
-      "tags": ["coffee"]
       "category": "Date / time"
       "versions":
         "1.0.0":
@@ -249,12 +248,39 @@ module.service "catalogue", [ ->
             ["head", "append", "<script src=\"//cdnjs.cloudflare.com/ajax/libs/datejs/1.0/date.min.js\"></script>"]
           ]
     "moment.js":
-      "tags": ["coffee"]
       "category": "Date / time"
       "versions":
         "1.7.2":
           "transform": [
             ["head", "append", "<script src=\"//cdnjs.cloudflare.com/ajax/libs/moment.js/1.7.2/moment.min.js\"></script>"]
+          ]
+    "underscore":
+      "category": "Utility"
+      "versions":
+        "1.4.2":
+          "transform": [
+            ["head", "append", "<script src=\"//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.2/underscore-min.js\"></script>"]
+          ]
+    "backbone":
+      "category": "Backbone"
+      "tags": "Backbone"
+      "versions":
+        "1.4.2":
+          "dependencies":
+            "jquery": "~1.7.0"
+            "underscore": "~1.4.0"
+          "transform": [
+            ["head", "append", "<script src=\"//cdnjs.cloudflare.com/ajax/libs/backbone.js/0.9.2/backbone-min.js\"></script>"]
+          ]
+    "backbone-localStorage":
+      "category": "Backbone"
+      "tags": "Backbone"
+      "versions":
+        "1.0.0":
+          "dependencies":
+            "backbone": "~1.4.0"
+          "transform": [
+            ["head", "append", "<script src=\"//cdnjs.cloudflare.com/ajax/libs/backbone-localstorage.js/1.0/backbone.localStorage-min.js\"></script>"]
           ]
 
   new class Catalogue

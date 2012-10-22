@@ -103,8 +103,7 @@ module.service "builder", [ "catalogue", (catalogue) ->
             <title>Custom Plunker</title>
           </head>
           
-          <body>
-          </body>
+          <body></body>
           
         </html>
       """

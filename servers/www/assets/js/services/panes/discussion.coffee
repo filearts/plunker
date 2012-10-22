@@ -1,6 +1,7 @@
 #= require ../../vendor/angular-ui
 #= require ../../vendor/showdown
 #= require ../../vendor/prettify
+#= require ../../vendor/jquery.timeago
 
 #= require ../../services/panels
 #= require ../../services/session

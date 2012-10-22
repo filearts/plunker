@@ -25,7 +25,7 @@ app.configure ->
 LRU = require("lru-cache")
 previews = LRU(512)
 
-app.post "/", (req, res, next) ->
+app.post "/:id?", (req, res, next) ->
   json = req.body
   schema = require("./schema/previews/create")
   {valid, errors} = validator.validate(json, schema)
@@ -40,7 +40,8 @@ app.post "/", (req, res, next) ->
   
   unless valid then next(new Error("Invalid json: #{errors}"))
   else
-    id = genid() # Don't care about id clashes. They are disposable anyway
+    id = req.params.id or genid() # Don't care about id clashes. They are disposable anyway
+    json.id = id
     json.run_url = "#{runUrl}/#{id}/"
 
     _.each json.files, (file, filename) ->
@@ -53,7 +54,9 @@ app.post "/", (req, res, next) ->
     
     previews.set(id, json)
     
-    res.json(json, 201)
+    status = if req.params.id then 200 else 201
+    
+    res.json(json, status)
 
 
 app.get "/:id/*", (req, res, next) ->

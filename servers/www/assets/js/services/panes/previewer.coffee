@@ -45,10 +45,17 @@ module.run ["$http", "panels", "scratch", "url", ($http, panels, scratch, url) -
       
       self.$preview.fadeOut("")
       
-      request = $http.post(url.run, json)
+      request = $http.post("#{url.run}/#{@previewId}", json)
       
       request.then (response) ->
-        self.$preview[0].contentWindow.location.replace(response.data.run_url)
+        loc = self.$preview[0].contentWindow.location
+        if loc is response.data.run_url
+          loc.reload(true)
+        else
+          loc.replace(response.data.run_url)
+          
+        self.previewId = response.data.id
+        
         self.$preview.fadeIn(10).ready ->
           self.badge = null
           
@@ -58,6 +65,8 @@ module.run ["$http", "panels", "scratch", "url", ($http, panels, scratch, url) -
       @$preview = $(".plnk-runner", el)
       @active = false
       @awaiting = false
+      
+      @previewId = ""
       
       refresh = angular.bind(@, debounce(@refreshPreview, 750))
       
@@ -73,7 +82,10 @@ module.run ["$http", "panels", "scratch", "url", ($http, panels, scratch, url) -
           self.badge =
             class: "badge badge-important"
             title: "Click here to preview your changes"
-            value: "*"        
+            value: "*"
+      
+      $scope.$watch "scratch.id", ->
+        @previewId = ""
       
       $scope.$on "buffer:change:content", handleChange
       $scope.$on "buffer:change:filename", handleChange

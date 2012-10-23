@@ -72,6 +72,9 @@ app.get "/:id/*", (req, res, next) ->
     filename = req.params[0] or "index.html"
     file = plunk.files[filename]
     
+    res.header "Cache-Control", "no-cache"
+    res.header "Expires", 0
+    
     if file then res.send(file.content, {"Content-Type": if req.accepts(file.mime) then file.mime else "text/plain"})
     else if filename then res.send(404)
     else

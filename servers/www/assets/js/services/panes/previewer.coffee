@@ -45,7 +45,7 @@ module.run ["$http", "panels", "scratch", "url", ($http, panels, scratch, url) -
       
       self.$preview.fadeOut("")
       
-      request = $http.post("#{url.run}/#{@previewId}", json)
+      request = $http.post("#{url.run}/#{@previewId}", json, cache: false)
       
       request.then (response) ->
         loc = self.$preview[0].contentWindow.location

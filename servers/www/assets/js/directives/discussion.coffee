@@ -33,14 +33,10 @@ module.directive "chatMessage", ["$timeout", ($timeout) ->
     <li class="message">
       <div class="body" ng-bind-html="message.body | markdown"></div>
       <div class="meta">
-        <a href="javascript:void(0)" ng-click="targetMessage(message.user)" ng-show="message.user" title="{{message.user.login}}">
+        <a href="javascript:void(0)" ng-click="targetMessage(message.user)" title="{{message.user.name}}">
           <img class="gravatar" ng-src="http://www.gravatar.com/avatar/{{message.user.gravatar_id}}?s=18&d=mm" />
-          <span class="username existing">{{message.user.login}}</span>
+          <span class="username" ng-class="{existing: message.user.type == 'registered'}">{{message.user.name}}</span>
         </a>
-        <span ng-hide="message.user" title="{{message.anonName || 'Anonymous'}}">
-          <img class="gravatar" ng-src="http://www.gravatar.com/avatar/0?s=18&d=mm" />
-          <span class="username">{{message.anonName || 'Anonymous'}}</span>
-        </span>
         <abbr class="timeago posted_at" title="{{message.posted_at | iso8601}}">{{message.posted_at | date:'MM/dd/yyyy @ h:mma'}}</abbr>
       </div>
     </li>
@@ -65,9 +61,9 @@ module.directive "plunkerDiscussion", [ "$timeout", "$location", "panels", "sess
     <div class="plunker-discussion">
       <ul class="thumbnails">
         <li class="user" ng-repeat="(public_id, user) in users">
-          <a href="javascript:void(0)" ng-click="targetMessage(user)" class="thumbnail" title="{{user.login || 'Anonymous'}}">
+          <a href="javascript:void(0)" ng-click="targetMessage(user)" class="thumbnail" title="{{user.name}}">
             <img ng-src="http://www.gravatar.com/avatar/{{user.gravatar_id}}?s=32&d=mm" />
-            <span class="username" title="{{user.login || 'Anonymous'}}">{{user.login || "Anonymous"}}</span>
+            <span class="username" title="{{user.name}}">{{user.name}}</span>
           </a>
         </li>
       </ul>
@@ -113,12 +109,17 @@ module.directive "plunkerDiscussion", [ "$timeout", "$location", "panels", "sess
           type: "registered"
           name: user.login
           pubId: session.public_id
+          gravatar_id: user.gravatar_id
         else
           type: "anonymous"
           name: $.cookie("plnk_anonName") or do ->
             $.cookie "plnk_anonName", prompt("You are not logged in. Please provide a name for streaming:", genid(5, "Anon-"))
             $.cookie "plnk_anonName"
           pubId: session.public_id
+          gravatar_id: 0
+          
+    $scope.$watch "user", (user) ->
+      setOwnPresence(presenceRef)
     
 
     $scope.$watch "room", (room) ->
@@ -150,27 +151,21 @@ module.directive "plunkerDiscussion", [ "$timeout", "$location", "panels", "sess
 
     setOwnPresence = (presenceRef) -> $timeout ->
       presenceRef.removeOnDisconnect()
-      presenceRef.set
-        login: session.user?.login or $scope.anonName
-        gravatar_id: session.user?.gravatar_id or 0
+      presenceRef.set($scope.user)
     
     $scope.postChatMessage = ->
       if chatRef and $scope.message
         message =
           body: $scope.message
           posted_at: +new Date
-        
-        if session.user then message.user =
-          login: session.user.login
-          gravatar_id: session.user.gravatar_id
-        else message.anonName = $scope.anonName
+          user: $scope.user
         
         chatRef.push(message)
         
         $scope.message = ""
     
     $scope.targetMessage = (user) ->
-      unless $scope.message then $scope.message = "@#{user.login} "
+      unless $scope.message then $scope.message = "@#{user.name} "
       
       $("#comments-message").focus()
 ]

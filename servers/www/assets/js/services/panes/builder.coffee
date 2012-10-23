@@ -56,7 +56,16 @@ module.run [ "panels", "builder", "scratch", (panels, builder, scratch) ->
       $scope.builder = builder
       
       $scope.launch = ->
-        scratch.loadJson builder.build()
+        unless confirm("""
+          This operation will overwrite your current work and any work in a connected stream.
+          
+          Are you sure that you want to reset your session?
+        """)
+          return
+        
+        scratch.loadJson builder.build(),
+          skipNext: true
+          ignoreLock: true
         builder.reset()
         $scope.resetBar()
       

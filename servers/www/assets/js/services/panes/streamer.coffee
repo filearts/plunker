@@ -192,6 +192,8 @@ module.run [ "$location", "$timeout", "$q", "panels", "scratch", "stream", ($loc
       search = $location.search()
       delete search.s
       
+      scratch.unlock()
+      
       $location.search(search).replace()
       
     
@@ -200,6 +202,8 @@ module.run [ "$location", "$timeout", "$q", "panels", "scratch", "stream", ($loc
       self.doc = stream.doc
       
       resetScratch(scratch, stream.doc.get()) unless stream.keep
+      
+      scratch.lock("Connected to stream")
 
       # Assign the scratch to the local scope which will trigger creation of
       # custom directives for each channel

@@ -105,8 +105,15 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", "n
       @plunk = new Plunk
       
       @loading = false
+      @locked = false
     
-    reset: (json = Scratch.emptyPlunk, skipNext = false) ->
+    reset: (json = Scratch.emptyPlunk, options = {}) ->
+      # We introduce a locking concept for the scratch to prevent unwanted operations
+      # from destroying a stream.
+      if @locked and options.ignoreLock isnt true
+        notifier.warning "The active session was not reset: '#{@locked}'"
+        return
+      
       # This is an ugly hack because $location changes triggered by resetting the path to "/"
       # will only trigger on the next tick. As a result a @loadJson would otherwise fail to
       # load the desired json.
@@ -129,9 +136,12 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", "n
       @buffers.reset(file for filename, file of json.files)
       @buffers.activate(index) if index = @buffers.findBy("filename", "index.html")
       
-      @skipNext = skipNext
+      @skipNext = !!options.skipNext
       
       @
+    
+    lock: (reason) -> @locked = reason or "Unknown"
+    unlock: -> @locked = false
       
     _doAsync: (fn) =>
       self = @
@@ -313,9 +323,9 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", "n
         deferred.reject("Import failed: #{msg}")
         notifier.error("Import failed: #{msg}")
         
-    loadJson: (json = {}) ->
+    loadJson: (json = {}, options = {}) ->
       $location.path("/")
-      @reset(json, true)
+      @reset(json, options)
       @
 
     addFile: (filename, content = "") ->

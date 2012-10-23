@@ -1,5 +1,8 @@
 #= require ../../services/panels
 #= require ../../services/scratch
+#= require ../../services/url
+
+#= require ../../directives/discussion
 
 uid = (len = 16, prefix = "", keyspace = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789") ->
   prefix += keyspace.charAt(Math.floor(Math.random() * keyspace.length)) while len-- > 0
@@ -100,19 +103,28 @@ module.factory "stream", [ () ->
   doc: null
 ]
 
-module.run [ "$location", "$timeout", "$q", "panels", "scratch", "stream", ($location, $timeout, $q, panels, scratch, stream) ->
+
+module.requires.push("plunker.discussion", "plunker.url")
+
+module.run [ "$location", "$timeout", "$q", "panels", "scratch", "stream", "url", ($location, $timeout, $q, panels, scratch, stream, url) ->
   panels.push new class
     name: "streamer"
     order: 3
     size: 340
-    title: "Show/hide the streaming panel"
+    title: "Real-time collaboration"
     icon: "icon-fire"
     template: """
       <div id="panel-streamer" class="plnk-stream" ng-switch="stream.streaming">
         <div ng-switch-when="streaming">
           <plunker-channel ng-repeat="buffer in scratch.buffers.queue"></plunker-channel>
-          <input class="mediumtext" disabled ng-model="stream.id" size="32" />
-          <button class="btn btn-danger" ng-click="stopStream()">Disconnect</button>
+          <div class="status">
+            <h4>Streaming enabled</h4>
+            Stream: <a ng-href="{{url.www}}/edit/?p=streamers={{stream.id}}" target="_blank" title="Link to this stream"><code class="stream-id" ng-bind="stream.id"></code></a>
+            <button class="btn btn-mini btn-danger" ng-click="stopStream()" title="Disconnect from stream">
+              <i class="icon-stop"></i> Disconnect
+            </button>
+          </div>
+          <plunker-discussion room="stream.id"></plunker-discussion>
         </div>
         <div ng-switch-default>
           <h1>Streaming</h1>
@@ -231,6 +243,7 @@ module.run [ "$location", "$timeout", "$q", "panels", "scratch", "stream", ($loc
       
       synchro.scope = $scope
       
+      $scope.url = url
       $scope.stream = stream
       
       $scope.startStream = (id) ->

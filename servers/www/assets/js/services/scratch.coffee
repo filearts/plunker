@@ -104,6 +104,8 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", "n
       @buffers = new Buffers
       @plunk = new Plunk
       
+      @reset()
+      
       @loading = false
       @locked = false
     

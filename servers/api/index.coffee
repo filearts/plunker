@@ -341,9 +341,14 @@ app.post "/plunks/:id", (req, res, next) ->
         plunk.tags = _.uniq(plunk.tags)
         plunk.updated_at = new Date
         plunk.description = json.description if json.description
+        plunk.user = req.user._id if req.user
         plunk.save (err) ->
           if err then next(new apiErrors.InternalServerError(err))
-          else res.json(preparePlunk(req.session, plunk))
+          else
+            populate = {}
+            populate.user = req.user.toJSON() if req.user
+                
+            res.json(preparePlunk(req.session, plunk, populate))
           
 # Give a thumbs-up to a plunk
 app.post "/plunks/:id/thumb", (req, res, next) ->

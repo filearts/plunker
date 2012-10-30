@@ -192,6 +192,10 @@ module.service "catalogue", [ ->
           "dependencies":
             "bootstrap-css-combined": "2.1.1"
             "bootstrap-js": "2.1.1"
+        "2.2.0":
+          "dependencies":
+            "bootstrap-css-combined": "2.2.0"
+            "bootstrap-js": "2.2.0"
     "bootstrap-css-combined":
       "category": "Bootstrap"
       "tags": ["bootstrap"]
@@ -206,6 +210,10 @@ module.service "catalogue", [ ->
           "transform": [
             ["head", "append", "<link href=\"//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/css/bootstrap-combined.min.css\" rel=\"stylesheet\">"]
           ]
+        "2.2.0":
+          "transform": [
+            ["head", "append", "<link href=\"//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.0/css/bootstrap-combined.min.css\" rel=\"stylesheet\">"]
+          ]
     "bootstrap-js":
       "category": "Bootstrap"
       "keywords": ["bootstrap"]
@@ -218,6 +226,12 @@ module.service "catalogue", [ ->
             "jquery": ">= 1.7.0"
           "transform": [
             ["head", "append", "<script src=\"//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/js/bootstrap.min.js\"></script>"]
+          ]
+        "2.2.0":
+          "dependencies":
+            "jquery": ">= 1.7.0"
+          "transform": [
+            ["head", "append", "<script src=\"//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.0/js/bootstrap.min.js\"></script>"]
           ]
     "bootstrap-starter":
       "category": "Bootstrap"
@@ -281,6 +295,23 @@ module.service "catalogue", [ ->
             "backbone": "~1.4.0"
           "transform": [
             ["head", "append", "<script src=\"//cdnjs.cloudflare.com/ajax/libs/backbone-localstorage.js/1.0/backbone.localStorage-min.js\"></script>"]
+          ]
+    "knockout":
+      "category": "Knockout.js"
+      "tags": "knockout"
+      "versions":
+        "2.1.0":
+          "transform": [
+            ["head", "append", "<script src=\"//cdnjs.cloudflare.com/ajax/libs/knockout/2.1.0/knockout-min.js\"></script>"]
+          ]
+    "knockout.mapping":
+      "category": "Knockout.js"
+      "versions":
+        "2.3.2":
+          "dependencies":
+            "knockout": "2.1.x"
+          "transform": [
+            ["head", "append", "<script src=\"//cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.3.2/knockout.mapping.js\"></script>"]
           ]
 
   new class Catalogue

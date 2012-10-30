@@ -113,13 +113,13 @@ module.directive "plunkerDiscussion", [ "$timeout", "$location", "panels", "sess
         else
           type: "anonymous"
           name: $.cookie("plnk_anonName") or do ->
-            $.cookie "plnk_anonName", prompt("You are not logged in. Please provide a name for streaming:", genid(5, "Anon-"))
+            $.cookie "plnk_anonName", prompt("You are not logged in. Please provide a name for streaming:", genid(5, "Anon-")) or genid(5, "Anon-")
             $.cookie "plnk_anonName"
           pubId: session.public_id
           gravatar_id: 0
           
     $scope.$watch "user", (user) ->
-      setOwnPresence(presenceRef)
+      setOwnPresence(presenceRef) if presenceRef
     
 
     $scope.$watch "room", (room) ->

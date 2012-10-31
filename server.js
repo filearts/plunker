@@ -15,7 +15,7 @@ if (!nconf.get("host")) {
   console.error("The host option is required for Plunker to start");
 } else {
   
-  var host = nconf.get("host");
+  var host = nconf.get("host") + ":" + nconf.get("PORT");
 
   // Configure global paths
   if (nconf.get("nosubdomains")) {

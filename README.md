@@ -2,6 +2,17 @@
 
 The next generation of lightweight collaborative online editing.
 
+# Usage
+
+```
+git clone git://github.com/filearts/plunker.git
+git submodule update --init
+
+npm install
+
+node server.js
+```
+
 ## Editor API
 
 ### `POST /edit/`

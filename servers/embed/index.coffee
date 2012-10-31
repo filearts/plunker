@@ -7,7 +7,7 @@ assets = require("connect-assets")
 nconf = require("nconf")
 request = require("request")
 
-module.exports = app = express.createServer()
+module.exports = app = express()
 
 apiUrl = nconf.get("url:api")
 

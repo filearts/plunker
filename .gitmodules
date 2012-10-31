@@ -1,0 +1,3 @@
+[submodule "servers/www/assets/select2"]
+	path = servers/www/assets/select2
+	url = git://github.com/ivaynberg/select2.git

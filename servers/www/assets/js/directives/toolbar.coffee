@@ -1,11 +1,12 @@
 #= require ../services/scratch
+#= require ../services/downloader
 
 #= require ../directives/share
 
 
-module = angular.module("plunker.toolbar", ["plunker.share"])
+module = angular.module("plunker.toolbar", ["plunker.share", "plunker.downloader"])
 
-module.directive "plunkerToolbar", ["$location", "scratch", ($location, scratch) ->
+module.directive "plunkerToolbar", ["$location", "scratch", "downloader", ($location, scratch, downloader) ->
   restrict: "E"
   scope: {}
   replace: true
@@ -53,12 +54,17 @@ module.directive "plunkerToolbar", ["$location", "scratch", ($location, scratch)
           </li>
         </ul>
       </div>
+      <div class="btn-group">
+          <button ng-click="triggerDownload()" class="btn" title="Save your work as a zip file">
+            <i class="icon-download-alt" />
+          </button>
+      </div>
       <div ng-switch on="scratch.isSaved()" class="btn-group">
         <div ng-switch-when="true">
-          <a ng-click="lazyLoadShareButtons()" href="javascript:void(0)" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" title="Show off your work.">
+          <button ng-click="lazyLoadShareButtons()" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" title="Show off your work.">
             <i class="icon-share" />
             <span class="caret"></span>
-          </a>
+          </button>
           <plunker-share-panel plunk="scratch.plunk" class="dropdown-menu"></plunker-share-panel>
         </div>
       </div>
@@ -85,6 +91,13 @@ module.directive "plunkerToolbar", ["$location", "scratch", ($location, scratch)
     $shareBtn = $("#share-buttons")
     
     lazyLoadedShareButtons = false
+    
+    $scope.triggerDownload = ->
+      json = scratch.toJSON()
+      
+      filename = if scratch.plunk.id then "plunk-#{scratch.plunk.id}.zip" else "plunk.zip"
+      
+      downloader.download(json, filename)
     
     $scope.lazyLoadShareButtons = ->
       unless lazyLoadedShareButtons

@@ -224,6 +224,7 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", "n
       
       json
 
+    toJSON: -> @_getSaveJSON()
     
     save: -> @_doAsync (deferred) ->
       self = @

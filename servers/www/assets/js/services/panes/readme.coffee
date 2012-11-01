@@ -15,7 +15,7 @@ module.filter "markdown", ->
 
 module.run [ "panels", "scratch", (panels, scratch) ->
   panels.push new class
-    name: "lint"
+    name: "readme"
     order: 1
     size: "50%"
     title: "Show the readme for the current plunk"

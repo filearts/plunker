@@ -22,7 +22,8 @@ module.run [ "panels", "scratch", (panels, scratch) ->
     icon: "icon-info-sign"
     hidden: true
     template: """
-      <div id="panel-readme" ng-bind-html="getReadme() | markdown">
+      <div id="panel-readme" ng-switch on="getReadme()!=null">
+        <div ng-switch-when="true" ng-bind-html="getReadme() | markdown"></div>
       </div>
     """
           

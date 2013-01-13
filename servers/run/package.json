@@ -10,7 +10,7 @@
   "engines": {
     "node": "0.8.x"
   },
-  "version": "0.3.14-8",
+  "version": "0.3.14-9",
   "private": true,
   "dependencies": {
     "coffee-script": "1.x",
@@ -27,7 +27,9 @@
     "jade": "*",
     "marked": "*",
     "LiveScript": "*",
-    "iced-coffee-script": "*"
+    "iced-coffee-script": "*",
+    "stylus": "*",
+    "nib": "*"
   },
   "bundledDependencies": [
     "json-schema"

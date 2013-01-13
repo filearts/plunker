@@ -35,6 +35,8 @@ less = require("less")
 sass = require("sass")
 jade = require("jade")
 markdown = require("marked")
+stylus = require("stylus")
+nib = require("nib")
 
 compilers = 
   sass:
@@ -54,13 +56,24 @@ compilers =
         less.render(str, fn)
       catch err
         fn(err)
-      
+
+  stylus: 
+    match: /\.css/
+    ext: ['styl']
+    compile: (str, fn) ->
+      try
+        stylus(str)
+          .use(nib())
+          .import("nib")
+          .render(fn)
+      catch err
+        fn(err)      
   coffeescript: 
     match: /\.js$/
     ext: ['coffee']
     compile: (str, fn) ->
       try
-        fn(null, coffee.compile(str))
+        fn(null, coffee.compile(str, bare: true))
       catch err
         fn(err)
       

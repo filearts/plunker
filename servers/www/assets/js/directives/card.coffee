@@ -113,7 +113,7 @@ module.directive "card", ["$timeout", "session", ($timeout, session) ->
           count++ for key of obj
           count
         
-        plunkRef = new Firebase("https://gamma.firebase.com/filearts/#{model.id}")
+        plunkRef = new Firebase("https://filearts.firebaseio.com/#{model.id}")
         
         viewersRef = plunkRef.child("viewers")
         viewersRef.on "child_added", (snapshot) -> $timeout -> $scope.viewers += 1

@@ -37,6 +37,8 @@ app.configure ->
   app.use require("./middleware/session").middleware()    
   # Start the sharejs server before variable routes
   sharejs.server.attach app,
+    forceReaping: true
+    reapTime: 1000 * 60 * 60 * 72
     db:
       type: "none"
   app.use app.router

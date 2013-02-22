@@ -141,7 +141,7 @@ module.run [ "$timeout", "$location", "panels", "session", "scratch", ($timeout,
         
         return unless id
 
-        plunkRef = new Firebase("http://gamma.firebase.com/filearts/#{id}/")
+        plunkRef = new Firebase("http://filearts.firebaseio.com/#{id}/")
         chatRef = plunkRef.child("messages")
         usersRef = plunkRef.child("editors")
         presenceRef = usersRef.child(session.public_id)

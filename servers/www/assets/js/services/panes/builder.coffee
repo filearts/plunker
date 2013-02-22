@@ -23,12 +23,15 @@ module.run [ "panels", "builder", "scratch", (panels, builder, scratch) ->
     template: """
       <div id="panel-builder">
         <h4>Plunk builder:</h4>
-        <p>The plunk Builder lets you quickly bootstrap your code with a huge combination of predefined libraries.</p>
-        <p>Search for libraries using the magic builder bar below. When you add libraries, their dependencies will
-        also be automagically added.</p>
-        <p>When you are finished, hit <strong>Create</strong> to load the bootstrapped Plunk
-        into the editor.</p>
-        <p>Alternatively, hit <strong>Import</strong> to import the selected libraries into your current Plunk.</p>
+        <details>
+          <summary>About the Builder</summary>
+          <p>The plunk Builder lets you quickly bootstrap your code with a huge combination of predefined libraries.</p>
+          <p>Search for libraries using the magic builder bar below. When you add libraries, their dependencies will
+          also be automagically added.</p>
+          <p>When you are finished, hit <strong>Create</strong> to load the bootstrapped Plunk
+          into the editor.</p>
+          <p>Alternatively, hit <strong>Import</strong> to import the selected libraries into your current Plunk.</p>
+        </details>
         <p>
           <plunker-builder></plunker-builder>
         </p>
@@ -46,6 +49,9 @@ module.run [ "panels", "builder", "scratch", (panels, builder, scratch) ->
           </li>
         </ul>
         <div class="alert">
+          <strong>Hint:</strong> You can pick versions of the libs by putting an '@' after. For example, try 'jquery@'.
+        </div>
+        <div class="alert">
           <strong>Note:</strong> When you import libraries, Plunker does <strong>not</strong> parse your existing html
           to resolve dependencies based on what already exists. I will see what can be done to improve this.
         </div>
@@ -62,8 +68,10 @@ module.run [ "panels", "builder", "scratch", (panels, builder, scratch) ->
           Are you sure that you want to reset your session?
         """)
           return
+          
+        build = angular.extend builder.build(), private: true
         
-        scratch.loadJson builder.build(),
+        scratch.loadJson build,
           skipNext: true
           ignoreLock: true
         builder.reset()

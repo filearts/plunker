@@ -2,18 +2,23 @@
 #= require ../../services/scratch
 #= require ../../services/url
 
-debounce = (func, wait, immediate) ->
-  timeout = undefined
-  ->
-    context = @
+debounce = (func, threshold, execAsap) ->
+  timeout = false
+  
+  return debounced = ->
+    obj = this
     args = arguments
-    later = ->
+    
+    delayed = ->
+      func.apply(obj, args) unless execAsap
       timeout = null
-      unless immediate then func.apply(context, args)
-    if immediate and not timeout then func.apply(context, args)
-    clearTimeout(timeout)
-    timeout = setTimeout(later, wait)
-
+    
+    if timeout
+      clearTimeout(timeout)
+    else if (execAsap)
+      func.apply(obj, args)
+    
+    timeout = setTimeout delayed, threshold || 100
 
 module = angular.module("plunker.panels")
 

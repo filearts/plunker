@@ -17,6 +17,11 @@ module.directive "plunkerToolbar", ["$location", "scratch", "downloader", ($loca
       </div>
       <div class="btn-group" ng-show="scratch.isSaved()">
         <button ng-click="scratch.fork()" title="Save your changes as a fork of this Plunk" class="btn"><i class="icon-git-fork"></i><span class="shrink"> Fork</span></button>
+        <button data-toggle="dropdown" class="btn dropdown-toggle"><span class="caret"></span></button>
+        <ul class="dropdown-menu" ng-switch on="scratch.plunk.private">
+          <li ng-switch-when="false"><a ng-click="scratch.fork({private: true})">Fork to private plunk</a></li>
+          <li ng-switch-when="true"><a ng-click="scratch.fork({private: false})">Fork to public plunk</a></li>
+        </ul>
       </div>
       <div ng-show="scratch.isOwned() && scratch.isSaved()" class="btn-group">
         <button ng-click="scratch.promptDestroy()" title="Delete the current plunk" class="btn btn-danger"><i class="icon-trash"></i></button>
@@ -30,12 +35,10 @@ module.directive "plunkerToolbar", ["$location", "scratch", "downloader", ($loca
           <li class="dropdown-submenu">
             <a tabindex="-1" href="#">AngularJS</a>
             <ul class="dropdown-menu">
-              <li><a href="/edit/gist:3510140">1.0.1<a href="/edit/gist:3189582" class="coffee" title="In coffee-script"><img src="/img/coffeescript-logo-small_med.png"></a></a></li>
+              <li><a href="/edit/b:starter-angularjs">1.0.x (stable)<a href="/edit/b:starter-angularjs-coffee" class="coffee" title="In coffee-script"><img src="/img/coffeescript-logo-small_med.png"></a></a></li>
+              <li><a href="/edit/b:angularjs@1.1.x+starter-angularjs">1.1.x (unstable)<a href="/edit/b:angularjs@1.1.x+starter-angularjs-coffee" class="coffee" title="In coffee-script"><img src="/img/coffeescript-logo-small_med.png"></a></a></li>
               <li class="divider"></li>
-              <li><a href="/edit/gist:3662656">1.0.2<a href="/edit/gist:3662659" class="coffee" title="In coffee-script"><img src="/img/coffeescript-logo-small_med.png"></a></a></li>
               <li><a href="/edit/gist:3743008">1.0.2 + Jasmine</a></li>
-              <li class="divider"></li>
-              <li><a href="/edit/gist:3662702">1.1.0 (unstable)<a href="/edit/gist:3662696" class="coffee" title="In coffee-script"><img src="/img/coffeescript-logo-small_med.png"></a></a></li>
             </ul>
           </li>
           <li class="divider"></li>

@@ -27,6 +27,7 @@ module.exports.middleware = (options = {}) ->
       return session
       
     finalize = (session) ->
+      res.header("Vary", "Cookie")
       res.local("session", session)
       next()
     

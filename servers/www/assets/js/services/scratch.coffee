@@ -96,13 +96,14 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", "n
     @emptyPlunk:
       description: ""
       files: { "index.html": {filename: "index.html", content: @defaultIndex} }
+      'private': true
       
     constructor: ->
       @description = ""
       @tags = []
       
       @buffers = new Buffers
-      @plunk = new Plunk
+      @plunk = new Plunk()
       
       @reset()
       
@@ -122,6 +123,8 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", "n
       if @skipNext
         @skipNext = false
         return
+      
+      json.private = (!!json.private and json.private != "false") # This may arrive as "true" instead of true
       
       @plunk.reset(angular.copy(json))
 
@@ -221,6 +224,7 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", "n
           content: buffer.content
       
       json.tags = @plunk.tags
+      json.private = !!@plunk.private
       
       json
 
@@ -263,12 +267,13 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", "n
           title: "Save cancelled"
           text: "No changes made to the plunk."
 
-    fork: -> @_doAsync (deferred) ->
+    fork: (options = {}) -> @_doAsync (deferred) ->
       self = @
       
       @plunk.description ||= "Untitled"
       
       json = @_getSaveJSON()
+      json.private = options.private if options.private?
       
       count = 0
       count++ for filename, file of json.files

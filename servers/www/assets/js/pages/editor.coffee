@@ -1,3 +1,5 @@
+#= require ../../bootstrap/js/bootstrap-all
+
 #= require ../../select2/select2
 
 #= require ../vendor/angular-ui
@@ -25,7 +27,7 @@ module.value "ui.config",
 module.directive "selectList", ->
   restrict: "A"
   require: "ngModel"
-  priority: 1
+  priority: 99
   link: ($scope, element, args, ngModel) ->
     ngModel.$parsers.push (options = []) ->
       tags = []
@@ -63,5 +65,14 @@ module.controller "editor", ["$scope", "$location", "scratch", "url", ($scope, $
   $scope.isPaneEnabled = (pane) -> !pane.hidden
   
   repaintSidebar()
+  
+  window.onbeforeunload = ->
+      json = if scratch.savedState then scratch._getDeltaJSON(scratch.savedState) else scratch._getSaveJSON()
+      
+      count = 0
+      count++ for filename, file of json.files
+      
+      if count or json.description or json.tags
+        return "You have not saved your changes to this plunk."
 
 ]

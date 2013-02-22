@@ -3,6 +3,7 @@ html(ng-app="plunker.landing")
   head
     meta(charset="utf-8")
     meta(name="viewport",content="width=device-width, initial-scale=1.0")
+    meta(name="description", content="Quickly create, share and collaborate on web snippets.")
     block title
       title Plunker
     block styles
@@ -17,7 +18,7 @@ html(ng-app="plunker.landing")
           "session": !{JSON.stringify(session).replace(/<\//g,"<\\/")}
         };
       script(src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js")
-      script(src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.0/js/bootstrap.min.js")
+      // script(src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.0/js/bootstrap.min.js")
       script(src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.2/angular.min.js")
       script(src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.2/angular-resource.min.js")
       != js("pages/landing")

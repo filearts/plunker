@@ -1,3 +1,5 @@
+#= require ../directives/builder
+
 #= require ../services/plunks
 
 plunkerRegex = ///
@@ -24,10 +26,19 @@ githubRegex = ///
   $
 ///i
 
+builderRegex = ///
+  ^
+    \s*                   # Leading whitespace
+    b(?:uild)?:           # Prefix of b: or build:
+    ([-\._@+a-zA-Z0-9]+)  # Build definition
+    \s*                   # Trailing whitespace
+  $
+///i
 
-module = angular.module("plunker.importer", ["plunker.plunks"])
 
-module.factory "importer", [ "$q", "$http", "Plunk", ($q, $http, Plunk) ->
+module = angular.module("plunker.importer", ["plunker.plunks", "plunker.builder"])
+
+module.factory "importer", [ "$q", "$http", "Plunk", "builder", ($q, $http, Plunk, builder) ->
   import: (source) ->
     deferred = $q.defer()
     
@@ -36,6 +47,24 @@ module.factory "importer", [ "$q", "$http", "Plunk", ($q, $http, Plunk) ->
         deferred.resolve(angular.copy(plunk))
       , (error) ->
         deferred.reject("Plunk not found")
+    else if matches = source.match(builderRegex)
+      names = matches[1].split("+")
+      error = null
+    
+      builder.reset()
+      
+      try
+        builder.addLib(name) for name in names
+      catch e
+        error = e
+        
+      build = angular.extend(builder.build(), private: true)
+      
+      unless error then deferred.resolve(build)
+      else deferred.reject(error)
+      
+      builder.reset()
+      
     else if matches = source.match(githubRegex)
       request = $http.jsonp("https://api.github.com/gists/#{matches[1]}?callback=JSON_CALLBACK")
       
@@ -53,6 +82,7 @@ module.factory "importer", [ "$q", "$http", "Plunk", ($q, $http, Plunk) ->
 
   
           angular.extend json,
+            private: true
             source:
               type: "gist"
               url: gist.html_url

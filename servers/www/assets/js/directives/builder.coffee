@@ -5,9 +5,8 @@
 #= require ../vendor/beautify
 
 #= require ../services/catalogue
-#= require ../services/scratch
 
-module = angular.module("plunker.builder", ["plunker.scratch", "plunker.catalogue"])
+module = angular.module("plunker.builder", ["plunker.catalogue"])
 
 module.service "builder", [ "catalogue", (catalogue) ->
   new class Builder
@@ -26,7 +25,9 @@ module.service "builder", [ "catalogue", (catalogue) ->
       
       for name, pkg of catalogue.catalogue
         if @names.indexOf(name) < 0
-          unused.push catalogue.getBestMatch(name)
+          add = catalogue.getBestMatch(name)
+          add.versions = pkg.versions
+          unused.push add
           
       unused
     
@@ -106,14 +107,15 @@ module.service "builder", [ "catalogue", (catalogue) ->
           <body></body>
           
         </html>
-      """
+      """.replace(/\n\s+/gm, "")
       
       if index = json.files["index.html"]
         content = index.content
-        
+      
       doc = window.document.implementation.createHTMLDocument("")
-      doc.documentElement.innerHTML = content
-
+      doc.open()
+      doc.write(content)
+      doc.close()
       
       for lib in @packages
         json.tags = json.tags.concat(lib.tags)
@@ -141,7 +143,7 @@ module.service "builder", [ "catalogue", (catalogue) ->
     
 ]
 
-module.directive "plunkerBuilder", ["$timeout", "builder", "scratch", ($timeout, builder, scratch) ->
+module.directive "plunkerBuilder", ["$timeout", "builder", ($timeout, builder) ->
   restrict: "E"
   replace: true
   scope: {}
@@ -169,16 +171,28 @@ module.directive "plunkerBuilder", ["$timeout", "builder", "scratch", ($timeout,
         results = {}
         ret = []
         
-        for def in builder.getUnusedCatalogueItems()
-          if options.matcher(options.term, def.name) or options.matcher(options.term, def.keywords.join(" "))
-            results[def.category] ||=
-              text: def.category
+        search = options.term.split("@")
+        query = search.shift()
+        version = query[0] if search.length
+        
+        for pkg in builder.getUnusedCatalogueItems()
+          if options.matcher(query, pkg.name) or options.matcher(query, pkg.keywords.join(" "))
+            results[pkg.category] ||=
+              text: pkg.category
               children: []
             
-            results[def.category].children.push
-              text: def.name
-              id: def.id
-              pkg: def
+            if search.length
+              for tag, def of pkg.versions
+                if options.matcher(options.term, def.id)
+                  results[pkg.category].children.push
+                    text: def.id
+                    id: def.id
+                    pkg: def
+            else  
+              results[pkg.category].children.push
+                text: pkg.name
+                id: pkg.id
+                pkg: pkg
               
         for category, result of results
           ret.push(result)

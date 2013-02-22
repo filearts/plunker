@@ -36,7 +36,7 @@ module.directive "plunkerChat", ["$timeout", "session", ($timeout, session) ->
         ownStatusRef.remove()
 
       if id
-        editorsRef = new Firebase("http://gamma.firebase.com/filearts/#{id}/editors/")
+        editorsRef = new Firebase("http://filearts.firebaseio.com/#{id}/editors/")
         editorsRef.on "value", (snapshot) ->
           if val = snapshot.val() then $timeout ->
             $scope.viewers = val

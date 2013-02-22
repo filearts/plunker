@@ -14,7 +14,7 @@ html(ng-app="plunker.editor")
       script(src="http://html5shim.googlecode.com/svn/trunk/html5.js")
     block scripts
       script(src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js")
-      script(src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.0/js/bootstrap.min.js")
+      // script(src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.0/js/bootstrap.min.js")
       script(src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.2/angular.min.js")
       script(src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.2/angular-sanitize.min.js")
       script(src="http://static.firebase.com/v0/firebase.js")
@@ -89,6 +89,9 @@ html(ng-app="plunker.editor")
               label(for="plnk-tags") Tags:
               input#plnk-tags.tags(ng-model="scratch.plunk.tags", select-list, ui-select2, style="width:100%")
               span.help-block Comma-separated list
+              label(for="plnk-private")
+                input#plnk-private.inline(type="checkbox", ng-model="scratch.plunk.private",ng-disabled="scratch.isSaved()")
+                span private plunk
             
             div(ng-show="session.user && scratch.isSaved()")
               hr

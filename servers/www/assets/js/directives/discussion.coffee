@@ -137,7 +137,7 @@ module.directive "plunkerDiscussion", [ "$timeout", "$location", "panels", "sess
       
       return unless room
 
-      roomRef = new Firebase("https://gamma.firebase.com/filearts/rooms/#{room}/")
+      roomRef = new Firebase("https://filearts.firebaseio.com/rooms/#{room}/")
       chatRef = roomRef.child("messages")
       usersRef = roomRef.child("users")
       presenceRef = usersRef.child(session.public_id)

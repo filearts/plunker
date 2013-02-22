@@ -1,3 +1,5 @@
+#= require ../../bootstrap/js/bootstrap-all
+
 #= require ../services/plunks
 #= require ../services/url
 #= require ../services/whitelist

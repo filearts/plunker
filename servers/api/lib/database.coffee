@@ -10,7 +10,7 @@ connectTimeout = setTimeout(errorConnecting, 1000 * 30)
 
 apiUrl = nconf.get('url:api')
 wwwUrl = nconf.get('url:www')
-rawUrl = nconf.get('url:raw')
+runUrl = nconf.get('url:run')
 
 errorConnecting = ->
   console.error "Error connecting to mongodb"
@@ -106,6 +106,7 @@ PlunkSchema = new Schema
   created_at: { type: Date, 'default': Date.now }
   updated_at: { type: Date, 'default': Date.now }
   token: { type: String, 'default': genid.bind(null, 16) }
+  'private': { type: Boolean, 'default': false }
   source: {}
   files: [PlunkFileSchema]
   user: { type: Schema.ObjectId, ref: "User", index: true }
@@ -119,7 +120,7 @@ PlunkSchema.index(score: -1, updated_at: -1)
 PlunkSchema.index(thumbs: -1, updated_at: -1)
 
 PlunkSchema.virtual("url").get -> apiUrl + "/plunks/#{@_id}"
-PlunkSchema.virtual("raw_url").get -> rawUrl + "/#{@_id}/"
+PlunkSchema.virtual("raw_url").get -> runUrl + "/plunks/#{@_id}/"
 PlunkSchema.virtual("comments_url").get -> wwwUrl + "/#{@_id}/comments"
 
 mongoose.model "Plunk", PlunkSchema

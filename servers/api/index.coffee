@@ -192,7 +192,18 @@ fetchPlunks = (options, req, res, next) ->
   
   options.baseUrl ||= "#{apiUrl}/plunks"
   
-  query = Plunk.find(options.query or {})
+  search = options.query or {}
+  
+  if req.user
+    search.$or = [
+      'private': $ne: true
+    ,
+      user: req.user._id
+    ]
+  else
+    search.private = $ne: true
+  
+  query = Plunk.find(search)
   query.sort(options.sort or {updated_at: -1})
   query.select("-files")
   
@@ -206,7 +217,7 @@ fetchPlunks = (options, req, res, next) ->
         link.push "<#{options.baseUrl}?p=#{pages}&pp=#{limit}>; rel=\"last\""
       if current > 1
         link.push "<#{options.baseUrl}?p=#{page-1}&pp=#{limit}>; rel=\"prev\""
-        link.push "<#{options.baseUrl}?p=#1&pp=#{limit}>; rel=\"first\""
+        link.push "<#{options.baseUrl}?p=1&pp=#{limit}>; rel=\"first\""
         
       res.header("Link", link.join(", ")) if link.length
       res.json(preparePlunks(req.session, plunks))
@@ -261,7 +272,7 @@ app.post "/plunks", (req, res, next) ->
     # TODO: This is inefficient as the number space fills up; consider: http://www.faqs.org/patents/app/20090063601
     # Keep generating new ids until not taken
     savePlunk = ->
-      plunk._id = genid(6)
+      plunk._id = if json.private then genid(20) else genid(6)
     
       plunk.save (err) ->
         if err
@@ -349,7 +360,19 @@ app.post "/plunks/:id", (req, res, next) ->
             populate.user = req.user.toJSON() if req.user
                 
             res.json(preparePlunk(req.session, plunk, populate))
-          
+            
+# Obtain a list of a plunk's forks
+app.get "/plunks/:id/forks", (req, res, next) ->
+  Plunk.findOne({_id: req.params.id}).exec (err, plunk) ->
+    if err or not plunk then next(new apiErrors.NotFound)
+    else
+      options =
+        query: {fork_of: req.params.id}
+        baseUrl: "#{apiUrl}/plunk/#{req.params.id}/forks"
+        sort: "-updated_at"
+        
+      fetchPlunks(options, req, res, next)
+
 # Give a thumbs-up to a plunk
 app.post "/plunks/:id/thumb", (req, res, next) ->
   unless req.user then return next(new apiErrors.NotFound)
@@ -416,7 +439,7 @@ app.post "/plunks/:id/forks", (req, res, next) ->
         # TODO: This is inefficient as the number space fills up; consider: http://www.faqs.org/patents/app/20090063601
         # Keep generating new ids until not taken
         savePlunk = ->
-          plunk._id = genid(6)
+          plunk._id = if json.private then genid(20) else genid(6)
         
           plunk.save (err) ->
             if err
@@ -471,7 +494,16 @@ app.get "/users/:username/thumbed", fetchUser, (req, res, next) ->
     baseUrl: "#{apiUrl}/users/#{req.params.username}/thumbed"
 
   fetchPlunks(options, req, res, next)
-
+  
+app.get "/tags", (req, res, next) ->
+  Plunk.aggregate [
+    $unwind: "$tags"
+  ,
+    $group: _id: "$tags", count: { $sum: 1 }
+  ], (err, json) ->
+    if err then res.send(404, err)
+    else res.json(json)
+    
 # List plunks having a specific tag
 app.get "/tags/:tagname/plunks", (req, res, next) ->
   options =

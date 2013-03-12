@@ -27,14 +27,15 @@
       "type": "object",
       "additionalProperties": false,
       "patternProperties": {
-        "^[-_.a-zA-Z0-9]+$": {
+        "^(\\d+\\.\\d+\\.\\d+)(?:-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$": {
           "type": "object",
           "required": true,
           "additionalProperties": false,
           "properties": {
-            "version": {
+            "semver": {
               "type": "string",
-              "required": true
+              "required": true,
+              "pattern": "^(\\d+\\.\\d+\\.\\d+)(?:-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
             },
             "scripts": {
               "type": "array",

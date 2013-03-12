@@ -551,7 +551,9 @@ app.post "/packages", withUser, (req, res, next) ->
       json.versions = versions
       
       Package.create json, (err, pkg) ->
-        if err then res.json err, 400
+        if err
+          if err.code is 11000 then res.json "A package with that name already exists", 409
+          else res.json err.message, 500
         else res.json pkg.toJSON(), 201
 
 app.get "/packages/:name", withPackage, (req, res, next) ->
@@ -559,7 +561,9 @@ app.get "/packages/:name", withPackage, (req, res, next) ->
 
 app.post "/packages/:name", withUser, (req, res, next) ->
   updateSchema.validate req.body, (err, json) ->
-    if err then res.json err, 400
+    if err
+      console.log "Invalid request", arguments...
+      res.json err, 400
     else
       for keyword, val of json.keywords
         if val is null then (json.$pullAll ||= keywords: []).keywords.push keyword

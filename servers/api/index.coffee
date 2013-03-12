@@ -8,6 +8,7 @@ _ = require("underscore")._
 validator = require("json-schema")
 mime = require("mime")
 gate = require("json-gate")
+semver = require("semver")
 
 apiErrors = require("./errors")
 apiUrl = nconf.get('url:api')
@@ -525,17 +526,30 @@ withUser = (req, res, next) ->
   else next()
 
 withPackage = (req, res, next) ->
-  Package.findOne({name: req.params.name}).exec (err, pkg) ->
+  Package.findOne({name: req.params.name}).select("-_id -versions._id").exec (err, pkg) ->
     if err then res.send(404)
     else
       req.package = pkg
       next()
+      
+
+preparePackage = (session, pkg, populate = {}) ->
+  json = _.extend pkg.toJSON(), populate
+  
+  delete json.id
+  
+  json.editable = true if session?.user and 0 <= json.maintainers.indexOf(session.user.login)
+  
+  json.versions.sort (v1, v2) -> semver.rcompare(v1.semver, v2.semver)
+  
+  json
+
+preparePackages = (session, pkgs) -> _.map pkgs, (pkg) -> preparePackage(session, pkg)
 
 app.get "/packages", (req, res, next) ->
-  Package.find({}).exec (err, docs) ->
-    console.log "Found", err if err
+  Package.find({}).select("-_id -versions._id").exec (err, docs) ->
     if err then res.send(err, 404)
-    else res.json(docs)
+    else res.json(preparePackages(req.session, docs))
     
     
 
@@ -554,10 +568,10 @@ app.post "/packages", withUser, (req, res, next) ->
         if err
           if err.code is 11000 then res.json "A package with that name already exists", 409
           else res.json err.message, 500
-        else res.json pkg.toJSON(), 201
+        else res.json preparePackage(req.session, pkg), 201
 
 app.get "/packages/:name", withPackage, (req, res, next) ->
-  res.json(req.package.toJSON())
+  res.json(preparePackage(req.session, req.package))
 
 app.post "/packages/:name", withUser, (req, res, next) ->
   updateSchema.validate req.body, (err, json) ->
@@ -577,7 +591,7 @@ app.post "/packages/:name", withUser, (req, res, next) ->
         maintainers: req.user.login
       , json, (err, pkg) ->
         if err then res.json(err, 404)
-        else res.json(pkg.toJSON(), 200)
+        else res.json(preparePackage(req.session, pkg), 200)
 
 app.del "/packages/:name", withUser, (req, res, next) ->
   Package.findOneAndRemove

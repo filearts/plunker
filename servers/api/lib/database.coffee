@@ -29,8 +29,9 @@ genid = (len = 16, prefix = "", keyspace = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghij
 # Change object _id to normal id
 Document::toJSON = ->
   json = @toObject(json: true, virtuals: true)
-  json.id = json._id
+  json.id = json._id if json._id
   delete json._id
+  delete json.__v
   
   json
   

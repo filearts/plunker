@@ -125,4 +125,23 @@ PlunkSchema.virtual("comments_url").get -> wwwUrl + "/#{@_id}/comments"
 
 mongoose.model "Plunk", PlunkSchema
 
+
+
+PackageVersionSchema = new Schema
+  semver: String
+  scripts: [String]
+  styles: [String]
+
+PackageSchema = new Schema
+  name: { type: String, match: /^[-_.a-z0-9]+$/i, index: true, unique: true }
+  description: { type: String }
+  homepage: String
+  keywords: [{type: String, index: true}]
+  versions: [PackageVersionSchema]
+  maintainers: [{ type: String, index: true }]
+
+mongoose.model "Package", PackageSchema
+
+
+
 module.exports = mongoose

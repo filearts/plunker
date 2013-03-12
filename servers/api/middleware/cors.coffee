@@ -2,7 +2,7 @@ nconf = require("nconf")
 
 module.exports.middleware = (config = {}) ->
   
-  valid = [nconf.get('url:www'), nconf.get('url:embed')]
+  valid = [nconf.get('url:www'), nconf.get('url:embed'), "http://plnkr.co"]
   
   (req, res, next) ->
     # Just send the headers all the time. That way we won't miss the right request ;-)

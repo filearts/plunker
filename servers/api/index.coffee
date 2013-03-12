@@ -7,6 +7,7 @@ querystring = require("querystring")
 _ = require("underscore")._
 validator = require("json-schema")
 mime = require("mime")
+gate = require("json-gate")
 
 apiErrors = require("./errors")
 apiUrl = nconf.get('url:api')
@@ -24,6 +25,7 @@ database = require("./lib/database")
 Session = database.model("Session")
 User = database.model("User")
 Plunk = database.model("Plunk")
+Package = database.model("Package")
 
 
 
@@ -512,6 +514,75 @@ app.get "/tags/:tagname/plunks", (req, res, next) ->
     
   fetchPlunks(options, req, res, next)
   
+
+
+createSchema = gate.createSchema(require("./schema/packages/create.json"))
+updateSchema = gate.createSchema(require("./schema/packages/update.json"))
+
+
+withUser = (req, res, next) ->
+  unless req.user then res.send(400)
+  else next()
+
+withPackage = (req, res, next) ->
+  Package.findOne({name: req.params.name}).exec (err, pkg) ->
+    if err then res.send(404)
+    else
+      req.package = pkg
+      next()
+
+app.get "/packages", (req, res, next) ->
+  Package.find({}).exec (err, docs) ->
+    console.log "Found", err if err
+    if err then res.send(err, 404)
+    else res.json(docs)
+    
+    
+
+app.post "/packages", withUser, (req, res, next) ->
+  createSchema.validate req.body, (err, json) ->
+    if err then res.json err, 400
+    else
+      json.maintainers = [req.user.login]
+      
+      versions = []
+      versions.push versionDef for version, versionDef of req.body.versions
+      
+      json.versions = versions
+      
+      Package.create json, (err, pkg) ->
+        if err then res.json err, 400
+        else res.json pkg.toJSON(), 201
+
+app.get "/packages/:name", withPackage, (req, res, next) ->
+  res.json(req.package.toJSON())
+
+app.post "/packages/:name", withUser, (req, res, next) ->
+  updateSchema.validate req.body, (err, json) ->
+    if err then res.json err, 400
+    else
+      for keyword, val of json.keywords
+        if val is null then (json.$pullAll ||= keywords: []).keywords.push keyword
+        else (json.$pushAll ||= keywords: []).keywords.push keyword
+      
+      delete json.keywords
+      
+      
+      Package.findOneAndUpdate
+        name: req.params.name
+        maintainers: req.user.login
+      , json, (err, pkg) ->
+        if err then res.json(err, 404)
+        else res.json(pkg.toJSON(), 200)
+
+app.del "/packages/:name", withUser, (req, res, next) ->
+  Package.findOneAndRemove
+    name: req.params.name
+    maintainers: req.user.login
+  , (err, pkg) ->
+    if err then res.json(err, 404)
+    else if pkg then res.send(204)
+    else res.send(404)
 
 
 app.all "*", (req, res, next) ->

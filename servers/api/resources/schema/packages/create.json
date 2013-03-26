@@ -1,0 +1,57 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "string",
+      "default": ""
+    },
+    "homepage": {
+      "type": "string",
+      "default": ""
+    },
+    "keywords": {
+      "type": "array",
+      "additionalItems": false,
+      "uniqueItems": true,
+      "items": {
+        "type": "string"
+      }
+    },
+    "versions": {
+      "required": true,
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(\\d+\\.\\d+\\.\\d+)(?:-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$": {
+          "type": "object",
+          "required": true,
+          "additionalProperties": false,
+          "properties": {
+            "semver": {
+              "type": "string",
+              "required": true,
+              "pattern": "^(\\d+\\.\\d+\\.\\d+)(?:-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
+            },
+            "scripts": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "styles": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string",
+      "default": ""
+    },
+    "homepage": {
+      "type": "string",
+      "default": ""
+    },
+    "keywords": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(.+)?$": {
+          "type": "boolean",
+          "required": true
+        }
+      }
+    }
+  }
+}

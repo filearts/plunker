@@ -1,0 +1,65 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "description": {
+      "type": "string",
+      "default": ""
+    },
+    "tags": {
+      "type": "array",
+      "additionalItems": false,
+      "uniqueItems": true,
+      "items": {
+        "type": "string"
+      }
+    },
+    "private": {
+      "type": "boolean",
+      "default": false
+    },
+    "source": {
+      "type": [
+        {
+          "type": "null"
+        }, {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "required": true,
+              "enum": [ "plunker_no_de", "gist" ]
+            },
+            "url": {
+              "type": "string",
+              "required": true
+            },
+            "title": {
+              "type": "string",
+              "required": true
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "files": {
+      "required": true,
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-zA-z0-9_-]+(\\.[a-zA-Z0-9]+)?$": {
+          "type": "object",
+          "properties": {
+            "content": {
+              "type": "string",
+              "required": true
+            }
+          }
+        }
+      }
+    }
+  }
+}

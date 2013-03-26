@@ -1,4 +1,18 @@
+createErrorClass = (name, message = "") ->
+  class extends Error
+    constructor: (@message = message, options = {}) ->
+      Error.call(@)
+      Error.captureStackTrace(@, arguments.callee)
+      
+      @name = options.name or name
+      
+      @[prop] = val for own prop, val of options
+        
+
 class APIError extends Error
+  constructor: ->
+    Error.call(@)
+    Error.captureStackTrace(@, arguments.callee)
   toJSON: -> {@code, @message}
 
 module.exports =
@@ -23,3 +37,4 @@ module.exports =
     constructor: ->
       @code = 500
       @message = "Internal server error"
+  DatabaseError: createErrorClass("DatabaseError", "Database error")

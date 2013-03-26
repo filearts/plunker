@@ -9,6 +9,9 @@ validator = require("json-schema")
 mime = require("mime")
 gate = require("json-gate")
 semver = require("semver")
+diff_patch_match = new require("googlediff")
+gdiff = new diff_patch_match()
+
 
 apiErrors = require("./errors")
 apiUrl = nconf.get('url:api')
@@ -20,13 +23,18 @@ genid = (len = 16, prefix = "", keyspace = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghij
   prefix += keyspace.charAt(Math.floor(Math.random() * keyspace.length)) while len-- > 0
   prefix
 
+validateAgainstSchema = (schema) ->
+  (req, res, next) ->
+    schema.validate req.body, (err, json) ->
+      if err then res.json(err, 400)
+      else next()
 
 database = require("./lib/database")
 
-Session = database.model("Session")
-User = database.model("User")
-Plunk = database.model("Plunk")
-Package = database.model("Package")
+Session = database.Session
+User = database.User
+Plunk = database.Plunk
+Package = database.Package
 
 
 
@@ -44,7 +52,7 @@ app.configure ->
   app.use require("./middleware/cors").middleware()
   app.use require("./middleware/cache").middleware()
   app.use require("./middleware/json").middleware()
-  app.use require("./middleware/session").middleware(sessions: database.model("Session"))
+  app.use require("./middleware/session").middleware(sessions: Session)
     
   app.use app.router
   
@@ -160,121 +168,54 @@ app.post "/sessions/:id/user", (req, res, next) ->
 # Plunks
 ###
 
-ownsPlunk = (session, json) ->
-  owner = false
-  
-  if session
-    owner ||= !!(json.user and session.user and json.user.login is session.user.login)
-    owner ||= !!(session.keychain and session.keychain.id(json.id)?.token is json.token)
 
-  owner
-  
-preparePlunk = (session, plunk, populate = {}) ->
-  json = _.extend plunk.toJSON(), populate
-  
-  delete json.token unless ownsPlunk(session, json)
-  delete json.voters
-  
-  if json.files then json.files = do ->
-    files = {}
-    for file in json.files
-      file.raw_url = "#{json.raw_url}#{file.filename}"
-      files[file.filename] = file
-    files
-  
-  json.thumbed = session?.user? and plunk.voters.indexOf(""+session.user._id) >= 0
-  
-  json
-
-preparePlunks = (session, plunks) -> _.map plunks, (plunk) -> preparePlunk(session, plunk)
-
-
-fetchPlunks = (options, req, res, next) ->
-  page = parseInt(req.param("p", "1"), 10)
-  limit = parseInt(req.param("pp", "8"))
-  
-  options.baseUrl ||= "#{apiUrl}/plunks"
-  
-  search = options.query or {}
-  
-  if req.user
-    search.$or = [
-      'private': $ne: true
-    ,
-      user: req.user._id
-    ]
-  else
-    search.private = $ne: true
-  
-  query = Plunk.find(search)
-  query.sort(options.sort or {updated_at: -1})
-  query.select("-files")
-  
-  query.populate("user").paginate page, limit, (err, plunks, count, pages, current) ->
-    if err then next(err)
-    else
-      link = []
-      
-      if current < pages
-        link.push "<#{options.baseUrl}?p=#{page+1}&pp=#{limit}>; rel=\"next\""
-        link.push "<#{options.baseUrl}?p=#{pages}&pp=#{limit}>; rel=\"last\""
-      if current > 1
-        link.push "<#{options.baseUrl}?p=#{page-1}&pp=#{limit}>; rel=\"prev\""
-        link.push "<#{options.baseUrl}?p=1&pp=#{limit}>; rel=\"first\""
-        
-      res.header("Link", link.join(", ")) if link.length
-      res.json(preparePlunks(req.session, plunks))
+plunks = require("./resources/plunks")
 
 # List plunks
-app.get "/plunks", (req, res, next) ->
-  fetchPlunks({}, req, res, next)
+app.get "/plunks", plunks.createListing()
   
 # List plunks
-app.get "/plunks/trending", (req, res, next) ->
-  options =
-    baseUrl: "#{apiUrl}/plunks/trending"
-    sort: "-score -updated_at"
-    
-  fetchPlunks(options, req, res, next)
+app.get "/plunks/trending", plunks.createListing
+  baseUrl: "#{apiUrl}/plunks/trending"
+  sort: "-score -updated_at"
   
 # List plunks
-app.get "/plunks/popular", (req, res, next) ->
-  options =
-    baseUrl: "#{apiUrl}/plunks/popular"
-    sort: "-thumbs -updated_at"
-    
-  fetchPlunks(options, req, res, next)
-  
+app.get "/plunks/popular", plunks.createListing
+  baseUrl: "#{apiUrl}/plunks/popular"
+  sort: "-thumbs -updated_at"
+
+
 # Create plunk
-app.post "/plunks", (req, res, next) ->
-  json = req.body
-  schema = require("./schema/plunks/create")
-  {valid, errors} = validator.validate(json, schema)
-  
-  # Despite its awesomeness, revalidator does not support disallow or additionalProperties; we need to check plunk.files size
-  if json.files and _.isEmpty(json.files)
-    valid = false
-    errors.push
-      attribute: "minProperties"
-      property: "files"
-      message: "A minimum of one file is required"
-  
-  unless valid then next(new apiErrors.ValidationError(errors))
-  else
-    
-    json.files = _.map json.files, (file, filename) ->
-      filename: filename
-      content: file.content
-      mime: mime.lookup(filename, "text/plain")
-      
-    json.tags = _.uniq(json.tags) if json.tags
+app.post "/plunks", validateAgainstSchema(plunks.schema.create), plunks.create
 
-    plunk = new Plunk(json)
-    plunk.user = req.user._id if req.user
+
+# Read plunk
+app.get "/plunks/:id", plunks.withPlunk, plunks.sendPlunk
     
+# Update plunk
+app.post "/plunks/:id", validateAgainstSchema(plunks.schema.update), plunks.withPlunk, plunks.update
+            
+# Obtain a list of a plunk's forks
+app.get "/plunks/:id/forks", (req, res, next) ->
+  Plunk.findOne({_id: req.params.id}).exec (err, plunk) ->
+    if err or not plunk then next(new apiErrors.NotFound)
+    else
+      options =
+        query: {fork_of: req.params.id}
+        baseUrl: "#{apiUrl}/plunk/#{req.params.id}/forks"
+        sort: "-updated_at"
+        
+      fetchPlunks(options, req, res, next)
+
+# Fork an existing plunk
+app.post "/plunks/:id/forks", validateAgainstSchema(plunks.schema.create), plunks.withPlunk, plunks.fork
+
+###
+(req, res, next) ->
+  Plunk.findById(req.params.id).populate("user").exec (err, parent) ->
     # TODO: This is inefficient as the number space fills up; consider: http://www.faqs.org/patents/app/20090063601
     # Keep generating new ids until not taken
-    savePlunk = ->
+    savePlunk = (plunk) ->
       plunk._id = if json.private then genid(20) else genid(6)
     
       plunk.save (err) ->
@@ -282,31 +223,23 @@ app.post "/plunks", (req, res, next) ->
           if err.code is 11000 then savePlunk()
           else next(err)
         else
-          unless req.user and req.session and req.session.keychain
+          # Update syntax to avoid triggering auto-update of updated_at on parent
+          parent.forks.push(plunk._id)
+          parent.save()
+          
+          if not req.user and req.session and req.session.keychain
             req.session.keychain.push _id: plunk._id, token: plunk.token
             req.session.save()
           
           populate = {}
           populate.user = req.user.toJSON() if req.user
-          
-          # User is not populated so we shove it in **UGLY**
+            
           res.json(preparePlunk(req.session, plunk, populate), 201)
-          
-    savePlunk()
 
-# Read plunk
-app.get "/plunks/:id", (req, res, next) ->
-  Plunk.findById(req.params.id).populate("user").exec (err, plunk) ->
-    if err or not plunk then next(new apiErrors.NotFound)
-    else res.json(preparePlunk(req.session, plunk))
-    
-# Update plunk
-app.post "/plunks/:id", (req, res, next) ->
-  Plunk.findById(req.params.id).populate("user").exec (err, plunk) ->
-    if err or not plunk or not ownsPlunk(req.session, plunk) then next(new apiErrors.NotFound)
-    else
+    if err or not parent then next(new apiErrors.NotFound)
+    else if req.query.delta
       json = req.body
-      schema = require("./schema/plunks/update")
+      schema = require("./schema/plunks/fork")
       {valid, errors} = validator.validate(json, schema)
       
       # Despite its awesomeness, validator does not support disallow or additionalProperties; we need to check plunk.files size
@@ -320,25 +253,42 @@ app.post "/plunks/:id", (req, res, next) ->
       unless valid then next(new apiErrors.ValidationError(errors))
       else
         oldFiles = {}
+        create = {}
+        rename = {}
+        update = {}
+        remove = {}
         
-        for file, index in plunk.files
+        plunk = new Plunk(json)
+        plunk.user = req.user._id if req.user
+        plunk.fork_of = parent._id
+        
+        parent.tags?.forEach (tag) -> plunk.tags.push(tag)
+        parent.history?.forEach (event) -> plunk.history.push(event.toJSON())
+        
+        for file, index in parent.files
           oldFiles[file.filename] = file
         
         for filename, file of json.files
           # Attempt to delete
           if file is null
-            oldFiles[filename].remove() if oldFiles[filename]
+            if old = oldFiles[filename]
+              create[filename] = old.content
+              
           # Modification to an existing file
           else if old = oldFiles[filename]
             if file.filename
-              old.filename = file.filename
-              old.mime = mime.lookup(file.filename, "text/plain")
+              rename[file.filename] = old.filename
             if file.content?
-              old.content = file.content
+              update[filename] = gdiff.patch_toText(gdiff.patch_make(file.content, old.content))
             
-            if file.filename or file.content then old.save()
+            plunk.files.push
+              filename: file.filename or old.filename
+              content: file.content or old.content
+              
           # New file; handle only if content provided
           else if file.content
+            remove[filename] = file.content
+            
             plunk.files.push
               filename: filename
               content: file.content
@@ -353,28 +303,58 @@ app.post "/plunks/:id", (req, res, next) ->
               plunk.tags.splice(idx, 1) if (idx = plunk.tags.indexOf(tagname)) >= 0
         
         plunk.tags = _.uniq(plunk.tags)
-        plunk.updated_at = new Date
-        plunk.description = json.description if json.description
+        plunk.description = json.description or parent.description
         plunk.user = req.user._id if req.user
-        plunk.save (err) ->
-          if err then next(new apiErrors.InternalServerError(err))
-          else
-            populate = {}
-            populate.user = req.user.toJSON() if req.user
-                
-            res.json(preparePlunk(req.session, plunk, populate))
-            
-# Obtain a list of a plunk's forks
-app.get "/plunks/:id/forks", (req, res, next) ->
-  Plunk.findOne({_id: req.params.id}).exec (err, plunk) ->
-    if err or not plunk then next(new apiErrors.NotFound)
-    else
-      options =
-        query: {fork_of: req.params.id}
-        baseUrl: "#{apiUrl}/plunk/#{req.params.id}/forks"
-        sort: "-updated_at"
+        plunk.private = json.private ? parent.private
         
-      fetchPlunks(options, req, res, next)
+        event =
+          event: "fork"
+          create: create
+          update: update
+          rename: rename
+          remove: remove
+        
+        event.user = req.user._id if req.user
+          
+        plunk.history.push event
+        
+        savePlunk(plunk)    
+    else
+      json = req.body
+      schema = require("./schema/plunks/create")
+      {valid, errors} = validator.validate(json, schema)
+      
+      # Despite its awesomeness, revalidator does not support disallow or additionalProperties; we need to check plunk.files size
+      if json.files and _.isEmpty(json.files)
+        valid = false
+        errors.push
+          attribute: "minProperties"
+          property: "files"
+          message: "A minimum of one file is required"
+      
+      unless valid then next(new apiErrors.ValidationError(errors))
+      else
+        
+        json.files = _.map json.files, (file, filename) ->
+          filename: filename
+          content: file.content
+          mime: mime.lookup(filename, "text/plain")
+      
+        json.tags = _.uniq(json.tags) if json.tags
+    
+        plunk = new Plunk(json)
+        plunk.user = req.user._id if req.user
+        plunk.fork_of = parent._id
+        plunk.private = json.private ? parent.private
+        
+        parent.history?.forEach (event) -> plunk.history.push(event.toJSON())
+        
+        plunk.history.push
+          event: "fork"
+          user: req.user._id
+                
+        savePlunk(plunk)
+###
 
 # Give a thumbs-up to a plunk
 app.post "/plunks/:id/thumb", (req, res, next) ->
@@ -408,62 +388,6 @@ app.del "/plunks/:id/thumb", (req, res, next) ->
         if err then next(new apiErrors.InternalServerError(err))
         else res.json({ thumbs: plunk.get("thumbs"), score: plunk.score}, 200)
         
-# Fork an existing plunk
-app.post "/plunks/:id/forks", (req, res, next) ->
-  Plunk.findById(req.params.id).populate("user").exec (err, parent) ->
-    if err or not parent then next(new apiErrors.NotFound)
-    else
-      json = req.body
-      schema = require("./schema/plunks/create")
-      {valid, errors} = validator.validate(json, schema)
-      
-      # Despite its awesomeness, revalidator does not support disallow or additionalProperties; we need to check plunk.files size
-      if json.files and _.isEmpty(json.files)
-        valid = false
-        errors.push
-          attribute: "minProperties"
-          property: "files"
-          message: "A minimum of one file is required"
-      
-      unless valid then next(new apiErrors.ValidationError(errors))
-      else
-        
-        json.files = _.map json.files, (file, filename) ->
-          filename: filename
-          content: file.content
-          mime: mime.lookup(filename, "text/plain")
-      
-        json.tags = _.uniq(json.tags) if json.tags
-    
-        plunk = new Plunk(json)
-        plunk.user = req.user._id if req.user
-        plunk.fork_of = parent._id
-                
-        # TODO: This is inefficient as the number space fills up; consider: http://www.faqs.org/patents/app/20090063601
-        # Keep generating new ids until not taken
-        savePlunk = ->
-          plunk._id = if json.private then genid(20) else genid(6)
-        
-          plunk.save (err) ->
-            if err
-              if err.code is 11000 then savePlunk()
-              else next(err)
-            else
-              # Update syntax to avoid triggering auto-update of updated_at on parent
-              parent.forks.push(plunk._id)
-              parent.save()
-              
-              if not req.user and req.session and req.session.keychain
-                req.session.keychain.push _id: plunk._id, token: plunk.token
-                req.session.save()
-              
-              populate = {}
-              populate.user = req.user.toJSON() if req.user
-                
-              res.json(preparePlunk(req.session, plunk, populate), 201)
-              
-        savePlunk()
-    
 # Delete plunk
 app.del "/plunks/:id", (req, res, next) ->
   Plunk.findById(req.params.id).populate("user").exec (err, plunk) ->
@@ -546,16 +470,42 @@ preparePackage = (session, pkg, populate = {}) ->
 
 preparePackages = (session, pkgs) -> _.map pkgs, (pkg) -> preparePackage(session, pkg)
 
+app.get "/catalogue/typeahead", (req, res, next) ->
+  query = {}
+  
+  if req.query.q
+    query.$or = [
+      name: $regex: "^#{req.query.q}"
+      keywords: $regex: "^#{req.query.q}"
+    ]
+  
+  Package.find(query).select("-_id -versions._id").exec (err, docs) ->
+    if err then res.send(err, 404)
+    else
+      ret = []
+      
+      for doc in docs
+        pkg = preparePackage(req.session, doc)
+        
+        ret.push
+          value: doc.name
+          tokens: doc.keywords
+          author: doc.author
+          versions: doc.versions
+          
+      res.json(ret)
+    
 app.get "/packages", (req, res, next) ->
   Package.find({}).select("-_id -versions._id").exec (err, docs) ->
     if err then res.send(err, 404)
     else res.json(preparePackages(req.session, docs))
     
-    
 
 app.post "/packages", withUser, (req, res, next) ->
   createSchema.validate req.body, (err, json) ->
-    if err then res.json err, 400
+    if err
+      console.log "Invalid package", req.body.name, err
+      res.json err, 400
     else
       json.maintainers = [req.user.login]
       

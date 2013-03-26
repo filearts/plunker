@@ -1,0 +1,47 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "minProperties": 1,
+  "properties": {
+    "description": {
+      "type": "string",
+      "default": ""
+    },
+    "tags": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-zA-Z0-9_][-a-zA-Z0-9_ :]*$": {
+          "type": "boolean"
+        }
+      }
+    },
+    "private": {
+      "type": "boolean"
+    },
+    "files": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[-a-zA-Z0-9_]+(\\.[a-zA-Z0-9]+)?$": {
+          "type": [
+            {
+              "type": "null"
+            }, {
+              "type": "object",
+              "properties": {
+                "filename": {
+                  "type": "string"
+                },
+                "content": {
+                  "type": "string"
+                }
+              },
+              "minProperties": 1
+            }
+          ]
+        }
+      }
+    }
+  }
+}

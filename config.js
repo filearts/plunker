@@ -11,7 +11,7 @@ module.exports = {
   },
   database: {
     elasticsearch: {
-      url: process.env.ES_URL || "localhost:9200",
+      url: process.env.ES_URL || "127.0.0.1:9200",
     },
   },
   auth: {

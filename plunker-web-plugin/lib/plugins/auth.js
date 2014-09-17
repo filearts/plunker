@@ -53,14 +53,19 @@ module.exports = function (server, options) {
   var scheme = {
     authenticate: function (request, reply) {
       // Check cookie
-
       var jwt = request.state[settings.cookie];
+
       if (!jwt) {
         jwt = request.state[settings.cookie] = createJwt();
       }
       
       Jwt.verify(jwt, settings.key, function (err, credentials) {
-        if (err) return reply(Boom.unauthorized());
+        if (err) {
+          delete request.state[settings.cookie];
+          
+          // Try again... dangerously
+          return scheme.authenticate(request, reply);
+        }
         
         return reply(null, {
           credentials: {

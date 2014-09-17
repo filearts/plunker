@@ -2,7 +2,7 @@ module.exports = {
   server: {
     api: {
       host: process.env.IP || "0.0.0.0",
-      port: process.env.PORT || 8081,
+      port: process.env.PORT || 8080,
     },
     web: {
       host: "0.0.0.0",
@@ -19,7 +19,7 @@ module.exports = {
   },
   shared: {
     url: {
-      api: "http://explore.plunker.co:8080/api",
+      api: "http://explore.plunker.co/api",
       run: "http://run.plnkr.co",
       shot: "http://shot.plunker.co",
       web: "http://explore.plunker.co",

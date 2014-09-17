@@ -19,7 +19,7 @@ module.exports = {
   },
   shared: {
     url: {
-      api: "http://explore.plunker.co/api",
+      api: "http://explore.plunker.co:8080/api",
       run: "http://run.plnkr.co",
       shot: "http://shot.plunker.co",
       web: "http://explore.plunker.co",

@@ -1,6 +1,6 @@
 var Hapi = require("hapi");
 var Hoek = require("hoek");
-var Config = require("./config." + (process.env.NODE_ENV || "development") + ".js");
+var Config = require("./config");
 
 
 // Declare internals

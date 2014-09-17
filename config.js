@@ -19,10 +19,10 @@ module.exports = {
   },
   shared: {
     url: {
-      api: "http://104.131.221.124:8081/api",
+      api: "http://explore.plunker.co/api",
       run: "http://run.plnkr.co",
       shot: "http://shot.plunker.co",
-      web: "http://104.131.221.124:8081",
+      web: "http://explore.plunker.co",
     },
   },
 };

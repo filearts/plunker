@@ -16,7 +16,7 @@
       <ul class="pl-filter-list">
         <li class="label label-primary" ng-repeat="tag in state.filters.tags">
           <span class="pl-explore-tags" ng-bind="tag"></span>
-          <a class="btn btn-xs btn-warn" ui-sref="layout.explore({tags: state.without(state.filters.tags, tag)})"><i class="fa fa-times"></i></a>
+          <a class="btn btn-xs btn-warn" ui-sref="layout.search({tags: state.without(state.filters.tags, tag)})"><i class="fa fa-times"></i></a>
         </li>
       </ul>
     </div>
@@ -25,14 +25,14 @@
       <ul class="pl-filter-list">
         <li class="label label-success" ng-repeat="package in state.filters.packages">
           <span class="pl-explore-packages" ng-bind="package"></span>
-          <a class="btn btn-xs btn-warn" ui-sref="layout.explore({packages: state.without(state.filters.packages, package)})"><i class="fa fa-times"></i></a>
+          <a class="btn btn-xs btn-warn" ui-sref="layout.search({packages: state.without(state.filters.packages, package)})"><i class="fa fa-times"></i></a>
         </li>
       </ul>
     </div>
     <div class="pl-explore-facet" ng-if="state.plunks.meta.facets.tags.length">
       <h4>Top tags</h4>
       <div classs="list-group">
-        <a class="list-group-item" ng-class="{active: state.contains(state.filters.tags, bucket.term)}" ng-repeat="bucket in state.plunks.meta.facets.tags | orderBy:-'count'" ui-sref="layout.explore({tags: state.toggle(state.filters.tags, bucket.term)})">
+        <a class="list-group-item" ng-class="{active: state.contains(state.filters.tags, bucket.term)}" ng-repeat="bucket in state.plunks.meta.facets.tags | orderBy:-'count'" ui-sref="layout.search({tags: state.toggle(state.filters.tags, bucket.term)})">
           <span class="badge" ng-bind="bucket.count"></span>
           <span class="pl-explore-tags" ng-bind="bucket.term"></span>
         </a>
@@ -41,7 +41,7 @@
     <div class="pl-explore-facet" ng-if="state.plunks.meta.facets.packages.length">
       <h4>Top packages</h4>
       <div classs="list-group">
-        <a class="list-group-item" ng-class="{active: state.contains(state.filters.packages, bucket.term)}" ng-repeat="bucket in state.plunks.meta.facets.packages | orderBy:-'count'" ui-sref="layout.explore({packages: state.toggle(state.filters.packages, bucket.term)})">
+        <a class="list-group-item" ng-class="{active: state.contains(state.filters.packages, bucket.term)}" ng-repeat="bucket in state.plunks.meta.facets.packages | orderBy:-'count'" ui-sref="layout.search({packages: state.toggle(state.filters.packages, bucket.term)})">
           <span class="badge" ng-bind="bucket.count"></span>
           <span class="pl-explore-tags" ng-bind="bucket.term"></span>
         </a>

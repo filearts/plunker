@@ -1,16 +1,46 @@
 {
-  "name": "plunker_api",
+  "name": "plunker",
   "version": "1.0.0",
   "description": "",
+  "engines": {
+    "node": "0.8.x",
+    "npm": "1.1.x"
+  }
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
   },
-  "author": "",
+  "author": "Geoff Goodman",
   "license": "MIT",
   "dependencies": {
+    "bops": "^0.1.1",
+    "bluebird": "^2.3.2",
+    "boom": "^2.5.1",
+    "css-loader": "^0.8.0",
+    "elastic.js": "^1.2.0",
+    "elasticsearch": "^2.4.2",
+    "exports-loader": "^0.6.2",
+    "file-loader": "^0.7.2",
+    "genid": "^0.1.0",
     "good": "^2.3.0",
     "hapi": "^6.8.1",
-    "hoek": "^2.4.1"
+    "hoek": "^2.4.1",
+    "joi": "^4.6.2",
+    "json-loader": "^0.5.1",
+    "jsonwebtoken": "^1.1.2",
+    "jwt-decode": "^1.0.0",
+    "less": "^1.7.5",
+    "less-loader": "^0.7.7",
+    "lodash": "^2.4.1",
+    "marked": "^0.3.2",
+    "ng-annotate-webpack-plugin": "^0.1.1",
+    "ng-loader": "git://github.com/filearts/ng-loader",
+    "padded-semver": "^2.0.5",
+    "raw-loader": "^0.5.1",
+    "style-loader": "^0.8.0",
+    "summarize-markdown": "^0.3.0",
+    "url-loader": "^0.5.5",
+    "webpack": "^1.4.0-beta9"
   }
 }

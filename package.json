@@ -5,7 +5,7 @@
   "engines": {
     "node": "0.10.x",
     "npm": "1.4.x"
-  }
+  },
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

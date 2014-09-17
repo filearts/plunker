@@ -40,10 +40,9 @@ exports.register = function (plugin, options, next) {
     },
   });
   
-  Promise.all([
-    internals.buildAssets(plugin, plugin.app.config.shared),
-  ])
-    .nodeify(next);
+  next();
+  
+  internals.buildAssets(plugin, plugin.app.config.shared);
 };
 
 exports.register.attributes = {
@@ -63,8 +62,11 @@ internals.buildAssets = function (plugin, options) {
   return new Promise(function (resolve, reject) {
     plugin.log("log", "[OK] Starting asset build...");
     compiler.watch(200, function (err, stats) {
-      if (!resolved && err) {
+      if (err) {
         plugin.log("error", "[ERR] Webpack build failed");
+      }
+      
+      if (!resolved && err) {
         reject(err);
       } else if (!resolved) {
         resolve(stats);

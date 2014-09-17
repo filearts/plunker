@@ -1,0 +1,38 @@
+<div class="pl-plunk-preview">
+  <plunker-runner plunk="page.plunk"></plunker-runner>
+</div>
+<div class="pl-plunk-details">
+  <div class="pl-plunk-stats">
+    <span class="pl-plunk-stat">
+      <span ng-bind="::page.plunk.views_count | number"></span>
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="pl-plunk-stat">
+      <span ng-bind="::page.plunk.forks_count | number"></span>
+      <i class="fa fa-code-fork"></i>
+    </span>
+    <span class="pl-plunk-stat">
+      <span ng-bind="::page.plunk.likes_count | number"></span>
+      <i class="fa fa-heart"></i>
+    </span>
+  </div>
+  <div class="pl-plunk-title">
+    <h1 ng-bind="::page.plunk.title"></h1>
+  </div>
+  <div class="pl-plunk-meta">
+    <div class="pl-plunk-authorship">
+      <a ng-if="plunk.user" class="pl-plunk-author" ui-sref="layout.users({username: " ng-bind="::page.plunk.user.username"></a>
+      <span ng-if="!plunk.user" class="pl-plunk-author">Anonymous</span>
+      <span class="pl-plunk-time" ng-bind="::page.plunk.updated_at | timeAgo"></span>
+    </div>
+  </div>
+  <ul class="pl-plunk-facets list-inline">
+    <li class="pl-plunk-tag" ng-repeat="tag in ::page.plunk.tags">
+      <a class="label label-primary" ui-sref="layout.explore({tags: [tag]})" ng-bind="::tag"></a>
+    </li>
+    <li class="pl-plunk-package" ng-repeat="package in ::page.plunk.packages">
+      <a class="label label-success" ui-sref="layout.explore({packages: [package.name]})" ng-bind-template="{{::package.name}}@{{::package.semver}}"></a>
+    </li>
+  </ul>
+  <div class="pl-plunk-readme" ng-show="::page.plunk.readme" plunker-markdown="page.plunk.readme"></div>
+</div>

@@ -1,0 +1,30 @@
+@import (reference) "~common/flexbox.less";
+
+.pl-search-box {
+  .flex-display();
+  .flex-direction(row);
+  .justify-content(flex-end);
+  
+  position: relative;
+  
+  input[type=search] {
+    .flex(0 1 20em);
+  }
+  
+  .pl-search-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    z-index: 2;
+    
+    background-color: transparent;
+    color: #999;
+    
+    &:hover {
+      color: #333;
+    }
+  }
+}

@@ -1,0 +1,7 @@
+.git
+.c9
+
+node_modules
+
+config.development.js
+config.production.js

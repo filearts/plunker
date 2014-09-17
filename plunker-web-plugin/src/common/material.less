@@ -1,0 +1,144 @@
+.mat-z {
+  transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mat-z-0(@base: 0) {
+  box-shadow: none;
+  z-index: @base + 0;
+}
+
+.mat-z-1(@base: 0) {
+  .mat-z();
+  
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26), 0 2px 10px 0 rgba(0, 0, 0, 0.16);
+  z-index: @base + 1;
+}
+
+.mat-z-1-top(@base: 0) {
+  .mat-z();
+  
+  box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.16);
+  z-index: @base + 1;
+}
+
+.mat-z-2(@base: 0) {
+  .mat-z();
+  
+  box-shadow: 0 8px 17px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  z-index: @base + 2;
+}
+
+.mat-z-2-top(@base: 0) {
+  .mat-z();
+  
+  box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  z-index: @base + 2;
+}
+
+.mat-z-3(@base: 0) {
+  .mat-z();
+  
+  box-shadow: 0 12px 15px 0 rgba(0, 0, 0, 0.24), 0 17px 50px 0 rgba(0, 0, 0, 0.19);
+  z-index: @base + 3;
+}
+
+.mat-z-4(@base: 0) {
+  .mat-z();
+  
+  box-shadow: 0 25px 55px 0 rgba(0, 0, 0, 0.21), 0 16px 28px 0 rgba(0, 0, 0, 0.22);
+  z-index: @base + 4;
+}
+
+.mat-z-5(@base: 0) {
+  .mat-z();
+  
+  box-shadow: 0 40px 77px 0 rgba(0, 0, 0, 0.22), 0 27px 24px 0 rgba(0, 0, 0, 0.2);
+  z-index: @base + 5;
+}
+
+.btn-mat  {
+  .mat-z-0();
+  
+  border: 0;
+  background: #dfdfdf;
+  color: black;
+  text-transform: uppercase;
+  border-radius: 2px;
+  transition: background-color 0.28s cubic-bezier(0.4, 0, 0.2, 1), color 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:hover {
+    .mat-z-1();
+    background: #f0f0f0;
+    color: black;
+  }
+  
+  &:active {
+    .mat-z-2();
+  }
+  
+  &.active {
+    .mat-z-2();
+    
+    background: #4285f4;
+    color: #fff;
+  }
+}
+
+.btn-group {
+  .mat-z-0();
+  
+  &:hover {
+    .mat-z-1();
+  }
+  
+  .btn-mat  {
+    .mat-z-0();
+    
+    border-left: 1px solid #afafaf;
+    
+    &:nth-child(1) {
+      border: none;
+    }
+    
+    &:hover {
+      .mat-z-1();
+    }
+    
+    &:active {
+      .mat-z-2();
+    }
+    
+    &.active {
+      .mat-z-2();
+      
+      background: #4285f4;
+      color: #fff;
+    }
+  }
+}
+
+.modal {
+  .modal-content {
+    .mat-z-5();
+  }
+  
+  .modal-header {
+    border: none;
+  }
+  
+  .modal-footer {
+    border: none;
+  }
+}
+
+
+
+.open {
+  .btn {
+    .mat-z-2();
+  }
+  
+  & > .dropdown-menu {
+    .mat-z-2(1000);
+  }
+}

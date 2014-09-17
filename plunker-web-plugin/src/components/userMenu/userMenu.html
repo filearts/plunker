@@ -1,0 +1,8 @@
+<div class="pl-user-menu">
+  <div ng-if="visitor.isUser()">
+    USER
+  </div>
+  <div ng-if="!visitor.isUser()">
+    <button class="btn btn-sm btn-default">Log in</button>
+  </div>
+</div>

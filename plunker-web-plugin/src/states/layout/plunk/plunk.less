@@ -1,0 +1,104 @@
+@import (reference) "~common/colors.less";
+@import (reference) "~common/flexbox.less";
+@import (reference) "~common/material.less";
+
+.pl-body {
+  .flex-display();
+  .flex-direction(column);
+}
+
+.pl-footer {
+  .mat-z-0();
+  
+  border-top: 1px solid #999;
+  background-color: #ccc;
+}
+
+.pl-plunk-preview {
+  .flex(0 0 400px);
+  
+  position: relative;
+  padding: 10px;
+  
+  background-color: white;
+  
+  &::before {
+    content: "PREVIEW";
+    position: absolute;
+    top: 2px;
+    right: 24px;
+    font-size: 70%;
+    font-weight: bold;
+    color: lighten(@text-color, 60%);
+    z-index: 1;
+  }
+}
+
+.pl-plunk-runner {
+}
+
+.pl-plunk-iframe {
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  
+  overflow-y: scroll;
+  
+  border: 0;
+  
+  background: transparent;
+}
+
+.pl-plunk-details {
+  .flex(1 0 auto);
+
+  position: relative;  
+  padding: 10px;
+  
+  background-color: #ccc;
+}
+
+.pl-plunk-stats {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.pl-plunk-meta {
+  .flex-display();
+  .justify-content(space-between);
+}
+
+.pl-plunk-authorship {
+}
+
+.pl-plunk-time {
+  color: lighten(@text-color, 40%);
+  font-size: 90%;
+}
+
+.pl-plunk-readme {
+  border: 1px solid lighten(@text-color, 60%);
+  border-radius: 2px;
+  margin-top: 10px;
+  padding: 10px;
+  position: relative;
+  
+  background-color: #f5f5f5;
+  
+  &::before {
+    content: "README";
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    font-size: 70%;
+    font-weight: bold;
+    color: lighten(@text-color, 60%);
+  }
+}

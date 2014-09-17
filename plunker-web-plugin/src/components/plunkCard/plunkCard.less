@@ -1,0 +1,105 @@
+@import (reference) "~common/colors.less";
+@import (reference) "~common/flexbox.less";
+@import (reference) "~common/material.less";
+
+.pl-card {
+  .mat-z-1();
+  
+  margin: 1rem 0;
+  padding: 1rem;
+  
+  background-color: white;
+  color: @text-color;
+  
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:has(a:active) {
+    .mat-z-2();
+  }
+  
+  &:hover {
+    .mat-z-3();
+    
+    transform: translateY(-1px);
+  }
+}
+
+.pl-card-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid #CCC;
+  -webkit-box-shadow: 0 1px 4px rgba(0, 105, 214, 0.25);
+  -moz-box-shadow: 0 1px 4px rgba(0, 105, 214, 0.25);
+  box-shadow: 0 1px 4px rgba(0, 105, 214, 0.25);
+  min-height: 150px;
+
+  transition: height 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+
+}
+  
+
+.pl-card-meta {
+  .flex-display();
+  .justify-content(space-between);
+}
+
+.pl-card-authorship {
+  .flex-basis(auto);
+  .flex-grow(0);
+  .flex-shrink(1);
+}
+
+.pl-card-stats {
+  .flex-basis(auto);
+  .flex-grow(0);
+  .flex-shrink(0);
+}
+
+.pl-card-title {
+  font-weight: bold;
+  margin: 1rem 0 5px;
+
+  -ms-word-break: break-all;
+  word-break: break-all;
+  
+  // Non standard for webkit
+  word-break: break-word;
+  
+  -webkit-hyphens: auto;
+  -moz-hyphens: auto;
+  hyphens: auto;
+}
+
+.pl-card-time {
+  color: lighten(@text-color, 40%);
+  font-size: 90%;
+}
+
+.pl-card-readme {
+  border: 1px solid lighten(@text-color, 60%);
+  border-radius: 2px;
+  margin-top: 1rem;
+  padding: 1rem;
+  position: relative;
+  
+  background-color: #f5f5f5;
+  
+  &::before {
+    content: "README";
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    font-size: 70%;
+    font-weight: bold;
+    color: lighten(@text-color, 60%);
+  }
+}
+
+.pl-card-facets {
+  margin-bottom: -1rem;
+  
+  & > li {
+    margin-bottom: 1rem;
+  }
+}

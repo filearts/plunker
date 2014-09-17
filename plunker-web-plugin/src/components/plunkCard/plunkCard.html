@@ -1,0 +1,38 @@
+<div class="pl-card animated bounceIn">
+  <div class="pl-card-media">
+    <a ui-sref="layout.plunk({plunkId: plunk.id})">
+      <img class="pl-card-image" plunker-card-image="plunk" src="http://placehold.it/300x150&text=Loading...">
+    </a>
+  </div>
+  <div class="pl-card-meta">
+    <div class="pl-card-authorship">
+      <a ng-if="plunk.user" class="pl-card-author" ui-sref="layout.users({username: plunk.user.username})" ng-bind="::plunk.user.username"></a>
+      <span ng-if="!plunk.user" class="pl-card-author">Anonymous</span>
+      <span class="pl-card-time" ng-bind="::plunk.updated_at | timeAgo"></span>
+    </div>
+    <div class="pl-card-stats">
+      <span class="pl-card-stat">
+        <span ng-bind="::plunk.views_count | number"></span>
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="pl-card-stat">
+        <span ng-bind="::plunk.forks_count | number"></span>
+        <i class="fa fa-code-fork"></i>
+      </span>
+      <span class="pl-card-stat">
+        <span ng-bind="::plunk.likes_count | number"></span>
+        <i class="fa fa-heart"></i>
+      </span>
+    </div>
+  </div>
+  <div class="pl-card-title" ng-bind="::plunk.title"></div>
+  <ul class="pl-card-facets list-inline" ng-if="::(plunk.tags.length || plunk.packages.length)">
+    <li class="pl-card-tag" ng-repeat="tag in ::plunk.tags">
+      <a class="label label-primary" ui-sref="layout.search({tags: tag})" ng-bind="::tag"></a>
+    </li>
+    <li class="pl-card-package" ng-repeat="package in ::plunk.packages">
+      <a class="label label-success" ui-sref="layout.search({packages: package.name})" ng-bind-template="{{::package.name}}@{{::package.semver}}"></a>
+    </li>
+  </ul>
+  <div class="pl-card-readme" ng-show="::plunk.readme" ng-bind="::plunk.readme | summarizeMarkdown:100"></div>
+</div>

@@ -1,0 +1,32 @@
+{
+  "name": "plunker-web-plugin",
+  "main": "index.js",
+  "version": "1.0.0",
+  "authors": [
+    "ggoodman <ggoodman@gmail.com>"
+  ],
+  "moduleType": [
+    "node"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "v1.3.0-rc.2",
+    "angular-ui-router": "~0.2.10",
+    "angular-bootstrap": "~0.11.0",
+    "bootstrap": "~3.2.0",
+    "angular-cookie": "~4.0.2",
+    "ace-builds": "~1.1.6",
+    "javascript-detect-element-resize": "sdecima/javascript-detect-element-resize#~0.5.1",
+    "angular-animate": "v1.3.0-rc.2",
+    "animate.css": "~3.2.0",
+    "angular-timeago": "~0.1.2"
+  }
+}

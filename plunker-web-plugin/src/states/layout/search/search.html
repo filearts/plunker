@@ -1,0 +1,62 @@
+<div class="pl-layout-wrap pl-explore-wrap">
+  <div class="pl-explore-filters">
+    <h2 class="pl-explore-title">Exploring plunks</h2>
+    <div class="pl-explore-search" ng-controller="SearchController as search">
+      <form name="search.form" ng-submit="search.search(state.filters.query, false)">
+        <div class="form-group has-feedback">
+          <label>Search plunks:</label>
+          <input class="form-control" type="search" placeholder="Search plunks..." ng-model="state.filters.query">
+          <i class="pl-search-reset fa fa-times form-control-feedback" ng-if="state.filters.query" tooltip="Clear search query" ng-click="search.search(null, false)"></i>
+        </div>
+      </form>
+    </div>
+    <h4 ng-if="state.filters.tags.length || state.filters.packages.length">Current filters:</h4>
+    <div class="pl-explore-filter" ng-if="state.filters.tags.length">
+      <strong>Tags:</strong>
+      <ul class="pl-filter-list">
+        <li class="label label-primary" ng-repeat="tag in state.filters.tags">
+          <span class="pl-explore-tags" ng-bind="tag"></span>
+          <a class="btn btn-xs btn-warn" ui-sref="layout.explore({tags: state.without(state.filters.tags, tag)})"><i class="fa fa-times"></i></a>
+        </li>
+      </ul>
+    </div>
+    <div class="pl-explore-filter" ng-if="state.filters.packages.length">
+      <strong>Packages:</strong>
+      <ul class="pl-filter-list">
+        <li class="label label-success" ng-repeat="package in state.filters.packages">
+          <span class="pl-explore-packages" ng-bind="package"></span>
+          <a class="btn btn-xs btn-warn" ui-sref="layout.explore({packages: state.without(state.filters.packages, package)})"><i class="fa fa-times"></i></a>
+        </li>
+      </ul>
+    </div>
+    <div class="pl-explore-facet" ng-if="state.plunks.meta.facets.tags.length">
+      <h4>Top tags</h4>
+      <div classs="list-group">
+        <a class="list-group-item" ng-class="{active: state.contains(state.filters.tags, bucket.term)}" ng-repeat="bucket in state.plunks.meta.facets.tags | orderBy:-'count'" ui-sref="layout.explore({tags: state.toggle(state.filters.tags, bucket.term)})">
+          <span class="badge" ng-bind="bucket.count"></span>
+          <span class="pl-explore-tags" ng-bind="bucket.term"></span>
+        </a>
+      </div>
+    </div>
+    <div class="pl-explore-facet" ng-if="state.plunks.meta.facets.packages.length">
+      <h4>Top packages</h4>
+      <div classs="list-group">
+        <a class="list-group-item" ng-class="{active: state.contains(state.filters.packages, bucket.term)}" ng-repeat="bucket in state.plunks.meta.facets.packages | orderBy:-'count'" ui-sref="layout.explore({packages: state.toggle(state.filters.packages, bucket.term)})">
+          <span class="badge" ng-bind="bucket.count"></span>
+          <span class="pl-explore-tags" ng-bind="bucket.term"></span>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="pl-explore-results">
+    <div class="pl-explore-column animated fadeIn" plunker-columns="{400: 2, 670: 3, 1000: 4, 1330: 5}" source="state.plunks">
+      <plunker-card plunk="plunk" ng-repeat="plunk in column"></plunker-card>
+    </div>
+    <div ng-if="state.plunks.loading">
+      <h2>Searching projects...</h2>
+    </div>
+    <div ng-if="!state.plunks.loading && !state.plunks.length">
+      <h2>No matching projects found.</h2>
+    </div>
+  </div>
+</div>

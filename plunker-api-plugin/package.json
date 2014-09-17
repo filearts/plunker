@@ -1,0 +1,22 @@
+{
+  "name": "plunker-api-plugin",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^2.3.2",
+    "boom": "^2.5.1",
+    "bops": "^0.1.1",
+    "elastic.js": "^1.2.0",
+    "elasticsearch": "^2.4.2",
+    "hapi": "^6.8.1",
+    "joi": "^4.6.2",
+    "lodash": "^2.4.1",
+    "padded-semver": "^2.0.5"
+  }
+}

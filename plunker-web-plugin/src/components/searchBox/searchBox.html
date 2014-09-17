@@ -1,0 +1,5 @@
+<form class="pl-search-box" name="search.form" ng-submit="search.search(search.query, true); search.query=null">
+  <input class="form-control input-sm" type="search" placeholder="Search plunks..." ng-model="search.query">
+  <button type="submit" class="pl-search-btn pl-search-search btn btn-xs fa fa-search" ng-if="!search.query"></button>
+  <button type="reset" class="pl-search-btn pl-search-reset btn btn-xs fa fa-times" ng-if="search.query" ng-click="search.reset()"></button>
+</form>

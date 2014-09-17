@@ -1,0 +1,19 @@
+<div class="pl-toolbar">
+  <div class="pl-tb-brand">
+    <a ui-sref="layout.landing">PLNKR</a>
+  </div>
+  <div class="pl-tb-left" ui-view="tb-left"></div>
+  <div class="pl-tb-right" ui-view="tb-right">
+    <div ng-controller="SearchController as search">
+      <plunker-search-box></plunker-search-box>
+    </div>
+  </div>
+  
+  <plunker-user-menu class="pl-tb-menu"></plunker-user-menu>
+</div>
+<div class="pl-body" ui-view="body">
+  Loading...
+</div>
+<div class="pl-footer" ui-view="footer">
+  &copy; Geoffrey Goodman (2014)
+</div>

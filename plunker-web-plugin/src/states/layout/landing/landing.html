@@ -1,0 +1,13 @@
+<div class="pl-layout-wrap">
+  <div class="pl-landing-wrap pl-explore-results">
+    <div class="pl-explore-column" plunker-columns="{400: 2, 670: 3, 1000: 4, 1330: 5}" source="state.plunks">
+      <plunker-card plunk="plunk" ng-repeat="plunk in column"></plunker-card>
+    </div>
+  </div>
+  <div ng-if="state.plunks.loading">
+    <h2>Loading projects...</h2>
+  </div>
+  <div ng-if="!state.plunks.loading && !state.plunks.length">
+    <h2>No projects found.</h2>
+  </div>
+</div>

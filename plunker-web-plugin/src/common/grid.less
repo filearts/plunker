@@ -1,0 +1,22 @@
+@import (reference) "~common/flexbox.less";
+
+.generate-columns(@n, @i: 1) when (@i =< @n) {
+  .column-xs-@{i} {
+    .flex(0 0 @i * 100% / @n);
+  }
+  .generate-columns(@n, (@i + 1));
+}
+
+.generate-columns(@size, @n, @i: 1) when (@i = 0) {
+  .column-@{size} {
+    .flex(1 1 0);
+  }
+}
+
+.row {
+  .flex-display();
+  .flex-direction(row);
+}
+  
+
+.generate-columns(12, 1);

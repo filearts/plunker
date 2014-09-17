@@ -1,0 +1,80 @@
+@import (reference) "~common/colors.less";
+@import (reference) "~common/flexbox.less";
+@import (reference) "~common/grid.less";
+@import (reference) "~common/material.less";
+
+
+.label>a>.fa {
+  color: #f5f5f5;
+  
+  &:hover {
+    color: white;
+  }
+}
+
+.pl-explore-wrap {
+  .flex-display();
+  .flex-flow(row wrap);
+  
+  .flex-grow(1);
+  
+  margin-bottom: 2rem;
+}
+
+.pl-explore-filters {
+  .mat-z-2();
+  
+  .flex(0 0 300px);
+
+  padding: 1rem;
+  
+  background-color: white;
+}
+
+.pl-explore-results {
+  .flex(1 0 0);
+  .flex-display();
+  .flex-direction(row);
+  .justify-content(flex-start);
+  
+  padding: 0 1rem;
+
+}
+
+.pl-explore-column {
+  .flex(1 1 0);
+  .justify-content(flex-start);
+  
+  max-width: 320px;
+  
+  margin-left: 1rem;
+  
+  &:first-child {
+    margin-left: 0;
+  }
+}
+
+@media screen and (max-width: 670px) {
+  .pl-explore-filters, .pl-explore-results {
+    .flex(0 0 100%);
+  }
+}
+
+.pl-explore-title {
+}
+
+.pl-explore-filter {
+  margin: 5px 0;
+}
+
+.pl-filter-list {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  
+  & > li {
+    display: inline;
+    margin-left: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+}

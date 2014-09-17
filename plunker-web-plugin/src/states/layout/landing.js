@@ -24,11 +24,6 @@ Angular.module("plunker.states.layout.landing", [
         template: require("./landing/landing.html"),
         controller: "LandingController",
         controllerAs: "state",
-        resolve: {
-          plunks: ["api", function (api) {
-            return api.get("/search/plunker/public");
-          }]
-        }
       },
       'tb-left': {
         template: require("./landing/tb-left.html"),
@@ -37,8 +32,21 @@ Angular.module("plunker.states.layout.landing", [
   });
 }])
 
-.controller("LandingController", ["plunks", function (plunks) {
-  this.plunks = plunks;
+.controller("LandingController", ["api", function (api) {
+  var self = this;
+  
+  this.plunks = [];
+  
+  this.plunks.loading = api.get("/search/plunker/public");
+  
+  this.plunks.loading.then(function (plunks) {
+    Angular.copy(plunks, self.plunks);
+    self.plunks.meta = plunks.meta;
+  });
+  
+  this.plunks.loading.finally(function () {
+    delete self.plunks.loading;
+  });
   
 }])
 

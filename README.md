@@ -1,5 +1,7 @@
 # Plunker
 
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/filearts/plunker?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 The next generation of lightweight collaborative online editing.
 
 #### WARNING: This repository does not contain the code for what you see running on http://plnkr.co

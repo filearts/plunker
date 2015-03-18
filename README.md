@@ -23,7 +23,7 @@ Nodejitsu. They are as follows:
 
 * [plunker_api](//github.com/filearts/plunker_api) The server that connects to a mongodb database and serves requests over a restful api.
 * [plunker_www](//github.com/filearts/plunker_www) The server that is responsible for hosting and running the front-end that users see and touch everyday.
-* [plunker_run](//github.com/filearts/plunker_run) The server that allows for previewing of plunks and temporary previews and also does the dynamic transpilation.
+* [plunker-run-plugin](//github.com/ggoodman/plunker-run-plugin) The server that allows for previewing of plunks and temporary previews and also does the dynamic transpilation.
 * [plunker_collab](//github.com/filearts/plunker_collab) The server that serves the code necessary for collaborative coding as well as doing the actual operational transformation over a browserchannel connection.
 * [plunker_embed](//github.com/filearts/plunker_embed) The server that hosts the embedded views of plunks.
 

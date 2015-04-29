@@ -97,9 +97,9 @@ module.service "builder", [ "catalogue", (catalogue) ->
       
       content = """
         <!DOCTYPE html>
-        <html>
+        <html lang="en">
         
-          <head lang="en">
+          <head>
             <meta charset="utf-8">
             <title>Custom Plunker</title>
           </head>

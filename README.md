@@ -104,3 +104,8 @@ You can send a `POST` request to `/edit/` to bootstrap the editor with the basic
     }
   ]
 }
+```
+
+## License
+
+Copyright [Filearts](https://github.com/filearts)

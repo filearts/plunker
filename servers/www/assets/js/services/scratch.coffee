@@ -82,9 +82,9 @@ module.factory "scratch", ["$location", "$q", "Plunk", "importer", "session", "n
   new class Scratch
     @defaultIndex: """
       <!DOCTYPE html>
-      <html>
+      <html lang="en">
       
-        <head lang="en">
+        <head>
           <meta charset="utf-8">
           <title>Custom Plunker</title>
         </head>

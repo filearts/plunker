@@ -23,7 +23,7 @@
     "request": "2.9.x",
     "connect": "1.x",
     "async": "0.1.x",
-    "mongoose": "3.4.x",
+    "mongoose": "5.7.x",
     "lru-cache": "1.1.x",
     "json-gate": "0.8.x",
     "semver": "1.1.x"
